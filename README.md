@@ -89,5 +89,6 @@ Kitty Adventure is actively evolving. Every update should keep the game cozy, pl
 
 ## License
 
-Add your license here before publishing if you want people to reuse, remix, or contribute to the project.
+Kitty Adventure is licensed under the GNU General Public License v3.0.
 
+See [LICENSE](LICENSE) for the full license text.

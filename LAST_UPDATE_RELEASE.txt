@@ -1,0 +1,9 @@
+Kitty Adventure Release
+=======================
+VERSION=26.8.3
+RELEASED_AT=2026-07-12T23:28:34+0400
+MANIFEST_URL=https://unstamped-revisit-underling.ngrok-free.dev/latest.json
+BASE_URL=https://unstamped-revisit-underling.ngrok-free.dev
+MANIFEST_FILE=/Users/linaahmed/KittyAdventureUpdates/latest.json
+FILES_DIR=/Users/linaahmed/KittyAdventureUpdates/files
+WEB_DIR=/Users/linaahmed/KittyAdventureUpdates/web

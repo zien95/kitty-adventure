@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../services/update_service.dart';
+
 class WhatsNewDialog extends StatelessWidget {
   final VoidCallback onClose;
 
@@ -8,7 +10,7 @@ class WhatsNewDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: const Color(0xFF2D2D3A),
+      backgroundColor: const Color(0xFF182235),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
         constraints: const BoxConstraints(maxHeight: 500),
@@ -20,23 +22,32 @@ class WhatsNewDialog extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: const BoxDecoration(
-                color: Color(0xFF7B1FA2),
+                gradient: LinearGradient(
+                  colors: [Color(0xFF263B60), Color(0xFF2D6F7A)],
+                ),
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(16),
                   topRight: Radius.circular(16),
                 ),
               ),
-              child: const Text(
-                '🎉 WHAT\'S NEW v26.6',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.celebration, color: Colors.white),
+                  SizedBox(width: 8),
+                  Text(
+                    'WHAT\'S NEW v${UpdateService.currentVersion}',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ),
             ),
-            
+
             // Content
             Flexible(
               child: SingleChildScrollView(
@@ -45,108 +56,91 @@ class WhatsNewDialog extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildNewFeature(
-                      '🚫 NO MORE SCROLLING!',
-                      'Complete redesign - everything fits on screen!\n'
-                      'Zero scrolling needed for any action\n'
-                      'Compact layout with perfect screen fit',
+                      Icons.pets,
+                      'NEW UI + CAT',
+                      'Cleaner home screen\n'
+                          'Consistent gray kitty art\n'
+                          'Tidier stats, badges, and action buttons',
+                      const Color(0xFFFFD166),
                     ),
                     _buildNewFeature(
-                      '🎯 ACTIONS SORTED BY IMPORTANCE',
-                      '🥇 MOST CRITICAL: Feed, Play, Sleep\n'
-                      '🥈 VERY IMPORTANT: Clean, Train, Medicine\n'
-                      'Priority-based layout - most important actions first',
+                      Icons.build_circle,
+                      'BUG FIXES',
+                      'Fixed layout overflow issues\n'
+                          'Fixed pet action buttons\n'
+                          'Bug fixes and app polish',
+                      const Color(0xFF70E1F5),
                     ),
                     _buildNewFeature(
-                      '⌨️ FULL KEYBOARD SUPPORT',
-                      'F - Feed, P - Play, C - Clean, S - Sleep\n'
-                      'T - Train, M - Medicine, G - Games, O - Course\n'
-                      'Complete keyboard navigation - no touch needed!',
+                      Icons.groups,
+                      'CAT MANAGER CENTER',
+                      'Adopt more cats\n'
+                          'Rename and switch cats\n'
+                          'Edit personality, favorite food, toy, bio, mood, and stats',
+                      const Color(0xFFFF80AB),
                     ),
                     _buildNewFeature(
-                      '🔊 ENHANCED SOUND SYSTEM',
-                      'Multi-modal feedback: Sound → Haptic → Visual\n'
-                      'Better error handling and fallback systems\n'
-                      'Works even if sound is disabled',
+                      Icons.dark_mode,
+                      'LIGHT & DARK MODE',
+                      'Switch the whole game between bright daytime and cozy nighttime',
+                      const Color(0xFF9A8CFF),
                     ),
                     _buildNewFeature(
-                      '♿ ACCESSIBILITY IMPROVEMENTS',
-                      'Larger touch targets (80px height)\n'
-                      'Bigger fonts (14px) for better readability\n'
-                      'Thicker borders and enhanced visual feedback',
+                      Icons.movie,
+                      'GROUP PLAY',
+                      'Play now opens a cute cutscene when your cats play together',
+                      const Color(0xFFFF996F),
                     ),
                     _buildNewFeature(
-                      '📱 COMPACT DESIGN',
-                      'Fixed header (60px) with essential info\n'
-                      'Compact pet avatar (100px) + quick stats\n'
-                      '3x2 action grid - everything visible at once',
+                      Icons.work,
+                      'CAT JOBS',
+                      'Send cats scouting, napping, toy testing, or coin hunting\n'
+                          'Come back later to claim rewards',
+                      const Color(0xFF8CCB87),
                     ),
                     _buildNewFeature(
-                      '⚡ INSTANT ACCESS',
-                      'Direct obstacle course access from header\n'
-                      'Games button always visible at bottom\n'
-                      'No menus to dig through - one-tap access',
+                      Icons.home,
+                      'ROOM EFFECTS',
+                      'Rooms now boost matching actions like sleep, play, train, food, and bond',
+                      const Color(0xFF8CD7FF),
                     ),
                     _buildNewFeature(
-                      '🎮 ALL 7 GAMES PLAYABLE',
-                      '🧩 Puzzle, 📝 Quiz, 🏃 Racing - all working!\n'
-                      '🧠 Memory, 🎯 Catch, 🎵 Rhythm - enhanced\n'
-                      'Every game gives XP, coins, and gems',
+                      Icons.checkroom,
+                      'OUTFIT SETS',
+                      'Collect matching outfit pieces and activate set bonuses',
+                      const Color(0xFFD77BFF),
                     ),
                     _buildNewFeature(
-                      '💕 BFF STATUS SYSTEM',
-                      '80%+ friendship = "Besties" 🤗\n'
-                      '95%+ friendship = "BFF" 💕\n'
-                      'Beautiful color-coded progression with emojis',
+                      Icons.lock_open,
+                      'SECRET CODES',
+                      'Redeem one-time codes in Kitty Hub for bonus rewards',
+                      const Color(0xFFFFD45E),
                     ),
                     _buildNewFeature(
-                      '📊 ENHANCED STATS DISPLAY',
-                      '🧠 Intelligence: Genius 🧠 (80%+), Smart 🎓 (60%+)\n'
-                      '👥 Social: Social Star ⭐ (80%+), Popular 🎉 (60%+)\n'
-                      '🌟 Perfect Care (90%+), ⭐ Excellent (80%+)',
+                      Icons.celebration,
+                      '3RD ANNIVERSARY',
+                      'New corner banner\n'
+                          'Easter Egg Journal with found-secret tracking\n'
+                          'Tap, double-tap, and long-press around to see what answers back',
+                      const Color(0xFFFF76B7),
                     ),
                     _buildNewFeature(
-                      '🏃‍♂️ OBSTACLE COURSE ACCESS',
-                      'Direct access from main screen header\n'
-                      'No digging through menus needed\n'
-                      'Instant play - one tap away',
-                    ),
-                    _buildNewFeature(
-                      '📁 USB DATA TRANSFER',
-                      '💾 Export pet data to Downloads folder via USB\n'
-                      '📥 Import pet data from Downloads folder\n'
-                      '🔄 Complete data backup and restore system\n'
-                      '⚡ Transfer stats, items, achievements, progress',
-                    ),
-                    _buildNewFeature(
-                      '🎨 CUSTOMIZATION SYSTEM',
-                      '👗 8 Accessories: Hat, Scarf, Glasses, Bow, Collar, Crown, Wings, Halo\n'
-                      '🎨 6 Themes: Default, Dark, Ocean, Forest, Sunset, Galaxy\n'
-                      '📏 Pet Size Slider: 50% to 150% size adjustment\n'
-                      '💰 Buy with Gems or Coins - Real-time preview',
-                    ),
-                    _buildNewFeature(
-                      '⚙️ SETTINGS & CUSTOMIZATION',
-                      'Full settings menu with sound toggle\n'
-                      'Customization options for your pet\n'
-                      'Accessibility settings and preferences',
-                    ),
-                    _buildNewFeature(
-                      '🎨 VISUAL POLISH',
-                      'Smoother animations and transitions\n'
-                      'Better color contrast and visibility\n'
-                      'Enhanced visual feedback for all interactions',
+                      Icons.query_stats,
+                      'MORE PET INFO',
+                      'Health, hunger, happy, energy, clean, IQ, social, bond, sleep, and level stay visible',
+                      const Color(0xFF66D0C4),
                     ),
                   ],
                 ),
               ),
             ),
-            
+
             // Footer
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: const BoxDecoration(
-                color: Color(0xFF3D3D4A),
+                color: Color(0xFF223047),
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(16),
                   bottomRight: Radius.circular(16),
@@ -154,18 +148,27 @@ class WhatsNewDialog extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  const Text(
-                    '🌟 Ultimate efficiency update - no scrolling needed!',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
+                  const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.star, color: Color(0xFFFFD45E), size: 18),
+                      SizedBox(width: 6),
+                      Flexible(
+                        child: Text(
+                          'Version ${UpdateService.currentVersion}: New UI, cat updates, and bug fixes',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Version 26.6 - Redesigned for speed and accessibility',
+                    'Version ${UpdateService.currentVersion}',
                     style: TextStyle(
                       color: Colors.grey[300],
                       fontSize: 12,
@@ -176,7 +179,7 @@ class WhatsNewDialog extends StatelessWidget {
                   ElevatedButton(
                     onPressed: onClose,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF7B1FA2),
+                      backgroundColor: const Color(0xFF2D6F7A),
                       foregroundColor: Colors.white,
                       minimumSize: const Size(double.infinity, 48),
                       shape: RoundedRectangleBorder(
@@ -185,7 +188,8 @@ class WhatsNewDialog extends StatelessWidget {
                     ),
                     child: const Text(
                       'Let\'s Play!',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ],
@@ -197,19 +201,32 @@ class WhatsNewDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildNewFeature(String title, String description) {
+  Widget _buildNewFeature(
+    IconData icon,
+    String title,
+    String description,
+    Color color,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: const TextStyle(
-              color: Colors.cyan,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
+          Row(
+            children: [
+              Icon(icon, color: color, size: 18),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    color: color,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 4),
           Text(

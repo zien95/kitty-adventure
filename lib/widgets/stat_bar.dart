@@ -33,7 +33,7 @@ class StatBar extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 12),
-        
+
         // Label
         SizedBox(
           width: 60,
@@ -45,7 +45,7 @@ class StatBar extends StatelessWidget {
             ),
           ),
         ),
-        
+
         // Progress Bar
         Expanded(
           child: ClipRRect(
@@ -60,7 +60,7 @@ class StatBar extends StatelessWidget {
             ),
           ),
         ),
-        
+
         // Value
         const SizedBox(width: 12),
         SizedBox(

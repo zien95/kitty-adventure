@@ -48,12 +48,14 @@ class _SpaceShooterScreenState extends State<SpaceShooterScreen> {
   }
 
   List<Map<String, dynamic>> _generateStars() {
-    return List.generate(20, (index) => {
-      'x': (index * 137.5) % 1.0,
-      'y': (index * 89.3) % 1.0,
-      'size': ((index % 3) + 1) * 2.0,
-      'speed': ((index % 3) + 1) * 0.002,
-    });
+    return List.generate(
+        20,
+        (index) => {
+              'x': (index * 137.5) % 1.0,
+              'y': (index * 89.3) % 1.0,
+              'size': ((index % 3) + 1) * 2.0,
+              'speed': ((index % 3) + 1) * 0.002,
+            });
   }
 
   void _startGame() {
@@ -85,7 +87,7 @@ class _SpaceShooterScreenState extends State<SpaceShooterScreen> {
     // Update enemies
     _enemies.removeWhere((enemy) {
       enemy['y'] += enemy['speed'];
-      
+
       // Check if enemy reached bottom
       if (enemy['y'] > 0.9) {
         _lives--;
@@ -94,13 +96,13 @@ class _SpaceShooterScreenState extends State<SpaceShooterScreen> {
         }
         return true;
       }
-      
+
       return false;
     });
 
     // Check collisions
     _checkCollisions();
-    
+
     setState(() {});
   }
 
@@ -115,7 +117,7 @@ class _SpaceShooterScreenState extends State<SpaceShooterScreen> {
 
   void _shoot() {
     if (_gameOver || _isPaused) return;
-    
+
     _bullets.add({
       'x': _playerX,
       'y': 0.8,
@@ -127,7 +129,7 @@ class _SpaceShooterScreenState extends State<SpaceShooterScreen> {
       for (var enemy in List.from(_enemies)) {
         final dx = (bullet['x'] - enemy['x']).abs();
         final dy = (bullet['y'] - enemy['y']).abs();
-        
+
         if (dx < 0.05 && dy < 0.05) {
           _bullets.remove(bullet);
           _enemies.remove(enemy);
@@ -193,60 +195,60 @@ class _SpaceShooterScreenState extends State<SpaceShooterScreen> {
           children: [
             // Stars background
             ..._stars.map((star) => Positioned(
-              left: star['x'] * MediaQuery.of(context).size.width,
-              top: star['y'] * MediaQuery.of(context).size.height,
-              child: Container(
-                width: star['size'],
-                height: star['size'],
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                ),
-              ),
-            )),
-            
+                  left: star['x'] * MediaQuery.of(context).size.width,
+                  top: star['y'] * MediaQuery.of(context).size.height,
+                  child: Container(
+                    width: star['size'],
+                    height: star['size'],
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                )),
+
             // Enemies
             ..._enemies.map((enemy) => Positioned(
-              left: enemy['x'] * MediaQuery.of(context).size.width,
-              top: enemy['y'] * MediaQuery.of(context).size.height,
-              child: Container(
-                width: 30,
-                height: 30,
-                decoration: BoxDecoration(
-                  color: [
-                    Colors.red,
-                    Colors.orange,
-                    Colors.purple,
-                  ][enemy['type'] % 3],
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 2),
-                ),
-                child: Icon(
-                  [
-                    Icons.bug_report,
-                    Icons.flash_on,
-                    Icons.whatshot,
-                  ][enemy['type'] % 3],
-                  color: Colors.white,
-                  size: 20,
-                ),
-              ),
-            )),
-            
+                  left: enemy['x'] * MediaQuery.of(context).size.width,
+                  top: enemy['y'] * MediaQuery.of(context).size.height,
+                  child: Container(
+                    width: 30,
+                    height: 30,
+                    decoration: BoxDecoration(
+                      color: [
+                        Colors.red,
+                        Colors.orange,
+                        Colors.purple,
+                      ][enemy['type'] % 3],
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 2),
+                    ),
+                    child: Icon(
+                      [
+                        Icons.bug_report,
+                        Icons.flash_on,
+                        Icons.whatshot,
+                      ][enemy['type'] % 3],
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                )),
+
             // Bullets
             ..._bullets.map((bullet) => Positioned(
-              left: bullet['x'] * MediaQuery.of(context).size.width - 2,
-              top: bullet['y'] * MediaQuery.of(context).size.height,
-              child: Container(
-                width: 4,
-                height: 10,
-                decoration: BoxDecoration(
-                  color: Colors.yellow,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            )),
-            
+                  left: bullet['x'] * MediaQuery.of(context).size.width - 2,
+                  top: bullet['y'] * MediaQuery.of(context).size.height,
+                  child: Container(
+                    width: 4,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      color: Colors.yellow,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                )),
+
             // Player
             Positioned(
               left: _playerX * MediaQuery.of(context).size.width - 15,
@@ -266,7 +268,7 @@ class _SpaceShooterScreenState extends State<SpaceShooterScreen> {
                 ),
               ),
             ),
-            
+
             // UI Overlay
             Positioned(
               top: 20,
@@ -292,11 +294,11 @@ class _SpaceShooterScreenState extends State<SpaceShooterScreen> {
                 ],
               ),
             ),
-            
+
             // Game Over Screen
             if (_gameOver)
               Container(
-                color: Colors.black.withOpacity(0.8),
+                color: Colors.black.withValues(alpha: 0.8),
                 child: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -334,11 +336,11 @@ class _SpaceShooterScreenState extends State<SpaceShooterScreen> {
                   ),
                 ),
               ),
-            
+
             // Pause Screen
             if (_isPaused && !_gameOver)
               Container(
-                color: Colors.black.withOpacity(0.5),
+                color: Colors.black.withValues(alpha: 0.5),
                 child: const Center(
                   child: Text(
                     'PAUSED',
@@ -350,7 +352,7 @@ class _SpaceShooterScreenState extends State<SpaceShooterScreen> {
                   ),
                 ),
               ),
-            
+
             // Instructions
             if (!_gameOver)
               Positioned(
@@ -359,7 +361,7 @@ class _SpaceShooterScreenState extends State<SpaceShooterScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
+                    color: Colors.white.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Column(

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/game_provider.dart';
 import '../providers/account_provider.dart';
 
 class WordPuzzleScreen extends StatefulWidget {
@@ -12,10 +11,24 @@ class WordPuzzleScreen extends StatefulWidget {
 
 class _WordPuzzleScreenState extends State<WordPuzzleScreen> {
   final List<String> _words = [
-    'PET', 'CARE', 'LOVE', 'PLAY', 'FEED', 'HAPPY', 'FRIEND', 'SMILE',
-    'DREAM', 'JOY', 'HEART', 'KIND', 'GENTLE', 'SWEET', 'BRIGHT', 'SHINE'
+    'PET',
+    'CARE',
+    'LOVE',
+    'PLAY',
+    'FEED',
+    'HAPPY',
+    'FRIEND',
+    'SMILE',
+    'DREAM',
+    'JOY',
+    'HEART',
+    'KIND',
+    'GENTLE',
+    'SWEET',
+    'BRIGHT',
+    'SHINE'
   ];
-  
+
   String _currentWord = '';
   List<String> _shuffledLetters = [];
   List<String> _selectedLetters = [];
@@ -41,11 +54,11 @@ class _WordPuzzleScreenState extends State<WordPuzzleScreen> {
 
   void _onLetterTap(String letter) {
     if (_isWon) return;
-    
+
     setState(() {
       _selectedLetters.add(letter);
       _shuffledLetters.remove(letter);
-      
+
       if (_selectedLetters.length == _currentWord.length) {
         final formedWord = _selectedLetters.join('');
         if (formedWord == _currentWord) {
@@ -68,7 +81,7 @@ class _WordPuzzleScreenState extends State<WordPuzzleScreen> {
 
   void _onSelectedLetterTap(String letter) {
     if (_isWon) return;
-    
+
     setState(() {
       _selectedLetters.remove(letter);
       _shuffledLetters.insert(0, letter);
@@ -93,12 +106,15 @@ class _WordPuzzleScreenState extends State<WordPuzzleScreen> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF2D2D3A),
-        title: const Text('🎉 Word Found!', style: TextStyle(color: Colors.white)),
+        title:
+            const Text('🎉 Word Found!', style: TextStyle(color: Colors.white)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Word: $_currentWord', style: const TextStyle(color: Colors.green, fontSize: 20)),
-            Text('Score: +${_level * 100}', style: const TextStyle(color: Colors.yellow)),
+            Text('Word: $_currentWord',
+                style: const TextStyle(color: Colors.green, fontSize: 20)),
+            Text('Score: +${_level * 100}',
+                style: const TextStyle(color: Colors.yellow)),
             Text('Level: $_level', style: const TextStyle(color: Colors.white)),
           ],
         ),
@@ -118,8 +134,10 @@ class _WordPuzzleScreenState extends State<WordPuzzleScreen> {
               });
               _generateNewWord();
             },
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF7B1FA2)),
-            child: const Text('Next Level', style: TextStyle(color: Colors.white)),
+            style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF7B1FA2)),
+            child:
+                const Text('Next Level', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -139,8 +157,10 @@ class _WordPuzzleScreenState extends State<WordPuzzleScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text('Level: $_level', style: const TextStyle(color: Colors.white, fontSize: 16)),
-                Text('Score: $_score', style: const TextStyle(color: Colors.yellow, fontSize: 12)),
+                Text('Level: $_level',
+                    style: const TextStyle(color: Colors.white, fontSize: 16)),
+                Text('Score: $_score',
+                    style: const TextStyle(color: Colors.yellow, fontSize: 12)),
               ],
             ),
           ),
@@ -159,7 +179,7 @@ class _WordPuzzleScreenState extends State<WordPuzzleScreen> {
               ],
             ),
           ),
-          
+
           // Selected Letters
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -178,13 +198,17 @@ class _WordPuzzleScreenState extends State<WordPuzzleScreen> {
                           ? const Color(0xFF7B1FA2)
                           : const Color(0xFF4A4A6A),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.white.withOpacity(0.3)),
+                      border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.3)),
                     ),
                     child: Center(
                       child: index < _selectedLetters.length
                           ? Text(
                               _selectedLetters[index],
-                              style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold),
                             )
                           : null,
                     ),
@@ -193,9 +217,9 @@ class _WordPuzzleScreenState extends State<WordPuzzleScreen> {
               ),
             ),
           ),
-          
+
           const SizedBox(height: 20),
-          
+
           // Available Letters
           Expanded(
             child: GridView.builder(
@@ -214,12 +238,16 @@ class _WordPuzzleScreenState extends State<WordPuzzleScreen> {
                     decoration: BoxDecoration(
                       color: const Color(0xFF3D3D4A),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.white.withOpacity(0.3)),
+                      border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.3)),
                     ),
                     child: Center(
                       child: Text(
                         letter,
-                        style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),
@@ -227,14 +255,15 @@ class _WordPuzzleScreenState extends State<WordPuzzleScreen> {
               },
             ),
           ),
-          
+
           // Selected Letters (for removal)
           if (_selectedLetters.isNotEmpty)
             Container(
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
-                  const Text('Tap letters to remove:', style: TextStyle(color: Colors.white70)),
+                  const Text('Tap letters to remove:',
+                      style: TextStyle(color: Colors.white70)),
                   const SizedBox(height: 8),
                   Wrap(
                     spacing: 8,
@@ -249,7 +278,8 @@ class _WordPuzzleScreenState extends State<WordPuzzleScreen> {
                           ),
                           child: Text(
                             letter,
-                            style: const TextStyle(color: Colors.white, fontSize: 20),
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 20),
                           ),
                         ),
                       );

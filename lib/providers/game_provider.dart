@@ -4,15 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/pet.dart';
 import '../services/sound_service.dart';
-import '../widgets/whats_new_dialog.dart';
 
 class GameProvider extends ChangeNotifier {
   Pet? _pet;
   bool _soundEnabled = true;
+  bool _darkModeEnabled = false;
+  bool _liteModeEnabled = false;
   Timer? _gameTimer;
-  Timer? _playTimeTimer;
+  Timer? _petPlayTimeTimer;
+  Timer? _sessionTimer;
   final SoundService _soundService = SoundService();
-  static const String _currentVersion = '27.0'; // Updated to v27.0
+  static const String _currentVersion = '26.8.1';
 
   // Comprehensive Stats System
   Map<String, dynamic> _globalStats = {
@@ -20,7 +22,7 @@ class GameProvider extends ChangeNotifier {
     'totalScore': 0,
     'gamesPlayed': 0,
     'achievementsUnlocked': 0,
-    'minecraftStats': {
+    'blockBuilderStats': {
       'blocksPlaced': 0,
       'blocksBroken': 0,
       'deaths': 0,
@@ -50,8 +52,8 @@ class GameProvider extends ChangeNotifier {
   // New Mini-Games Data
   List<Map<String, dynamic>> _availableGames = [
     {
-      'id': 'minecraft',
-      'name': 'Minecraft 2D',
+      'id': 'block_builder',
+      'name': 'Block Builder 2D',
       'icon': '🎮',
       'color': Colors.green,
       'description': 'Build and explore in 2D',
@@ -114,6 +116,8 @@ class GameProvider extends ChangeNotifier {
 
   Pet? get pet => _pet;
   bool get soundEnabled => _soundEnabled;
+  bool get darkModeEnabled => _darkModeEnabled;
+  bool get liteModeEnabled => _liteModeEnabled;
   bool get hasPet => _pet != null;
   Map<String, dynamic> get globalStats => _globalStats;
   List<Map<String, dynamic>> get availableGames => _availableGames;
@@ -124,24 +128,34 @@ class GameProvider extends ChangeNotifier {
     // Load sound setting
     _soundEnabled = prefs.getBool('soundEnabled') ?? true;
     _soundService.setSoundEnabled(_soundEnabled);
+    _darkModeEnabled = prefs.getBool('darkModeEnabled') ?? false;
+    _liteModeEnabled = prefs.getBool('liteModeEnabled') ?? false;
 
     // Load comprehensive stats
     final statsJson = prefs.getString('globalStats');
     if (statsJson != null) {
-      _globalStats = Map<String, dynamic>.from(jsonDecode(statsJson));
+      try {
+        _globalStats = Map<String, dynamic>.from(jsonDecode(statsJson));
+      } catch (_) {
+        await prefs.remove('globalStats');
+      }
     }
 
     // Load games data
     final gamesJson = prefs.getString('availableGames');
     if (gamesJson != null) {
-      final gamesList = jsonDecode(gamesJson) as List;
-      _availableGames = gamesList.map((game) => Map<String, dynamic>.from(game)).toList();
+      try {
+        _mergeSavedGames(jsonDecode(gamesJson));
+      } catch (_) {
+        await prefs.remove('availableGames');
+      }
     }
 
     // Check if this is a new version for returning users
     final lastVersion = prefs.getString('lastVersion');
-    final bool shouldShowWhatsNew = lastVersion != null && lastVersion != _currentVersion;
-    
+    final bool shouldShowWhatsNew =
+        lastVersion != null && lastVersion != _currentVersion;
+
     // Save current version
     await prefs.setString('lastVersion', _currentVersion);
 
@@ -156,7 +170,7 @@ class GameProvider extends ChangeNotifier {
     _startSessionTracking();
 
     notifyListeners();
-    
+
     // Return version info for UI to handle
     if (shouldShowWhatsNew) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -166,70 +180,121 @@ class GameProvider extends ChangeNotifier {
   }
 
   void _startSessionTracking() {
-    _playTimeTimer = Timer.periodic(const Duration(minutes: 1), (timer) {
-      _globalStats['totalPlayTime'] = (_globalStats['totalPlayTime'] as int) + 1;
-      _globalStats['sessionStats']['currentSessionTime'] = (_globalStats['sessionStats']['currentSessionTime'] as int) + 1;
+    _sessionTimer?.cancel();
+    _sessionTimer = Timer.periodic(const Duration(minutes: 1), (timer) {
+      _globalStats['totalPlayTime'] =
+          (_globalStats['totalPlayTime'] as int) + 1;
+      _globalStats['sessionStats']['currentSessionTime'] =
+          (_globalStats['sessionStats']['currentSessionTime'] as int) + 1;
       _saveStats();
     });
   }
 
   Future<void> _saveStats() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('globalStats', jsonEncode(_globalStats));
-    await prefs.setString('availableGames', jsonEncode(_availableGames));
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('globalStats', jsonEncode(_globalStats));
+      await prefs.setString('availableGames', jsonEncode(_gamesForStorage()));
+    } catch (_) {
+      // Stats are nice-to-have; gameplay should never red-screen over a save.
+    }
+  }
+
+  List<Map<String, dynamic>> _gamesForStorage() {
+    return _availableGames.map((game) {
+      final stored = Map<String, dynamic>.from(game);
+      stored.removeWhere((_, value) => value is Color);
+      return stored;
+    }).toList();
+  }
+
+  void _mergeSavedGames(dynamic savedGames) {
+    if (savedGames is! List) return;
+
+    final savedById = <String, Map<String, dynamic>>{};
+    for (final savedGame in savedGames) {
+      if (savedGame is! Map) continue;
+      final game = Map<String, dynamic>.from(savedGame);
+      final id = game['id']?.toString();
+      if (id == null || id.isEmpty) continue;
+      savedById[id] = game;
+    }
+
+    _availableGames = _availableGames.map((defaultGame) {
+      final id = defaultGame['id']?.toString();
+      final savedGame = id == null ? null : savedById[id];
+      if (savedGame == null) return defaultGame;
+
+      final mergedGame = <String, dynamic>{
+        ...defaultGame,
+        ...savedGame,
+      };
+      mergedGame['color'] = defaultGame['color'];
+      return mergedGame;
+    }).toList();
   }
 
   void updateGameStats(String gameId, int score, bool won) {
     final game = _availableGames.firstWhere((g) => g['id'] == gameId);
-    
+
     // Update game-specific stats
     game['playCount'] = (game['playCount'] as int) + 1;
     if (score > (game['highScore'] as int)) {
       game['highScore'] = score;
     }
-    
+
     // Update global stats
     _globalStats['totalScore'] = (_globalStats['totalScore'] as int) + score;
     _globalStats['gamesPlayed'] = (_globalStats['gamesPlayed'] as int) + 1;
-    
+
     // Update mini-games stats
     if (gameId == 'puzzle_master' && won) {
-      _globalStats['miniGamesStats']['puzzleGamesWon'] = (_globalStats['miniGamesStats']['puzzleGamesWon'] as int) + 1;
+      _globalStats['miniGamesStats']['puzzleGamesWon'] =
+          (_globalStats['miniGamesStats']['puzzleGamesWon'] as int) + 1;
     }
     if (gameId == 'space_shooter') {
-      _globalStats['miniGamesStats']['arcadeGamesPlayed'] = (_globalStats['miniGamesStats']['arcadeGamesPlayed'] as int) + 1;
+      _globalStats['miniGamesStats']['arcadeGamesPlayed'] =
+          (_globalStats['miniGamesStats']['arcadeGamesPlayed'] as int) + 1;
     }
-    
+
     // Check for unlocks
     _checkGameUnlocks();
-    
+
     _saveStats();
     notifyListeners();
   }
 
-  void updateMinecraftStats(Map<String, dynamic> stats) {
-    final minecraftStats = _globalStats['minecraftStats'] as Map<String, dynamic>;
-    
+  void updateBlockBuilderStats(Map<String, dynamic> stats) {
+    final blockBuilderStats =
+        _globalStats['blockBuilderStats'] as Map<String, dynamic>;
+
     if (stats['blocksPlaced'] != null) {
-      minecraftStats['blocksPlaced'] = (minecraftStats['blocksPlaced'] as int) + (stats['blocksPlaced'] as int);
+      blockBuilderStats['blocksPlaced'] =
+          (blockBuilderStats['blocksPlaced'] as int) +
+              (stats['blocksPlaced'] as int);
     }
     if (stats['blocksBroken'] != null) {
-      minecraftStats['blocksBroken'] = (minecraftStats['blocksBroken'] as int) + (stats['blocksBroken'] as int);
+      blockBuilderStats['blocksBroken'] =
+          (blockBuilderStats['blocksBroken'] as int) +
+              (stats['blocksBroken'] as int);
     }
-    if (stats['score'] != null && (stats['score'] as int) > (minecraftStats['highestScore'] as int)) {
-      minecraftStats['highestScore'] = stats['score'];
+    if (stats['score'] != null &&
+        (stats['score'] as int) > (blockBuilderStats['highestScore'] as int)) {
+      blockBuilderStats['highestScore'] = stats['score'];
     }
     if (stats['achievements'] != null) {
-      _globalStats['achievementsUnlocked'] = (_globalStats['achievementsUnlocked'] as int) + (stats['achievements'] as int);
+      _globalStats['achievementsUnlocked'] =
+          (_globalStats['achievementsUnlocked'] as int) +
+              (stats['achievements'] as int);
     }
-    
+
     _saveStats();
     notifyListeners();
   }
 
   void updatePetStats(String action) {
     final petStats = _globalStats['petStats'] as Map<String, dynamic>;
-    
+
     switch (action) {
       case 'fed':
         petStats['totalFed'] = (petStats['totalFed'] as int) + 1;
@@ -244,7 +309,7 @@ class GameProvider extends ChangeNotifier {
         petStats['petsOwned'] = (petStats['petsOwned'] as int) + 1;
         break;
     }
-    
+
     _saveStats();
     notifyListeners();
   }
@@ -252,7 +317,8 @@ class GameProvider extends ChangeNotifier {
   void _checkGameUnlocks() {
     // Unlock Racing Fever after 10 games
     if (_globalStats['gamesPlayed'] >= 10) {
-      final racingGame = _availableGames.firstWhere((g) => g['id'] == 'racing_fever');
+      final racingGame =
+          _availableGames.firstWhere((g) => g['id'] == 'racing_fever');
       if (!racingGame['unlocked']) {
         racingGame['unlocked'] = true;
         _notifyGameUnlocked('Racing Fever');
@@ -261,8 +327,7 @@ class GameProvider extends ChangeNotifier {
   }
 
   void _notifyGameUnlocked(String gameName) {
-    // This would show a notification that a new game is unlocked
-    print('🎮 New game unlocked: $gameName');
+    // This would show a notification that a new game is unlocked.
   }
 
   Map<String, dynamic> getGameStats(String gameId) {
@@ -278,6 +343,8 @@ class GameProvider extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
 
     await prefs.setBool('soundEnabled', _soundEnabled);
+    await prefs.setBool('darkModeEnabled', _darkModeEnabled);
+    await prefs.setBool('liteModeEnabled', _liteModeEnabled);
 
     if (_pet != null) {
       await prefs.setString('pet', jsonEncode(_pet!.toJson()));
@@ -288,7 +355,7 @@ class GameProvider extends ChangeNotifier {
 
   void _startGameLoop() {
     _gameTimer?.cancel();
-    _playTimeTimer?.cancel();
+    _petPlayTimeTimer?.cancel();
 
     // Stats decay every 30 seconds
     _gameTimer = Timer.periodic(const Duration(seconds: 30), (_) {
@@ -298,7 +365,7 @@ class GameProvider extends ChangeNotifier {
     });
 
     // Play time tracking every minute
-    _playTimeTimer = Timer.periodic(const Duration(minutes: 1), (_) {
+    _petPlayTimeTimer = Timer.periodic(const Duration(minutes: 1), (_) {
       _pet?.playTimeMinutes++;
       saveGame();
       notifyListeners();
@@ -315,6 +382,7 @@ class GameProvider extends ChangeNotifier {
   void setPet(Pet pet) {
     _pet = pet;
     _startGameLoop();
+    saveGame();
     notifyListeners();
   }
 
@@ -333,13 +401,13 @@ class GameProvider extends ChangeNotifier {
     _pet!.hunger = (_pet!.hunger - 25).clamp(0, 100); // Better hunger reduction
     _pet!.happiness = (_pet!.happiness + 10).clamp(0, 100); // Pets love food!
     _pet!.addXp(5);
-    
+
     // Check if level up occurred and save immediately
     if (_pet!.level > oldLevel) {
       _soundService.playSound('level_up');
       saveGame(); // Save immediately after level up
     }
-    
+
     saveGame(); // Always save after action
     notifyListeners();
   }
@@ -348,18 +416,20 @@ class GameProvider extends ChangeNotifier {
     if (_pet == null) return;
     _soundService.playSound('play');
     int oldLevel = _pet!.level;
-    _pet!.happiness = (_pet!.happiness + 25).clamp(0, 100); // More happiness from play
+    _pet!.happiness =
+        (_pet!.happiness + 25).clamp(0, 100); // More happiness from play
     _pet!.energy = (_pet!.energy - 8).clamp(0, 100); // Less energy cost
-    _pet!.social = (_pet!.social + 3).clamp(0, 100); // Play increases social skills
+    _pet!.social =
+        (_pet!.social + 3).clamp(0, 100); // Play increases social skills
     _pet!.hunger = (_pet!.hunger + 3).clamp(0, 100); // Less hunger increase
     _pet!.addXp(12); // Good XP for playing
-    
+
     // Check if level up occurred and save immediately
     if (_pet!.level > oldLevel) {
       _soundService.playSound('level_up');
       saveGame(); // Save immediately after level up
     }
-    
+
     saveGame(); // Always save after action
     notifyListeners();
   }
@@ -369,15 +439,16 @@ class GameProvider extends ChangeNotifier {
     _soundService.playSound('clean');
     int oldLevel = _pet!.level;
     _pet!.cleanliness = (_pet!.cleanliness + 30).clamp(0, 100);
-    _pet!.happiness = (_pet!.happiness + 15).clamp(0, 100); // Shower makes pets happy!
+    _pet!.happiness =
+        (_pet!.happiness + 15).clamp(0, 100); // Shower makes pets happy!
     _pet!.addXp(5);
-    
+
     // Check if level up occurred and save immediately
     if (_pet!.level > oldLevel) {
       _soundService.playSound('level_up');
       saveGame(); // Save immediately after level up
     }
-    
+
     saveGame(); // Always save after action
     notifyListeners();
   }
@@ -386,17 +457,18 @@ class GameProvider extends ChangeNotifier {
     if (_pet == null) return;
     _soundService.playSound('sleep');
     int oldLevel = _pet!.level;
-    _pet!.energy = (_pet!.energy + 50).clamp(0, 100); // Much better energy restoration
+    _pet!.energy =
+        (_pet!.energy + 50).clamp(0, 100); // Much better energy restoration
     _pet!.health = (_pet!.health + 15).clamp(0, 100); // Sleep improves health
     _pet!.hunger = (_pet!.hunger + 5).clamp(0, 100); // Less hunger increase
     _pet!.addXp(5);
-    
+
     // Check if level up occurred and save immediately
     if (_pet!.level > oldLevel) {
       _soundService.playSound('level_up');
       saveGame(); // Save immediately after level up
     }
-    
+
     saveGame(); // Always save after action
     notifyListeners();
   }
@@ -406,17 +478,19 @@ class GameProvider extends ChangeNotifier {
     _soundService.playSound('train');
     int oldLevel = _pet!.level;
     _pet!.energy = (_pet!.energy - 15).clamp(0, 100); // Less energy cost
-    _pet!.happiness = (_pet!.happiness + 8).clamp(0, 100); // Pets enjoy training
-    _pet!.intelligence = (_pet!.intelligence + 5).clamp(0, 100); // Training boosts intelligence
+    _pet!.happiness =
+        (_pet!.happiness + 8).clamp(0, 100); // Pets enjoy training
+    _pet!.intelligence =
+        (_pet!.intelligence + 5).clamp(0, 100); // Training boosts intelligence
     _pet!.hunger = (_pet!.hunger + 10).clamp(0, 100); // Less hunger increase
     _pet!.addXp(15); // Good XP for training
-    
+
     // Check if level up occurred and save immediately
     if (_pet!.level > oldLevel) {
       _soundService.playSound('level_up');
       saveGame(); // Save immediately after level up
     }
-    
+
     saveGame(); // Always save after action
     notifyListeners();
   }
@@ -427,13 +501,13 @@ class GameProvider extends ChangeNotifier {
     int oldLevel = _pet!.level;
     _pet!.health = (_pet!.health + 30).clamp(0, 100);
     _pet!.addXp(5);
-    
+
     // Check if level up occurred and save immediately
     if (_pet!.level > oldLevel) {
       _soundService.playSound('level_up');
       saveGame(); // Save immediately after level up
     }
-    
+
     saveGame(); // Always save after action
     notifyListeners();
   }
@@ -443,6 +517,18 @@ class GameProvider extends ChangeNotifier {
     if (_pet == null) return;
     _soundService.playSound('click');
     _pet!.updateColor(color);
+    saveGame();
+    notifyListeners();
+  }
+
+  void toggleDarkMode() {
+    _darkModeEnabled = !_darkModeEnabled;
+    saveGame();
+    notifyListeners();
+  }
+
+  void toggleLiteMode() {
+    _liteModeEnabled = !_liteModeEnabled;
     saveGame();
     notifyListeners();
   }
@@ -508,13 +594,13 @@ class GameProvider extends ChangeNotifier {
     _pet!.addXp(xp);
     _pet!.gems += gems;
     _pet!.coins += coins;
-    
+
     // Check if level up occurred and save immediately
     if (_pet!.level > oldLevel) {
       _soundService.playSound('level_up');
       saveGame(); // Save immediately after level up
     }
-    
+
     saveGame(); // Always save after rewards
     notifyListeners();
   }
@@ -529,7 +615,7 @@ class GameProvider extends ChangeNotifier {
 
   void buyItem(String item, int cost, {bool isGem = false}) {
     if (_pet == null) return;
-    
+
     if (isGem && _pet!.gems >= cost) {
       _pet!.gems -= cost;
       _pet!.addItem(item);
@@ -539,14 +625,14 @@ class GameProvider extends ChangeNotifier {
       _pet!.addItem(item);
       _soundService.playSound('level_up');
     }
-    
+
     saveGame();
     notifyListeners();
   }
 
   void checkAchievements() {
     if (_pet == null) return;
-    
+
     // Level achievements
     if (_pet!.level >= 10 && !_pet!.achievements.contains('Level 10')) {
       addAchievement('Level 10');
@@ -557,7 +643,7 @@ class GameProvider extends ChangeNotifier {
     if (_pet!.level >= 50 && !_pet!.achievements.contains('Level 50')) {
       addAchievement('Level 50');
     }
-    
+
     // Currency achievements
     if (_pet!.coins >= 1000 && !_pet!.achievements.contains('Rich Pet')) {
       addAchievement('Rich Pet');
@@ -565,20 +651,24 @@ class GameProvider extends ChangeNotifier {
     if (_pet!.gems >= 50 && !_pet!.achievements.contains('Gem Collector')) {
       addAchievement('Gem Collector');
     }
-    
+
     // Evolution achievements
-    if (_pet!.evolutionStage.index >= 2 && !_pet!.achievements.contains('Teenager')) {
+    if (_pet!.evolutionStage.index >= 2 &&
+        !_pet!.achievements.contains('Teenager')) {
       addAchievement('Teenager');
     }
-    if (_pet!.evolutionStage.index >= 3 && !_pet!.achievements.contains('Adult Pet')) {
+    if (_pet!.evolutionStage.index >= 3 &&
+        !_pet!.achievements.contains('Adult Pet')) {
       addAchievement('Adult Pet');
     }
-    
+
     // Friendship achievements
-    if (_pet!.friendshipLevel >= 50 && !_pet!.achievements.contains('Best Friend')) {
+    if (_pet!.friendshipLevel >= 50 &&
+        !_pet!.achievements.contains('Best Friend')) {
       addAchievement('Best Friend');
     }
-    if (_pet!.friendshipLevel >= 100 && !_pet!.achievements.contains('Soulmate')) {
+    if (_pet!.friendshipLevel >= 100 &&
+        !_pet!.achievements.contains('Soulmate')) {
       addAchievement('Soulmate');
     }
   }
@@ -602,7 +692,7 @@ class GameProvider extends ChangeNotifier {
 
   Future<void> resetGame() async {
     _gameTimer?.cancel();
-    _playTimeTimer?.cancel();
+    _petPlayTimeTimer?.cancel();
     _pet = null;
 
     final prefs = await SharedPreferences.getInstance();
@@ -614,7 +704,8 @@ class GameProvider extends ChangeNotifier {
   @override
   void dispose() {
     _gameTimer?.cancel();
-    _playTimeTimer?.cancel();
+    _petPlayTimeTimer?.cancel();
+    _sessionTimer?.cancel();
     _soundService.dispose();
     super.dispose();
   }

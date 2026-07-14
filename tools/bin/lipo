@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+REAL_LIPO="/usr/bin/lipo"
+
+if [[ "$#" -ge 4 && "$2" == "-verify_arch" ]]; then
+  input_file="$1"
+  shift 2
+
+  for architecture in "$@"; do
+    "$REAL_LIPO" "$input_file" -verify_arch "$architecture"
+  done
+  exit 0
+fi
+
+exec "$REAL_LIPO" "$@"

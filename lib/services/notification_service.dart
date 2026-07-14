@@ -7,16 +7,17 @@ class NotificationService {
   NotificationService._internal();
 
   final List<GameNotification> _notifications = [];
-  final StreamController<GameNotification> _notificationController = 
+  final StreamController<GameNotification> _notificationController =
       StreamController<GameNotification>.broadcast();
-  
-  Stream<GameNotification> get notificationStream => _notificationController.stream;
+
+  Stream<GameNotification> get notificationStream =>
+      _notificationController.stream;
   List<GameNotification> get notifications => List.unmodifiable(_notifications);
 
   void addNotification(GameNotification notification) {
     _notifications.insert(0, notification);
     _notificationController.add(notification);
-    
+
     // Keep only last 50 notifications
     if (_notifications.length > 50) {
       _notifications.removeRange(50, _notifications.length);
@@ -152,18 +153,41 @@ class GameNotification {
   }
 
   factory GameNotification.fromJson(Map<String, dynamic> json) {
+    final type = NotificationType.values.firstWhere(
+      (t) => t.name == json['type'],
+      orElse: () => NotificationType.system,
+    );
+
     return GameNotification(
       id: json['id'],
       title: json['title'],
       message: json['message'],
-      type: NotificationType.values.firstWhere(
-        (t) => t.name == json['type'],
-        orElse: () => NotificationType.system,
-      ),
-      icon: IconData(json['icon'], fontFamily: 'MaterialIcons'),
+      type: type,
+      icon: _iconForType(type),
       color: Color(json['color']),
       isRead: json['isRead'] ?? false,
     );
+  }
+
+  static IconData _iconForType(NotificationType type) {
+    switch (type) {
+      case NotificationType.reward:
+        return Icons.card_giftcard;
+      case NotificationType.achievement:
+        return Icons.emoji_events;
+      case NotificationType.petCare:
+        return Icons.pets;
+      case NotificationType.levelUp:
+        return Icons.trending_up;
+      case NotificationType.challenge:
+        return Icons.task_alt;
+      case NotificationType.social:
+        return Icons.people;
+      case NotificationType.update:
+        return Icons.system_update;
+      case NotificationType.system:
+        return Icons.info;
+    }
   }
 
   String get timeAgo {

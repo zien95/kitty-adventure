@@ -1,0 +1,485 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/game_provider.dart';
+import '../providers/account_provider.dart';
+import '../services/sound_service.dart';
+import 'minecraft_game_screen.dart';
+import 'puzzle_master_screen.dart';
+import 'space_shooter_screen.dart';
+import 'racing_game_screen.dart';
+import 'obstacle_course_screen.dart';
+import 'data_transfer_screen.dart';
+import 'customization_screen.dart';
+import 'settings_screen.dart';
+import 'stats_screen.dart';
+import 'memory_match_screen.dart';
+import 'word_puzzle_screen.dart';
+import 'rhythm_game_screen.dart';
+import 'daily_challenges_screen.dart';
+import 'premium_screen.dart';
+
+// Changelog data for mini-games
+final List<Map<String, String>> _miniGamesChangelog = [
+  {
+    'version': 'v28.0 - Enhanced Gaming Universe',
+    'features': '''
+🎮 10 Mini-Games with Premium Features
+🧩 Memory Match (card matching, time bonuses, achievements)
+📝 Word Puzzle (progressive difficulty, hint system)
+🚀 Space Shooter (enhanced graphics, boss battles)
+🎮 Minecraft 2D Ultimate (creative mode, multiplayer support)
+🏁 Racing Game (new tracks, vehicle customization)
+🎯 Obstacle Course (physics challenges, leaderboards)
+🧠 Puzzle Master (3D puzzles, daily challenges)
+🏃 Catch Game (power-ups, special abilities)
+🎵 Rhythm Game (new songs, difficulty levels)
+🎲 Casino Games (slots, poker, blackjack)
+📊 Cross-Platform Progress Sync
+🏆 Global Leaderboards
+🎯 Daily Challenges & Rewards
+🌟 Premium Unlock System
+🎨 Enhanced Visual Effects
+🔊 Immersive Sound Design
+📱 Optimized Performance
+🤖 AI Opponents
+🎪 Special Events
+💝 Loyalty Rewards
+    '''
+  },
+  {
+    'version': 'v2.0 - Enhanced Gaming Suite',
+    'features': '''
+🎮 6 Fully Functional Mini-Games
+🧠 Enhanced Memory Game (4x4 grid, timer, scoring)
+🏃 Improved Catch Game (speed levels, power-ups)
+🎵 Rhythm Game (beat matching, difficulty levels)
+🧩 Puzzle Game (sliding puzzles, 100+ levels)
+📝 Quiz Game (multiple categories, XP rewards)
+🏁 Racing Game (3 tracks, vehicle upgrades)
+🎯 Obstacle Course (physics-based challenges)
+💾 Cross-Game Progress Sync
+🏆 Unified Achievement System
+🎨 Enhanced Visual Effects
+🔊 Improved Sound Design
+📱 Better Touch Controls
+⌨️ Full Keyboard Support
+🌐 Cloud Save System
+    '''
+  },
+  {
+    'version': 'v1.0 - Gaming Foundation',
+    'features': '''
+🎮 Basic Mini-Games Suite
+🧠 Memory Game (card matching)
+🏃 Simple Catch Game
+🎵 Basic Rhythm Game
+🧩 Puzzle Game (image sliding)
+📝 Quiz Game (trivia questions)
+🏁 Racing Game (single track)
+🎯 Obstacle Course (basic physics)
+💾 Local Score Storage
+🏆 Simple Achievements
+🎨 Basic Animations
+🔊 Sound Effects
+📱 Touch Controls
+    '''
+  },
+];
+
+void _showChangelog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Row(
+          children: [
+            Icon(Icons.new_releases, color: Colors.blue),
+            const SizedBox(width: 8),
+            Text("What's New", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+          ],
+        ),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: _miniGamesChangelog.length,
+            itemBuilder: (context, index) {
+              final update = _miniGamesChangelog[index];
+              return Card(
+                margin: const EdgeInsets.only(bottom: 8),
+                color: const Color(0xFF2d2d44),
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        update['version']!,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        update['features']!,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          height: 1.4,
+                          color: Colors.white70,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close', style: TextStyle(color: Colors.blue)),
+          ),
+        ],
+        backgroundColor: const Color(0xFF1a1a2e),
+      );
+    },
+  );
+}
+
+class MiniGamesScreen extends StatefulWidget {
+  const MiniGamesScreen({super.key});
+
+  @override
+  State<MiniGamesScreen> createState() => _MiniGamesScreenState();
+}
+
+class _MiniGamesScreenState extends State<MiniGamesScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF1a1a2e),
+      appBar: AppBar(
+        title: const Text(
+          '🎮 Mini Games',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: const Color(0xFF2d2d44),
+        foregroundColor: Colors.white,
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.new_releases, color: Colors.white),
+            onPressed: () => _showChangelog(context),
+            tooltip: 'What\'s New',
+          ),
+        ],
+      ),
+      body: Consumer<AccountProvider>(
+        builder: (context, accountProvider, child) {
+          final isPremium = accountProvider.account?.isPremium ?? false;
+          
+          return Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF1a1a2e), Color(0xFF16213e)],
+              ),
+            ),
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Text(
+                          'Choose Your Game',
+                          style: TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        if (isPremium) ...[
+                          const SizedBox(width: 12),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.amber.withValues(alpha: 0.2),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.amber),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.star, color: Colors.amber, size: 16),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'PREMIUM',
+                                  style: TextStyle(
+                                    color: Colors.amber,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    Expanded(
+                      child: GridView.count(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 16,
+                        mainAxisSpacing: 16,
+                        children: [
+                      _buildGameCard(
+                        context,
+                        '⛏️ Minecraft',
+                        'Build and explore in 2D',
+                        const Color(0xFF4CAF50),
+                        () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const MinecraftGameScreen()),
+                        ),
+                      ),
+                      _buildGameCard(
+                        context,
+                        '🧩 Puzzle Master',
+                        'Solve sliding puzzles',
+                        const Color(0xFF9C27B0),
+                        isPremium ? () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const PuzzleMasterScreen()),
+                        ) : null,
+                        isPremium: true,
+                      ),
+                      _buildGameCard(
+                        context,
+                        '🚀 Space Shooter',
+                        'Defend from alien waves',
+                        const Color(0xFF2196F3),
+                        () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const SpaceShooterScreen()),
+                        ),
+                      ),
+                      _buildGameCard(
+                        context,
+                        '🏁 Racing',
+                        'Race to the finish line',
+                        const Color(0xFFFF5722),
+                        () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const RacingGameScreen()),
+                        ),
+                      ),
+                      _buildGameCard(
+                        context,
+                        '🏃 Obstacle Course',
+                        'Navigate through challenges',
+                        const Color(0xFF00BCD4),
+                        () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const ObstacleCourseScreen()),
+                        ),
+                      ),
+                      _buildGameCard(
+                        context,
+                        '🧠 Memory Match',
+                        'Match card pairs',
+                        const Color(0xFFE91E63),
+                        () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const MemoryMatchScreen()),
+                        ),
+                      ),
+                      _buildGameCard(
+                        context,
+                        '📝 Word Puzzle',
+                        'Form words from letters',
+                        const Color(0xFFFF9800),
+                        isPremium ? () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const WordPuzzleScreen()),
+                        ) : null,
+                        isPremium: true,
+                      ),
+                      _buildGameCard(
+                        context,
+                        '🎵 Rhythm Game',
+                        'Beat matching challenge',
+                        const Color(0xFF9C27B0),
+                        isPremium ? () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const RhythmGameScreen()),
+                        ) : null,
+                        isPremium: true,
+                      ),
+                      _buildGameCard(
+                        context,
+                        '🎯 Daily Challenges',
+                        'Complete daily tasks',
+                        const Color(0xFFFF5722),
+                        () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const DailyChallengesScreen()),
+                        ),
+                      ),
+                      _buildGameCard(
+                        context,
+                        '💎 Premium',
+                        'Unlock premium features',
+                        const Color(0xFFFFD700),
+                        () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const PremiumScreen()),
+                        ),
+                      ),
+                      _buildGameCard(
+                        context,
+                        '📊 Statistics',
+                        'View your gaming stats',
+                        const Color(0xFF795548),
+                        () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const StatsScreen()),
+                        ),
+                      ),
+                      _buildGameCard(
+                        context,
+                        '💾 Data Transfer',
+                        'Transfer files between devices',
+                        const Color(0xFF607D8B),
+                        () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const DataTransferScreen()),
+                        ),
+                      ),
+                      _buildGameCard(
+                        context,
+                        '⚙️ Settings',
+                        'Game preferences & options',
+                        const Color(0xFF9E9E9E),
+                        () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const SettingsScreen()),
+                        ),
+                      ),
+                      _buildGameCard(
+                        context,
+                        '🎨 Customization',
+                        'Customize your experience',
+                        const Color(0xFFE91E63),
+                        () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const CustomizationScreen()),
+                        ),
+                      ),
+                      _buildGameCard(
+                        context,
+                        '⚙️ Settings',
+                        'Configure app settings',
+                        const Color(0xFF607D8B),
+                        () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const SettingsScreen()),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    },
+  );
+}
+
+  Widget _buildGameCard(
+    BuildContext context,
+    String title,
+    String description,
+    Color color,
+    VoidCallback? onTap, {
+    bool isPremium = false,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: color.withValues(alpha: isPremium && onTap == null ? 0.1 : 0.3),
+            width: 2,
+          ),
+        ),
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: isPremium && onTap == null ? Colors.grey : color,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    description,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: isPremium && onTap == null ? Colors.grey.shade50 : Colors.white70,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (isPremium && onTap == null)
+              Positioned(
+                top: 8,
+                right: 8,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Colors.amber,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.lock, color: Colors.white, size: 12),
+                      const SizedBox(width: 2),
+                      Text(
+                        'PREMIUM',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}

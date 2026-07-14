@@ -23,7 +23,6 @@ class _DailyChallengesScreenState extends State<DailyChallengesScreen> {
   }
 
   void _loadChallenges() {
-    final today = DateTime.now();
     _challenges = [
       DailyChallenge(
         id: 'feed_pet',
@@ -98,15 +97,15 @@ class _DailyChallengesScreenState extends State<DailyChallengesScreen> {
         category: ChallengeCategory.daily,
       ),
     ];
-    
+
     _calculateProgress();
   }
 
   void _calculateProgress() {
     final gameProvider = context.read<GameProvider>();
     final accountProvider = context.read<AccountProvider>();
-    final isPremium = accountProvider.account?.isPremium ?? false;
-    
+    final isPremium = accountProvider.isPremium;
+
     // Simulate progress calculation (in real app, this would track actual progress)
     setState(() {
       _challenges[0].current = 2; // Feed pet progress
@@ -115,38 +114,42 @@ class _DailyChallengesScreenState extends State<DailyChallengesScreen> {
       _challenges[3].current = 15; // Friendship progress
       _challenges[4].current = 2; // Achievements
       _challenges[5].current = 850; // Mini game score
-      
+
       _completedToday = _challenges.where((c) => c.isCompleted).length;
-      
+
       // Apply 2x bonus for premium users
       final multiplier = isPremium ? 2 : 1;
-      _totalRewardCoins = _challenges.where((c) => c.isCompleted).fold(0, (sum, c) => sum + (c.rewardCoins * multiplier));
-      _totalRewardGems = _challenges.where((c) => c.isCompleted).fold(0, (sum, c) => sum + (c.rewardGems * multiplier));
+      _totalRewardCoins = _challenges
+          .where((c) => c.isCompleted)
+          .fold(0, (sum, c) => sum + (c.rewardCoins * multiplier));
+      _totalRewardGems = _challenges
+          .where((c) => c.isCompleted)
+          .fold(0, (sum, c) => sum + (c.rewardGems * multiplier));
     });
   }
 
   void _claimReward(DailyChallenge challenge) {
     if (!challenge.isCompleted || challenge.rewardClaimed) return;
-    
+
     final accountProvider = context.read<AccountProvider>();
-    final isPremium = accountProvider.account?.isPremium ?? false;
+    final isPremium = accountProvider.isPremium;
     final multiplier = isPremium ? 2 : 1;
-    
+
     setState(() {
       challenge.rewardClaimed = true;
     });
-    
+
     // Update account with rewards (2x for premium)
     context.read<AccountProvider>().updateStats(
-      coins: challenge.rewardCoins * multiplier,
-      gems: challenge.rewardGems * multiplier,
-    );
-    
+          coins: challenge.rewardCoins * multiplier,
+          gems: challenge.rewardGems * multiplier,
+        );
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
           '🎉 Claimed ${challenge.rewardCoins * multiplier} coins and ${challenge.rewardGems * multiplier} gems!'
-          '${isPremium ? ' (2x Premium Bonus!)' : ''}'
+          '${isPremium ? ' (2x Premium Bonus!)' : ''}',
         ),
         backgroundColor: isPremium ? Colors.amber : Colors.green,
       ),
@@ -156,15 +159,18 @@ class _DailyChallengesScreenState extends State<DailyChallengesScreen> {
   @override
   Widget build(BuildContext context) {
     final accountProvider = context.read<AccountProvider>();
-    final isPremium = accountProvider.account?.isPremium ?? false;
-    
+    final isPremium = accountProvider.isPremium;
+
     return Scaffold(
       backgroundColor: const Color(0xFF2D2D3A),
       appBar: AppBar(
         backgroundColor: const Color(0xFF7B1FA2),
         title: Row(
           children: [
-            const Text('Daily Challenges', style: TextStyle(color: Colors.white)),
+            const Text(
+              'Daily Challenges',
+              style: TextStyle(color: Colors.white),
+            ),
             if (isPremium) ...[
               const SizedBox(width: 8),
               Container(
@@ -203,7 +209,9 @@ class _DailyChallengesScreenState extends State<DailyChallengesScreen> {
             decoration: BoxDecoration(
               color: const Color(0xFF3D3D4A),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFF7B1FA2).withOpacity(0.3)),
+              border: Border.all(
+                color: const Color(0xFF7B1FA2).withValues(alpha: 0.3),
+              ),
             ),
             child: Column(
               children: [
@@ -219,7 +227,10 @@ class _DailyChallengesScreenState extends State<DailyChallengesScreen> {
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFF7B1FA2),
                         borderRadius: BorderRadius.circular(20),
@@ -234,8 +245,10 @@ class _DailyChallengesScreenState extends State<DailyChallengesScreen> {
                 const SizedBox(height: 16),
                 LinearProgressIndicator(
                   value: _completedToday / _challenges.length,
-                  backgroundColor: Colors.white.withOpacity(0.2),
-                  valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF7B1FA2)),
+                  backgroundColor: Colors.white.withValues(alpha: 0.2),
+                  valueColor: const AlwaysStoppedAnimation<Color>(
+                    Color(0xFF7B1FA2),
+                  ),
                 ),
                 const SizedBox(height: 16),
                 if (_totalRewardCoins > 0 || _totalRewardGems > 0)
@@ -245,20 +258,26 @@ class _DailyChallengesScreenState extends State<DailyChallengesScreen> {
                       if (_totalRewardCoins > 0) ...[
                         const Icon(Icons.monetization_on, color: Colors.yellow),
                         const SizedBox(width: 4),
-                        Text('$_totalRewardCoins', style: const TextStyle(color: Colors.yellow)),
+                        Text(
+                          '$_totalRewardCoins',
+                          style: const TextStyle(color: Colors.yellow),
+                        ),
                       ],
                       if (_totalRewardGems > 0) ...[
                         const SizedBox(width: 16),
                         const Icon(Icons.diamond, color: Colors.cyan),
                         const SizedBox(width: 4),
-                        Text('$_totalRewardGems', style: const TextStyle(color: Colors.cyan)),
+                        Text(
+                          '$_totalRewardGems',
+                          style: const TextStyle(color: Colors.cyan),
+                        ),
                       ],
                     ],
                   ),
               ],
             ),
           ),
-          
+
           // Challenges List
           Expanded(
             child: ListView.builder(
@@ -278,7 +297,9 @@ class _DailyChallengesScreenState extends State<DailyChallengesScreen> {
   Widget _buildChallengeCard(DailyChallenge challenge) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      color: challenge.isCompleted ? const Color(0xFF4A5F4A) : const Color(0xFF3D3D4A),
+      color: challenge.isCompleted
+          ? const Color(0xFF4A5F4A)
+          : const Color(0xFF3D3D4A),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -289,14 +310,10 @@ class _DailyChallengesScreenState extends State<DailyChallengesScreen> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: challenge.color.withOpacity(0.2),
+                    color: challenge.color.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Icon(
-                    challenge.icon,
-                    color: challenge.color,
-                    size: 24,
-                  ),
+                  child: Icon(challenge.icon, color: challenge.color, size: 24),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -322,23 +339,23 @@ class _DailyChallengesScreenState extends State<DailyChallengesScreen> {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: _getCategoryColor(challenge.category),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
                     _getCategoryName(challenge.category),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 10,
-                    ),
+                    style: const TextStyle(color: Colors.white, fontSize: 10),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 12),
-            
+
             // Progress Bar
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -348,40 +365,56 @@ class _DailyChallengesScreenState extends State<DailyChallengesScreen> {
                   children: [
                     Text(
                       'Progress: ${challenge.current}/${challenge.target}',
-                      style: const TextStyle(color: Colors.white70, fontSize: 12),
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 12,
+                      ),
                     ),
                     Text(
                       '${(challenge.current / challenge.target * 100).round()}%',
-                      style: const TextStyle(color: Colors.white70, fontSize: 12),
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 12,
+                      ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 4),
                 LinearProgressIndicator(
                   value: (challenge.current / challenge.target).clamp(0.0, 1.0),
-                  backgroundColor: Colors.white.withOpacity(0.2),
+                  backgroundColor: Colors.white.withValues(alpha: 0.2),
                   valueColor: AlwaysStoppedAnimation<Color>(
                     challenge.isCompleted ? Colors.green : challenge.color,
                   ),
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             // Rewards and Claim Button
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.monetization_on, color: Colors.yellow, size: 16),
+                    const Icon(
+                      Icons.monetization_on,
+                      color: Colors.yellow,
+                      size: 16,
+                    ),
                     const SizedBox(width: 4),
-                    Text('${challenge.rewardCoins}', style: const TextStyle(color: Colors.yellow)),
+                    Text(
+                      '${challenge.rewardCoins}',
+                      style: const TextStyle(color: Colors.yellow),
+                    ),
                     const SizedBox(width: 16),
                     const Icon(Icons.diamond, color: Colors.cyan, size: 16),
                     const SizedBox(width: 4),
-                    Text('${challenge.rewardGems}', style: const TextStyle(color: Colors.cyan)),
+                    Text(
+                      '${challenge.rewardGems}',
+                      style: const TextStyle(color: Colors.cyan),
+                    ),
                   ],
                 ),
                 if (challenge.isCompleted && !challenge.rewardClaimed)
@@ -390,13 +423,19 @@ class _DailyChallengesScreenState extends State<DailyChallengesScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
                     ),
                     child: const Text('Claim'),
                   )
                 else if (challenge.rewardClaimed)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.grey,
                       borderRadius: BorderRadius.circular(12),
@@ -472,8 +511,4 @@ class DailyChallenge {
   bool get isCompleted => current >= target;
 }
 
-enum ChallengeCategory {
-  daily,
-  weekly,
-  special,
-}
+enum ChallengeCategory { daily, weekly, special }

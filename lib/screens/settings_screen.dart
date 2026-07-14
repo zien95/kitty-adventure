@@ -1,48 +1,111 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/game_provider.dart';
 
-class SettingsScreen extends StatelessWidget {
+import '../providers/game_provider.dart';
+import '../services/update_service.dart';
+
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
   @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  bool _checkingForUpdates = false;
+  String? _updateStatus;
+
+  Future<void> _checkForUpdatesNow() async {
+    setState(() {
+      _checkingForUpdates = true;
+      _updateStatus = 'Checking for updates...';
+    });
+
+    final result = await UpdateService.checkForUpdates(
+      context,
+      showNoUpdateSnack: true,
+    );
+
+    if (!mounted) return;
+    setState(() {
+      _checkingForUpdates = false;
+      _updateStatus = result.message;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF2D2D3A),
-      appBar: AppBar(
-        title: const Text(
-          '⚙️ Settings',
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: const Color(0xFF7B1FA2),
-        centerTitle: true,
-      ),
-      body: Consumer<GameProvider>(
-        builder: (context, gameProvider, child) {
-          return SingleChildScrollView(
+    return Consumer<GameProvider>(
+      builder: (context, gameProvider, child) {
+        final darkMode = gameProvider.darkModeEnabled;
+        final backgroundColor =
+            darkMode ? const Color(0xFF151827) : const Color(0xFFFFF7D6);
+        final cardColor = darkMode ? const Color(0xFF24283B) : Colors.white;
+        final textColor =
+            darkMode ? const Color(0xFFFFEAC2) : const Color(0xFF7A4B3B);
+        final subTextColor =
+            darkMode ? const Color(0xFFFFC98E) : const Color(0xFF9F6834);
+
+        return Scaffold(
+          backgroundColor: backgroundColor,
+          appBar: AppBar(
+            title: const Text('⚙️ Settings'),
+            backgroundColor:
+                darkMode ? const Color(0xFF24283B) : const Color(0xFFFF76B7),
+            foregroundColor: Colors.white,
+            centerTitle: true,
+          ),
+          body: SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Sound Toggle
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1E1E2C),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                  _settingsCard(
+                    cardColor: cardColor,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Row(
+                        Row(
                           children: [
-                            Icon(Icons.volume_up, color: Colors.white54),
-                            SizedBox(width: 12),
+                            Icon(
+                              darkMode
+                                  ? Icons.dark_mode
+                                  : Icons.light_mode_outlined,
+                              color: const Color(0xFFFF76B7),
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              darkMode ? 'Dark Mode' : 'Light Mode',
+                              style: TextStyle(
+                                color: textColor,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Switch(
+                          value: darkMode,
+                          onChanged: (_) => gameProvider.toggleDarkMode(),
+                          activeThumbColor: const Color(0xFFFF76B7),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  _settingsCard(
+                    cardColor: cardColor,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.volume_up, color: subTextColor),
+                            const SizedBox(width: 12),
                             Text(
                               'Sound',
                               style: TextStyle(
-                                color: Colors.white,
+                                color: textColor,
                                 fontSize: 16,
                               ),
                             ),
@@ -56,66 +119,111 @@ class SettingsScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  
                   const SizedBox(height: 24),
-                  
-                  // What's New Section
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1E1E2C),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                  _settingsCard(
+                    cardColor: cardColor,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          '🎮 Pet Game v27.0',
+                        Text(
+                          'Updates',
                           style: TextStyle(
-                            color: Colors.white,
+                            color: textColor,
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         const SizedBox(height: 8),
-                        const Text(
-                          '🆕 NEW FEATURES:\n• 🎮 Enhanced Minecraft 2D with creative mode\n• 🏗️ Block placement & breaking with sound effects\n• 🔄 Auto-save every 5 seconds with cloud backup\n• 🎯 Score system & achievements\n• 🌍 Multi-layer world generation\n• 📱 Optimized for iPad & iPhone\n• 🎨 Improved UI & animations\n\n🔄 Migration Complete: All data transferred from v26.5',
+                        Text(
+                          'You have Kitty Adventure v${UpdateService.currentVersion}.',
+                          style: TextStyle(color: subTextColor, fontSize: 13),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'We will let you know when a new adventure is ready.',
+                          style: TextStyle(color: subTextColor, fontSize: 13),
+                        ),
+                        const SizedBox(height: 12),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            onPressed: _checkingForUpdates
+                                ? null
+                                : _checkForUpdatesNow,
+                            icon: _checkingForUpdates
+                                ? const SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Icon(Icons.refresh),
+                            label: Text(
+                              _checkingForUpdates
+                                  ? 'Checking...'
+                                  : 'Check for Updates',
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFFF76B7),
+                              foregroundColor: Colors.white,
+                            ),
+                          ),
+                        ),
+                        if (_updateStatus != null) ...[
+                          const SizedBox(height: 10),
+                          Text(
+                            _updateStatus!,
+                            style: TextStyle(color: subTextColor, fontSize: 13),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  _settingsCard(
+                    cardColor: cardColor,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '🎮 Kitty Adventure v${UpdateService.currentVersion}',
                           style: TextStyle(
-                            color: Colors.white70,
+                            color: textColor,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          '🛠️ WHAT\'S NEW:\n• Bug fixes\n• Cat profiles and jobs\n• Room action bonuses\n• Outfit set bonuses\n• Secret codes\n• Easter Egg Journal\n• Group play cutscene',
+                          style: TextStyle(
+                            color: subTextColor,
                             fontSize: 12,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  
                   const SizedBox(height: 24),
-                  
-                  // Reset Game Section
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1E1E2C),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                  _settingsCard(
+                    cardColor: cardColor,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           '⚠️ Reset Game',
                           style: TextStyle(
-                            color: Colors.white,
+                            color: textColor,
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         const SizedBox(height: 8),
-                        const Text(
+                        Text(
                           'This will delete all your progress. Are you sure?',
                           style: TextStyle(
-                            color: Colors.white70,
+                            color: subTextColor,
                             fontSize: 14,
                           ),
                         ),
@@ -141,24 +249,45 @@ class SettingsScreen extends StatelessWidget {
                 ],
               ),
             ),
-          );
-        },
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _settingsCard({
+    required Color cardColor,
+    required Widget child,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: BorderRadius.circular(12),
       ),
+      child: child,
     );
   }
 
   void _showResetDialog(BuildContext context) {
+    final darkMode = Theme.of(context).brightness == Brightness.dark;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF2D2D3A),
-        title: const Text(
+        backgroundColor:
+            darkMode ? const Color(0xFF1A1D2B) : const Color(0xFFFFF7D6),
+        title: Text(
           'Reset Game?',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(
+            color: darkMode ? const Color(0xFFFFEAC2) : Color(0xFF7A4B3B),
+          ),
         ),
-        content: const Text(
+        content: Text(
           'This will delete all your progress. Are you sure?',
-          style: TextStyle(color: Colors.white70),
+          style: TextStyle(
+            color: darkMode ? const Color(0xFFFFC98E) : Color(0xFF9F6834),
+          ),
         ),
         actions: [
           TextButton(

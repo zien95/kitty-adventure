@@ -74,8 +74,9 @@ class _MessagesScreenState extends State<MessagesScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               children: [
                 _buildCategoryChip(null, 'All'),
-                ...MessageCategory.values.map((category) => 
-                  _buildCategoryChip(category, _getCategoryName(category)),
+                ...MessageCategory.values.map(
+                  (category) =>
+                      _buildCategoryChip(category, _getCategoryName(category)),
                 ),
               ],
             ),
@@ -116,7 +117,9 @@ class _MessagesScreenState extends State<MessagesScreen> {
           color: isSelected ? Colors.white : Colors.white70,
         ),
         side: BorderSide(
-          color: isSelected ? const Color(0xFF7B1FA2) : Colors.white.withOpacity(0.3),
+          color: isSelected
+              ? const Color(0xFF7B1FA2)
+              : Colors.white.withValues(alpha: 0.3),
         ),
       ),
     );
@@ -149,7 +152,9 @@ class _MessagesScreenState extends State<MessagesScreen> {
                       message.title,
                       style: TextStyle(
                         color: Colors.white,
-                        fontWeight: message.isRead ? FontWeight.normal : FontWeight.bold,
+                        fontWeight: message.isRead
+                            ? FontWeight.normal
+                            : FontWeight.bold,
                         fontSize: 16,
                       ),
                     ),
@@ -173,7 +178,8 @@ class _MessagesScreenState extends State<MessagesScreen> {
                     itemBuilder: (context) => [
                       const PopupMenuItem(
                         value: 'delete',
-                        child: Text('Delete', style: TextStyle(color: Colors.white)),
+                        child: Text('Delete',
+                            style: TextStyle(color: Colors.white)),
                       ),
                     ],
                   ),
@@ -195,7 +201,8 @@ class _MessagesScreenState extends State<MessagesScreen> {
                   if (message.sender != null) ...[
                     Text(
                       message.sender!,
-                      style: const TextStyle(color: Colors.white54, fontSize: 12),
+                      style:
+                          const TextStyle(color: Colors.white54, fontSize: 12),
                     ),
                     const SizedBox(width: 8),
                   ],
@@ -234,7 +241,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
           Text(
             'Check back later for updates and notifications',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.3),
+              color: Colors.white.withValues(alpha: 0.3),
               fontSize: 14,
             ),
           ),

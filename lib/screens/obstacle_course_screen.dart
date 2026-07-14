@@ -25,11 +25,11 @@ class _ObstacleCourseScreenState extends State<ObstacleCourseScreen> {
   List<Obstacle> _obstacles = [];
   List<Coin> _coinsList = [];
   double _gameSpeed = 2.0;
-  
+
   // Touch control variables
   bool _isPressed = false;
   Timer? _longPressTimer;
-  
+
   @override
   void initState() {
     super.initState();
@@ -50,7 +50,7 @@ class _ObstacleCourseScreenState extends State<ObstacleCourseScreen> {
   void _generateLevel() {
     _obstacles.clear();
     _coinsList.clear();
-    
+
     // Generate obstacles based on level
     for (int i = 0; i < 5 + _level; i++) {
       _obstacles.add(Obstacle(
@@ -61,7 +61,7 @@ class _ObstacleCourseScreenState extends State<ObstacleCourseScreen> {
         height: 60.0,
       ));
     }
-    
+
     // Generate coins
     for (int i = 0; i < 8 + _level * 2; i++) {
       _coinsList.add(Coin(
@@ -84,7 +84,7 @@ class _ObstacleCourseScreenState extends State<ObstacleCourseScreen> {
 
   void _gameLoop() {
     if (_gameOver || _gameWon) return;
-    
+
     Future.delayed(const Duration(milliseconds: 16), () {
       _updateGame();
       _gameLoop();
@@ -96,20 +96,20 @@ class _ObstacleCourseScreenState extends State<ObstacleCourseScreen> {
     for (var obstacle in _obstacles) {
       obstacle.x -= _gameSpeed;
     }
-    
+
     // Move coins
     for (var coin in _coinsList) {
       coin.x -= _gameSpeed;
     }
-    
+
     // Check collisions
     _checkCollisions();
-    
+
     // Check if level complete
     if (_obstacles.every((o) => o.x < -50)) {
       _levelComplete();
     }
-    
+
     setState(() {});
   }
 
@@ -117,8 +117,14 @@ class _ObstacleCourseScreenState extends State<ObstacleCourseScreen> {
     // Check obstacle collisions
     for (var obstacle in _obstacles) {
       if (_isColliding(
-        _petX, _petY, 40.0, 40.0,
-        obstacle.x, obstacle.y, obstacle.width, obstacle.height,
+        _petX,
+        _petY,
+        40.0,
+        40.0,
+        obstacle.x,
+        obstacle.y,
+        obstacle.width,
+        obstacle.height,
       )) {
         if (!_isJumping && !_isSliding) {
           _gameOver = true;
@@ -126,17 +132,24 @@ class _ObstacleCourseScreenState extends State<ObstacleCourseScreen> {
         }
       }
     }
-    
+
     // Check coin collections
     for (var coin in _coinsList) {
-      if (!coin.collected && _isColliding(
-        _petX, _petY, 40.0, 40.0,
-        coin.x, coin.y, 30.0, 30.0,
-      )) {
+      if (!coin.collected &&
+          _isColliding(
+            _petX,
+            _petY,
+            40.0,
+            40.0,
+            coin.x,
+            coin.y,
+            30.0,
+            30.0,
+          )) {
         coin.collected = true;
         _coins++;
         _score += 10;
-        
+
         // Award coins to pet immediately
         context.read<GameProvider>().awardGameRewards(5, 0, 1);
         context.read<GameProvider>().playClickSound();
@@ -144,26 +157,23 @@ class _ObstacleCourseScreenState extends State<ObstacleCourseScreen> {
     }
   }
 
-  bool _isColliding(double x1, double y1, double w1, double h1,
-                    double x2, double y2, double w2, double h2) {
-    return x1 < x2 + w2 &&
-           x1 + w1 > x2 &&
-           y1 < y2 + h2 &&
-           y1 + h1 > y2;
+  bool _isColliding(double x1, double y1, double w1, double h1, double x2,
+      double y2, double w2, double h2) {
+    return x1 < x2 + w2 && x1 + w1 > x2 && y1 < y2 + h2 && y1 + h1 > y2;
   }
 
   void _jump() {
     if (_isJumping || _gameOver || _gameWon) return;
-    
+
     setState(() {
       _isJumping = true;
     });
-    
+
     // Jump animation
     Future.delayed(const Duration(milliseconds: 100), () {
       if (mounted) setState(() => _petY = 200.0);
     });
-    
+
     Future.delayed(const Duration(milliseconds: 400), () {
       if (mounted) {
         setState(() {
@@ -176,11 +186,11 @@ class _ObstacleCourseScreenState extends State<ObstacleCourseScreen> {
 
   void _slide() {
     if (_isSliding || _gameOver || _gameWon) return;
-    
+
     setState(() {
       _isSliding = true;
     });
-    
+
     Future.delayed(const Duration(milliseconds: 500), () {
       if (mounted) setState(() => _isSliding = false);
     });
@@ -189,15 +199,15 @@ class _ObstacleCourseScreenState extends State<ObstacleCourseScreen> {
   void _levelComplete() {
     _gameWon = true;
     _score += 100 * _level;
-    
+
     // Award rewards to pet
     final gameProvider = context.read<GameProvider>();
     final xpReward = 50 * _level;
     final coinReward = 20 * _level;
     final gemReward = _level > 3 ? 2 : 1;
-    
+
     gameProvider.awardGameRewards(xpReward, gemReward, coinReward);
-    
+
     _showLevelComplete();
   }
 
@@ -290,7 +300,8 @@ class _ObstacleCourseScreenState extends State<ObstacleCourseScreen> {
               _nextLevel();
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.purple),
-            child: const Text('Next Level', style: TextStyle(color: Colors.white)),
+            child:
+                const Text('Next Level', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -345,20 +356,29 @@ class _ObstacleCourseScreenState extends State<ObstacleCourseScreen> {
                 children: [
                   Text(
                     'Level $_level',
-                    style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold),
                   ),
                   Text(
                     'Score: $_score',
-                    style: const TextStyle(color: Colors.yellow, fontSize: 18, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        color: Colors.yellow,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold),
                   ),
                   Text(
                     '💰 $_coins',
-                    style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
             ),
-            
+
             // Game Area
             Expanded(
               child: Focus(
@@ -383,9 +403,10 @@ class _ObstacleCourseScreenState extends State<ObstacleCourseScreen> {
                     if (!_gameOver && !_gameWon) {
                       _isPressed = true;
                       _jump();
-                      
+
                       // Start long press timer for sliding
-                      _longPressTimer = Timer(const Duration(milliseconds: 300), () {
+                      _longPressTimer =
+                          Timer(const Duration(milliseconds: 300), () {
                         if (_isPressed) {
                           _slide();
                         }
@@ -410,72 +431,73 @@ class _ObstacleCourseScreenState extends State<ObstacleCourseScreen> {
                         colors: [Color(0xFF87CEEB), Color(0xFF98FB98)],
                       ),
                     ),
-                  child: Stack(
-                    children: [
-                      // Ground
-                      Positioned(
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        height: 100,
-                        child: Container(
-                          decoration: const BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [Color(0xFF8B4513), Color(0xFF654321)],
-                            ),
-                          ),
-                        ),
-                      ),
-                      
-                      // Obstacles
-                      ..._obstacles.map((obstacle) => Positioned(
-                        left: obstacle.x,
-                        bottom: obstacle.y,
-                        child: _buildObstacle(obstacle),
-                      )),
-                      
-                      // Coins
-                      ..._coinsList.map((coin) => coin.collected 
-                        ? const SizedBox() 
-                        : Positioned(
-                            left: coin.x,
-                            bottom: coin.y,
-                            child: _buildCoin(),
-                          )),
-                      
-                      // Pet
-                      Positioned(
-                        left: _petX,
-                        bottom: _petY,
-                        child: _buildPet(),
-                      ),
-                      
-                      // Instructions
-                      if (_level == 1 && _score == 0)
+                    child: Stack(
+                      children: [
+                        // Ground
                         Positioned(
-                          top: 20,
-                          left: 20,
+                          bottom: 0,
+                          left: 0,
+                          right: 0,
+                          height: 100,
                           child: Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withValues(alpha: 0.7),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: const Text(
-                              'PC: Space to Jump, Shift to Slide!\n'
-                              'Phone: Tap to Jump, Long Press to Slide!\n'
-                              'Avoid obstacles and collect coins!',
-                              style: TextStyle(color: Colors.white, fontSize: 14),
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Color(0xFF8B4513), Color(0xFF654321)],
+                              ),
                             ),
                           ),
                         ),
-                    ],
+
+                        // Obstacles
+                        ..._obstacles.map((obstacle) => Positioned(
+                              left: obstacle.x,
+                              bottom: obstacle.y,
+                              child: _buildObstacle(obstacle),
+                            )),
+
+                        // Coins
+                        ..._coinsList.map((coin) => coin.collected
+                            ? const SizedBox()
+                            : Positioned(
+                                left: coin.x,
+                                bottom: coin.y,
+                                child: _buildCoin(),
+                              )),
+
+                        // Pet
+                        Positioned(
+                          left: _petX,
+                          bottom: _petY,
+                          child: _buildPet(),
+                        ),
+
+                        // Instructions
+                        if (_level == 1 && _score == 0)
+                          Positioned(
+                            top: 20,
+                            left: 20,
+                            child: Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withValues(alpha: 0.7),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Text(
+                                'PC: Space to Jump, Shift to Slide!\n'
+                                'Phone: Tap to Jump, Long Press to Slide!\n'
+                                'Avoid obstacles and collect coins!',
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 14),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-            ),
-            
+
             // Controls
             Container(
               padding: const EdgeInsets.all(16),
@@ -487,7 +509,8 @@ class _ObstacleCourseScreenState extends State<ObstacleCourseScreen> {
                     onPressed: _jump,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
-                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 30, vertical: 15),
                     ),
                     child: const Text('Jump', style: TextStyle(fontSize: 18)),
                   ),
@@ -495,7 +518,8 @@ class _ObstacleCourseScreenState extends State<ObstacleCourseScreen> {
                     onPressed: _slide,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
-                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 30, vertical: 15),
                     ),
                     child: const Text('Slide', style: TextStyle(fontSize: 18)),
                   ),
@@ -503,7 +527,8 @@ class _ObstacleCourseScreenState extends State<ObstacleCourseScreen> {
                     onPressed: () => Navigator.of(context).pop(),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
-                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 30, vertical: 15),
                     ),
                     child: const Text('Exit', style: TextStyle(fontSize: 18)),
                   ),
@@ -521,7 +546,7 @@ class _ObstacleCourseScreenState extends State<ObstacleCourseScreen> {
     final pet = gameProvider.pet;
     final petSize = _isSliding ? 20.0 : 40.0;
     final petOffset = _isSliding ? 20.0 : 0.0;
-    
+
     if (pet == null) {
       return Container(
         width: petSize,
@@ -536,7 +561,7 @@ class _ObstacleCourseScreenState extends State<ObstacleCourseScreen> {
         ),
       );
     }
-    
+
     return AnimatedContainer(
       duration: const Duration(milliseconds: 100),
       width: petSize,
@@ -621,7 +646,7 @@ class Obstacle {
   ObstacleType type;
   double width;
   double height;
-  
+
   Obstacle({
     required this.x,
     required this.y,
@@ -635,7 +660,7 @@ class Coin {
   double x;
   double y;
   bool collected;
-  
+
   Coin({
     required this.x,
     required this.y,

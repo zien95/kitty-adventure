@@ -18,7 +18,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       backgroundColor: const Color(0xFF2D2D3A),
       appBar: AppBar(
         backgroundColor: const Color(0xFF7B1FA2),
-        title: const Text('Notifications', style: TextStyle(color: Colors.white)),
+        title:
+            const Text('Notifications', style: TextStyle(color: Colors.white)),
         actions: [
           IconButton(
             icon: Icon(Icons.done_all, color: Colors.white),
@@ -51,13 +52,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               children: [
                 _buildFilterChip(null, 'All'),
-                ...NotificationType.values.map((type) => 
-                  _buildFilterChip(type, _getTypeDisplayName(type)),
+                ...NotificationType.values.map(
+                  (type) => _buildFilterChip(type, _getTypeDisplayName(type)),
                 ),
               ],
             ),
           ),
-          
+
           // Notifications List
           Expanded(
             child: _filteredNotifications.isEmpty
@@ -85,10 +86,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   Widget _buildFilterChip(NotificationType? type, String label) {
     final isSelected = _selectedType == type;
-    final count = type == null 
+    final count = type == null
         ? _notificationService.notifications.length
-        : _notificationService.notifications.where((n) => n.type == type).length;
-    
+        : _notificationService.notifications
+            .where((n) => n.type == type)
+            .length;
+
     return Padding(
       padding: const EdgeInsets.only(right: 8),
       child: FilterChip(
@@ -105,7 +108,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           color: isSelected ? Colors.white : Colors.white70,
         ),
         side: BorderSide(
-          color: isSelected ? const Color(0xFF7B1FA2) : Colors.white.withOpacity(0.3),
+          color: isSelected
+              ? const Color(0xFF7B1FA2)
+              : Colors.white.withValues(alpha: 0.3),
         ),
       ),
     );
@@ -114,7 +119,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Widget _buildNotificationCard(GameNotification notification) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      color: notification.isRead ? const Color(0xFF3D3D4A) : const Color(0xFF4A4A6A),
+      color: notification.isRead
+          ? const Color(0xFF3D3D4A)
+          : const Color(0xFF4A4A6A),
       child: InkWell(
         onTap: () {
           if (!notification.isRead) {
@@ -133,7 +140,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: notification.color.withOpacity(0.2),
+                      color: notification.color.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Icon(
@@ -151,7 +158,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                           notification.title,
                           style: TextStyle(
                             color: Colors.white,
-                            fontWeight: notification.isRead ? FontWeight.normal : FontWeight.bold,
+                            fontWeight: notification.isRead
+                                ? FontWeight.normal
+                                : FontWeight.bold,
                             fontSize: 16,
                           ),
                         ),
@@ -186,9 +195,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   ),
                   const Spacer(),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: notification.color.withOpacity(0.2),
+                      color: notification.color.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -230,7 +240,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           Text(
             'You\'re all caught up!',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.3),
+              color: Colors.white.withValues(alpha: 0.3),
               fontSize: 14,
             ),
           ),

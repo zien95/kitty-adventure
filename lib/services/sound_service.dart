@@ -20,10 +20,10 @@ class SoundService {
     try {
       // Enhanced sound feedback with multiple attempts
       await SystemSound.play(SystemSoundType.click);
-      
+
       // Add haptic feedback for better accessibility
       await _triggerHapticFeedback(soundName);
-      
+
       // Visual feedback alternative
       await _triggerVisualFeedback(soundName);
     } catch (e) {

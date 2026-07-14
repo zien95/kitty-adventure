@@ -6,7 +6,6 @@ import '../providers/game_provider.dart';
 import '../providers/account_provider.dart';
 import '../widgets/stat_bar.dart';
 import 'settings_screen.dart';
-import 'mini_games_screen.dart';
 import 'help_screen.dart';
 import 'obstacle_course_screen.dart';
 import 'account_screen.dart';
@@ -16,30 +15,19 @@ import '../widgets/notification_bell.dart';
 // Pet care game changelog
 final List<Map<String, String>> _petCareChangelog = [
   {
-    'version': 'v27.0 - Ultimate Pet Experience',
+    'version': 'v26.8.1 - Kitty Hub Update',
     'features': '''
-👤 ACCOUNT SYSTEM: Create profiles, track progress, cloud sync
-🌟 PREMIUM FEATURES: Unlock exclusive content and bonuses
-🎮 NEW MINI-GAMES: Memory Match, Word Puzzle, Rhythm Game
-🏆 ACHIEVEMENT SYSTEM: 50+ unlockable achievements
-📊 DETAILED STATS: Track every aspect of your pet care
-🎨 CUSTOMIZATION: New accessories, colors, and themes
-🤝 SOCIAL FEATURES: Friend system, pet sharing, leaderboards
-🌍 MULTI-PET SUPPORT: Care for multiple pets simultaneously
-🎯 DAILY CHALLENGES: Complete tasks for rewards
-💝 LOYALTY PROGRAM: Earn rewards for consistent care
-🔔 SMART NOTIFICATIONS: Reminders for pet needs
-📱 ENHANCED UI: Better navigation, animations, and feedback
-🎵 SOUND SYSTEM: Custom music and sound effects
-🌈 WEATHER SYSTEM: Dynamic weather affects pet mood
-🏠 HOME CUSTOMIZATION: Decorate your pet's living space
-📚 PET JOURNAL: Track memories and milestones
-🎪 SPECIAL EVENTS: Seasonal activities and celebrations
-🔮 FUTURE PREDICTIONS: AI-powered pet care suggestions
-🚀 SPACE EXPLORATION: Take pets on cosmic adventures
-🏖️ BEACH VACATION: Summer activities and mini-games
-🎄 HOLIDAY CELEBRATIONS: Festive events and rewards
-    '''
+🐾 CAT MANAGER CENTER: Adopt, rename, switch, manage profiles, and play together
+🧰 CAT JOBS: Send cats out for timed rewards
+🏠 ROOM EFFECTS: Equipped rooms boost matching actions
+👗 OUTFIT SETS: Matching outfits unlock bonus boosts
+🔐 SECRET CODES: One-time reward codes in Kitty Hub
+📖 EASTER EGG JOURNAL: Found secrets are tracked
+🎉 3RD ANNIVERSARY: Corner banner and hidden jokes
+📊 DETAILED STATS: Health, sleep, level, bond, social, IQ, and more
+🎮 MINI-GAMES: Puzzle, racing, rhythm, memory, quiz, and more
+🛠️ BUG FIXES: Layout polish and smoother play
+    ''',
   },
   {
     'version': 'v2.0 - Enhanced Pet Care',
@@ -52,7 +40,7 @@ final List<Map<String, String>> _petCareChangelog = [
 🎒 Inventory & Items: 4 strategic items
 🎯 Skills & Progression: 4 trainable skills
 💝 Social & Bonding: Friendship and loyalty
-    '''
+    ''',
   },
   {
     'version': 'v1.0 - Foundation',
@@ -63,7 +51,7 @@ final List<Map<String, String>> _petCareChangelog = [
 🎯 Simple Actions (Feed, Play, Clean, Sleep)
 💾 Local Save System
 📱 Touch Controls
-    '''
+    ''',
   },
 ];
 
@@ -100,75 +88,81 @@ class _GameScreenState extends State<GameScreen> {
     }
   }
 
-void _showPetCareChangelog(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Row(
-          children: [
-            Icon(Icons.new_releases, color: Colors.pink),
-            const SizedBox(width: 8),
-            Text("What's New", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-          ],
-        ),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: ListView.builder(
-            shrinkWrap: true,
-            itemCount: _petCareChangelog.length,
-            itemBuilder: (context, index) {
-              final update = _petCareChangelog[index];
-              return Card(
-                margin: const EdgeInsets.only(bottom: 8),
-                color: const Color(0xFF4A4A6A),
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        update['version']!,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        update['features']!,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          height: 1.4,
-                          color: Colors.white70,
-                        ),
-                      ),
-                    ],
-                  ),
+  void _showPetCareChangelog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Row(
+            children: [
+              Icon(Icons.new_releases, color: Colors.pink),
+              const SizedBox(width: 8),
+              Text(
+                "What's New",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
-              );
-            },
+              ),
+            ],
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Close', style: TextStyle(color: Colors.pink)),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: _petCareChangelog.length,
+              itemBuilder: (context, index) {
+                final update = _petCareChangelog[index];
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  color: const Color(0xFF4A4A6A),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          update['version']!,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          update['features']!,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            height: 1.4,
+                            color: Colors.white70,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
-        ],
-        backgroundColor: const Color(0xFF2D2D3A),
-      );
-    },
-  );
-}
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Close', style: TextStyle(color: Colors.pink)),
+            ),
+          ],
+          backgroundColor: const Color(0xFF2D2D3A),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Consumer2<GameProvider, AccountProvider>(
       builder: (context, gameProvider, accountProvider, child) {
         final pet = gameProvider.pet!;
-        final isPremium = accountProvider.account?.isPremium ?? false;
+        final isPremium = accountProvider.isPremium;
 
         return Scaffold(
           backgroundColor: const Color(0xFF2D2D3A),
@@ -178,12 +172,18 @@ void _showPetCareChangelog(BuildContext context) {
               children: [
                 const Text(
                   '🐾 Pet Care',
-                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 if (isPremium) ...[
                   const SizedBox(width: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.amber.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(8),
@@ -206,14 +206,24 @@ void _showPetCareChangelog(BuildContext context) {
               IconButton(
                 icon: const Icon(Icons.message, color: Colors.white),
                 onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const MessagesScreen()));
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const MessagesScreen(),
+                    ),
+                  );
                 },
                 tooltip: 'Messages',
               ),
               IconButton(
                 icon: const Icon(Icons.account_circle, color: Colors.white),
                 onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const AccountScreen()));
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AccountScreen(),
+                    ),
+                  );
                 },
                 tooltip: 'Account',
               ),
@@ -249,19 +259,42 @@ void _showPetCareChangelog(BuildContext context) {
                     _performAction(gameProvider, 'medicine');
                     return KeyEventResult.handled;
                   case 'G':
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const MiniGamesScreen()));
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => Container()),
+                    );
                     return KeyEventResult.handled;
                   case 'O':
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const ObstacleCourseScreen()));
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ObstacleCourseScreen(),
+                      ),
+                    );
                     return KeyEventResult.handled;
                   case 'H':
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const HelpScreen()));
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const HelpScreen(),
+                      ),
+                    );
                     return KeyEventResult.handled;
-                  case 'M':
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const MessagesScreen()));
+                  case 'N':
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const MessagesScreen(),
+                      ),
+                    );
                     return KeyEventResult.handled;
                   case 'A':
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const AccountScreen()));
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AccountScreen(),
+                      ),
+                    );
                     return KeyEventResult.handled;
                   case 'Escape':
                     if (_showActions) {
@@ -293,7 +326,7 @@ void _showPetCareChangelog(BuildContext context) {
                               width: 140,
                               height: 140,
                               decoration: BoxDecoration(
-                                color: pet.type.color.withOpacity(0.3),
+                                color: pet.type.color.withValues(alpha: 0.3),
                                 shape: BoxShape.circle,
                                 border: Border.all(
                                   color: pet.type.color,
@@ -313,7 +346,9 @@ void _showPetCareChangelog(BuildContext context) {
                                         top: 0,
                                         right: 0,
                                         child: Text(
-                                          _getAccessoryEmoji(pet.currentAccessory),
+                                          _getAccessoryEmoji(
+                                            pet.currentAccessory,
+                                          ),
                                           style: const TextStyle(fontSize: 24),
                                         ),
                                       ),
@@ -321,261 +356,291 @@ void _showPetCareChangelog(BuildContext context) {
                                 ),
                               ),
                             ),
-                          // Mood indicator
-                          Positioned(
-                            bottom: 0,
-                            right: 0,
-                            child: Container(
-                              padding: const EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                color: _getMoodColor(pet.currentMood),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Text(
-                                pet.moodEmoji,
-                                style: const TextStyle(fontSize: 16),
+                            // Mood indicator
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: _getMoodColor(pet.currentMood),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Text(
+                                  pet.moodEmoji,
+                                  style: const TextStyle(fontSize: 16),
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
-                  ),
 
-                  // Stats Panel
-                  Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 16),
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF3D3D4A),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              '${pet.name} ${pet.evolutionEmoji}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Row(
-                              children: [
-                                Text(
-                                  pet.moodEmoji,
-                                  style: const TextStyle(fontSize: 24),
-                                ),
-                                const SizedBox(width: 8),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: _getMoodColor(pet.currentMood),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Text(
-                                    pet.currentMood.name,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Level ${pet.level} ${pet.personality.name}',
-                              style: const TextStyle(color: Colors.white70, fontSize: 14),
-                            ),
-                            Row(
-                              children: [
-                                const Text('💰', style: TextStyle(fontSize: 16)),
-                                Text(
-                                  '${pet.coins}',
-                                  style: const TextStyle(color: Colors.yellow, fontSize: 14),
-                                ),
-                                const SizedBox(width: 8),
-                                const Text('💎', style: TextStyle(fontSize: 16)),
-                                Text(
-                                  '${pet.gems}',
-                                  style: const TextStyle(color: Colors.cyan, fontSize: 14),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              '❤️ ${_getFriendshipLevel(pet.friendshipLevel)}',
-                              style: TextStyle(
-                                color: _getFriendshipColor(pet.friendshipLevel),
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              '🧠 ${_getIntelligenceLevel(pet.intelligence)}',
-                              style: TextStyle(
-                                color: _getIntelligenceColor(pet.intelligence),
-                                fontSize: 12,
-                              ),
-                            ),
-                            Text(
-                              '👥 ${_getSocialLevel(pet.social)}',
-                              style: TextStyle(
-                                color: _getSocialColor(pet.social),
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Stats
-                  Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 16),
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF3D3D4A),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              'Pet Stats',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              '${_getStatusEmoji(pet.status)} ${_getStatusLabel(pet.status)}',
-                              style: TextStyle(
-                                color: _getStatusColor(pet.status),
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        StatBar(
-                          icon: Icons.restaurant,
-                          label: 'Hunger',
-                          value: pet.hunger,
-                          color: Colors.orange,
-                        ),
-                        const SizedBox(height: 12),
-                        StatBar(
-                          icon: Icons.bolt,
-                          label: 'Energy',
-                          value: pet.energy,
-                          color: Colors.yellow,
-                        ),
-                        const SizedBox(height: 12),
-                        StatBar(
-                          icon: Icons.soap,
-                          label: 'Cleanliness',
-                          value: pet.cleanliness,
-                          color: Colors.cyan,
-                        ),
-                        const SizedBox(height: 12),
-                        StatBar(
-                          icon: Icons.favorite,
-                          label: 'Happiness',
-                          value: pet.happiness,
-                          color: Colors.pink,
-                        ),
-                        const SizedBox(height: 12),
-                        StatBar(
-                          icon: Icons.health_and_safety,
-                          label: 'Health',
-                          value: pet.health,
-                          color: Colors.red,
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Action Button or Grid
-                  Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 16),
-                    child: _showActions
-                        ? _buildActionGrid(gameProvider)
-                        : ElevatedButton.icon(
-                            onPressed: () {
-                              gameProvider.playClickSound();
-                              setState(() => _showActions = true);
-                            },
-                            icon: const Icon(Icons.pets),
-                            label: const Text('Interact with Pet'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF7B1FA2),
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                          ),
-                  ),
-
-                  const SizedBox(height: 20),
-                  
-                  // Banner Ad - Only for non-premium users
-                  if (!isPremium)
+                    // Stats Panel
                     Container(
                       margin: const EdgeInsets.symmetric(horizontal: 16),
-                      padding: const EdgeInsets.all(12),
+                      padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF4A4A6A),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
+                        color: const Color(0xFF3D3D4A),
+                        borderRadius: BorderRadius.circular(16),
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      child: Column(
                         children: [
-                          Icon(Icons.ads_click, color: Colors.grey[400], size: 16),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Advertisement - Upgrade to Premium to remove ads',
-                            style: TextStyle(
-                              color: Colors.grey[400],
-                              fontSize: 12,
-                            ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                '${pet.name} ${pet.evolutionEmoji}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Row(
+                                children: [
+                                  Text(
+                                    pet.moodEmoji,
+                                    style: const TextStyle(fontSize: 24),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: _getMoodColor(pet.currentMood),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Text(
+                                      pet.currentMood.name,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Level ${pet.level} ${pet.personality.name}',
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              Row(
+                                children: [
+                                  const Text(
+                                    '💰',
+                                    style: TextStyle(fontSize: 16),
+                                  ),
+                                  Text(
+                                    '${pet.coins}',
+                                    style: const TextStyle(
+                                      color: Colors.yellow,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  const Text(
+                                    '💎',
+                                    style: TextStyle(fontSize: 16),
+                                  ),
+                                  Text(
+                                    '${pet.gems}',
+                                    style: const TextStyle(
+                                      color: Colors.cyan,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                '❤️ ${_getFriendshipLevel(pet.friendshipLevel)}',
+                                style: TextStyle(
+                                  color: _getFriendshipColor(
+                                    pet.friendshipLevel,
+                                  ),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                '🧠 ${_getIntelligenceLevel(pet.intelligence)}',
+                                style: TextStyle(
+                                  color: _getIntelligenceColor(
+                                    pet.intelligence,
+                                  ),
+                                  fontSize: 12,
+                                ),
+                              ),
+                              Text(
+                                '👥 ${_getSocialLevel(pet.social)}',
+                                style: TextStyle(
+                                  color: _getSocialColor(pet.social),
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
                     ),
-                ],
+
+                    const SizedBox(height: 16),
+
+                    // Stats
+                    Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 16),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF3D3D4A),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                'Pet Stats',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                '${_getStatusEmoji(pet.status)} ${_getStatusLabel(pet.status)}',
+                                style: TextStyle(
+                                  color: _getStatusColor(pet.status),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          StatBar(
+                            icon: Icons.restaurant,
+                            label: 'Hunger',
+                            value: pet.hunger,
+                            color: Colors.orange,
+                          ),
+                          const SizedBox(height: 12),
+                          StatBar(
+                            icon: Icons.bolt,
+                            label: 'Energy',
+                            value: pet.energy,
+                            color: Colors.yellow,
+                          ),
+                          const SizedBox(height: 12),
+                          StatBar(
+                            icon: Icons.soap,
+                            label: 'Cleanliness',
+                            value: pet.cleanliness,
+                            color: Colors.cyan,
+                          ),
+                          const SizedBox(height: 12),
+                          StatBar(
+                            icon: Icons.favorite,
+                            label: 'Happiness',
+                            value: pet.happiness,
+                            color: Colors.pink,
+                          ),
+                          const SizedBox(height: 12),
+                          StatBar(
+                            icon: Icons.health_and_safety,
+                            label: 'Health',
+                            value: pet.health,
+                            color: Colors.red,
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // Action Button or Grid
+                    Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 16),
+                      child: _showActions
+                          ? _buildActionGrid(gameProvider)
+                          : ElevatedButton.icon(
+                              onPressed: () {
+                                gameProvider.playClickSound();
+                                setState(() => _showActions = true);
+                              },
+                              icon: const Icon(Icons.pets),
+                              label: const Text('Interact with Pet'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF7B1FA2),
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // Banner Ad - Only for non-premium users
+                    if (!isPremium)
+                      Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 16),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF4A4A6A),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: Colors.grey.withValues(alpha: 0.3),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.ads_click,
+                              color: Colors.grey[400],
+                              size: 16,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Advertisement - Upgrade to Premium to remove ads',
+                              style: TextStyle(
+                                color: Colors.grey[400],
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
         );
       },
     );
@@ -616,9 +681,7 @@ void _showPetCareChangelog(BuildContext context) {
                   context.read<GameProvider>().playClickSound();
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => const HelpScreen(),
-                    ),
+                    MaterialPageRoute(builder: (context) => const HelpScreen()),
                   );
                 },
                 icon: const Icon(Icons.help_outline, color: Colors.white54),
@@ -751,7 +814,7 @@ void _showPetCareChangelog(BuildContext context) {
           context.read<GameProvider>().playClickSound();
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const MiniGamesScreen()),
+            MaterialPageRoute(builder: (context) => Container()),
           );
         },
       ),
@@ -763,7 +826,9 @@ void _showPetCareChangelog(BuildContext context) {
           context.read<GameProvider>().playClickSound();
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const ObstacleCourseScreen()),
+            MaterialPageRoute(
+              builder: (context) => const ObstacleCourseScreen(),
+            ),
           );
         },
       ),
@@ -991,7 +1056,7 @@ void _showPetCareChangelog(BuildContext context) {
   void _showItemsDialog(BuildContext context, GameProvider gameProvider) {
     final pet = gameProvider.pet!;
     final items = ['treat', 'toy', 'medicine', 'energy_drink'];
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -1017,19 +1082,24 @@ void _showPetCareChangelog(BuildContext context) {
                   }).toList(),
                 ),
               const SizedBox(height: 16),
-              const Text('Buy items:', style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text(
+                'Buy items:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 8),
-              ...items.map((item) => ListTile(
-                title: Text(item),
-                subtitle: Text('${item == 'medicine' ? '10' : '5'} coins'),
-                trailing: ElevatedButton(
-                  onPressed: () {
-                    gameProvider.buyItem(item, item == 'medicine' ? 10 : 5);
-                    Navigator.pop(context);
-                  },
-                  child: const Text('Buy'),
+              ...items.map(
+                (item) => ListTile(
+                  title: Text(item),
+                  subtitle: Text('${item == 'medicine' ? '10' : '5'} coins'),
+                  trailing: ElevatedButton(
+                    onPressed: () {
+                      gameProvider.buyItem(item, item == 'medicine' ? 10 : 5);
+                      Navigator.pop(context);
+                    },
+                    child: const Text('Buy'),
+                  ),
                 ),
-              )),
+              ),
             ],
           ),
         ),
@@ -1049,7 +1119,7 @@ void _showPetCareChangelog(BuildContext context) {
   void _showSkillsDialog(BuildContext context, GameProvider gameProvider) {
     final pet = gameProvider.pet!;
     final skills = ['intelligence', 'strength', 'agility', 'charisma'];
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -1090,7 +1160,7 @@ void _showPetCareChangelog(BuildContext context) {
   void _showAccessoriesDialog(BuildContext context, GameProvider gameProvider) {
     final pet = gameProvider.pet!;
     final accessories = ['hat', 'scarf', 'glasses', 'bow', 'collar'];
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -1118,22 +1188,27 @@ void _showPetCareChangelog(BuildContext context) {
                   }).toList(),
                 ),
               const SizedBox(height: 16),
-              const Text('Buy accessories:', style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text(
+                'Buy accessories:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 8),
-              ...accessories.map((accessory) => ListTile(
-                title: Text(accessory),
-                subtitle: Text('20 gems'),
-                trailing: ElevatedButton(
-                  onPressed: () {
-                    gameProvider.buyItem(accessory, 20, isGem: true);
-                    if (pet.gems >= 20) {
-                      gameProvider.addAccessory(accessory);
-                    }
-                    Navigator.pop(context);
-                  },
-                  child: const Text('Buy'),
+              ...accessories.map(
+                (accessory) => ListTile(
+                  title: Text(accessory),
+                  subtitle: Text('20 gems'),
+                  trailing: ElevatedButton(
+                    onPressed: () {
+                      gameProvider.buyItem(accessory, 20, isGem: true);
+                      if (pet.gems >= 20) {
+                        gameProvider.addAccessory(accessory);
+                      }
+                      Navigator.pop(context);
+                    },
+                    child: const Text('Buy'),
+                  ),
                 ),
-              )),
+              ),
             ],
           ),
         ),
@@ -1150,9 +1225,12 @@ void _showPetCareChangelog(BuildContext context) {
     );
   }
 
-  void _showAchievementsDialog(BuildContext context, GameProvider gameProvider) {
+  void _showAchievementsDialog(
+    BuildContext context,
+    GameProvider gameProvider,
+  ) {
     final pet = gameProvider.pet!;
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -1166,7 +1244,10 @@ void _showPetCareChangelog(BuildContext context) {
                   itemCount: pet.achievements.length,
                   itemBuilder: (context, index) {
                     return ListTile(
-                      leading: const Icon(Icons.emoji_events, color: Colors.amber),
+                      leading: const Icon(
+                        Icons.emoji_events,
+                        color: Colors.amber,
+                      ),
                       title: Text(pet.achievements[index]),
                     );
                   },
@@ -1221,10 +1302,10 @@ class _ActionItemWidget extends StatelessWidget {
         height: 80, // Increased height for better accessibility
         padding: const EdgeInsets.all(12), // Increased padding
         decoration: BoxDecoration(
-          color: color.withOpacity(0.2),
+          color: color.withValues(alpha: 0.2),
           borderRadius: BorderRadius.circular(16), // Larger radius
           border: Border.all(
-            color: color.withOpacity(0.5),
+            color: color.withValues(alpha: 0.5),
             width: 2, // Thicker border for better visibility
           ),
         ),

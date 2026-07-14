@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../models/pet.dart';
 import '../providers/game_provider.dart';
-import 'mini_games_screen.dart';
 import 'help_screen.dart';
 import 'obstacle_course_screen.dart';
 import 'settings_screen.dart';
@@ -91,25 +90,45 @@ class _CompactGameScreenState extends State<CompactGameScreen> {
                     _performAction(gameProvider, 'medicine');
                     return KeyEventResult.handled;
                   case 'A':
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const UserAccountScreen()));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const UserAccountScreen()));
                     return KeyEventResult.handled;
                   case 'D':
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const DataTransferScreen()));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const DataTransferScreen()));
                     return KeyEventResult.handled;
                   case 'G':
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const MiniGamesScreen()));
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => Container()));
                     return KeyEventResult.handled;
                   case 'O':
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const ObstacleCourseScreen()));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                const ObstacleCourseScreen()));
                     return KeyEventResult.handled;
                   case 'H':
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const HelpScreen()));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const HelpScreen()));
                     return KeyEventResult.handled;
                   case 'Set':
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen()));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const SettingsScreen()));
                     return KeyEventResult.handled;
                   case 'Z':
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const CustomizationScreen()));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const CustomizationScreen()));
                     return KeyEventResult.handled;
                 }
               }
@@ -136,20 +155,39 @@ class _CompactGameScreenState extends State<CompactGameScreen> {
                         Row(
                           children: [
                             IconButton(
-                              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const CustomizationScreen())),
-                              icon: const Icon(Icons.palette, color: Colors.white),
+                              onPressed: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const CustomizationScreen())),
+                              icon: const Icon(Icons.palette,
+                                  color: Colors.white),
                             ),
                             IconButton(
-                              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen())),
-                              icon: const Icon(Icons.settings, color: Colors.white),
+                              onPressed: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const SettingsScreen())),
+                              icon: const Icon(Icons.settings,
+                                  color: Colors.white),
                             ),
                             IconButton(
-                              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const HelpScreen())),
+                              onPressed: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const HelpScreen())),
                               icon: const Icon(Icons.help, color: Colors.white),
                             ),
                             IconButton(
-                              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ObstacleCourseScreen())),
-                              icon: const Icon(Icons.directions_run, color: Colors.white),
+                              onPressed: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const ObstacleCourseScreen())),
+                              icon: const Icon(Icons.directions_run,
+                                  color: Colors.white),
                             ),
                           ],
                         ),
@@ -171,20 +209,23 @@ class _CompactGameScreenState extends State<CompactGameScreen> {
                                 width: 100,
                                 height: 100,
                                 decoration: BoxDecoration(
-                                  color: pet.type.color.withOpacity(0.3),
+                                  color: pet.type.color.withValues(alpha: 0.3),
                                   shape: BoxShape.circle,
-                                  border: Border.all(color: pet.type.color, width: 3),
+                                  border: Border.all(
+                                      color: pet.type.color, width: 3),
                                 ),
                                 child: Stack(
                                   alignment: Alignment.center,
                                   children: [
-                                    Text(pet.type.emoji, style: const TextStyle(fontSize: 50)),
+                                    Text(pet.type.emoji,
+                                        style: const TextStyle(fontSize: 50)),
                                     if (pet.currentAccessory.isNotEmpty)
                                       Positioned(
                                         top: 0,
                                         right: 0,
                                         child: Text(
-                                          _getAccessoryEmoji(pet.currentAccessory),
+                                          _getAccessoryEmoji(
+                                              pet.currentAccessory),
                                           style: const TextStyle(fontSize: 16),
                                         ),
                                       ),
@@ -192,19 +233,23 @@ class _CompactGameScreenState extends State<CompactGameScreen> {
                                 ),
                               ),
                               const SizedBox(width: 16),
-                              
+
                               // Quick Stats - Most Important Only
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    _buildCompactStatBar('Health', pet.health, Colors.red),
+                                    _buildCompactStatBar(
+                                        'Health', pet.health, Colors.red),
                                     const SizedBox(height: 8),
-                                    _buildCompactStatBar('Hunger', pet.hunger, Colors.orange),
+                                    _buildCompactStatBar(
+                                        'Hunger', pet.hunger, Colors.orange),
                                     const SizedBox(height: 8),
-                                    _buildCompactStatBar('Happiness', pet.happiness, Colors.yellow),
+                                    _buildCompactStatBar('Happiness',
+                                        pet.happiness, Colors.yellow),
                                     const SizedBox(height: 8),
-                                    _buildCompactStatBar('Energy', pet.energy, Colors.blue),
+                                    _buildCompactStatBar(
+                                        'Energy', pet.energy, Colors.blue),
                                   ],
                                 ),
                               ),
@@ -225,47 +270,53 @@ class _CompactGameScreenState extends State<CompactGameScreen> {
                                   icon: Icons.restaurant,
                                   label: 'Feed\n(F)',
                                   color: Colors.orange,
-                                  onTap: () => _performAction(gameProvider, 'feed'),
+                                  onTap: () =>
+                                      _performAction(gameProvider, 'feed'),
                                 ),
-                                
+
                                 // 2. Play - Very Important
                                 _buildCompactActionItem(
                                   icon: Icons.toys,
                                   label: 'Play\n(P)',
                                   color: Colors.purple,
-                                  onTap: () => _performAction(gameProvider, 'play'),
+                                  onTap: () =>
+                                      _performAction(gameProvider, 'play'),
                                 ),
-                                
+
                                 // 3. Sleep - Critical for Energy
                                 _buildCompactActionItem(
                                   icon: Icons.bed,
                                   label: 'Sleep\n(S)',
                                   color: Colors.blue,
-                                  onTap: () => _performAction(gameProvider, 'sleep'),
+                                  onTap: () =>
+                                      _performAction(gameProvider, 'sleep'),
                                 ),
-                                
+
                                 // 4. Clean - Important for Health
                                 _buildCompactActionItem(
                                   icon: Icons.shower,
                                   label: 'Clean\n(C)',
                                   color: Colors.cyan,
-                                  onTap: () => _performAction(gameProvider, 'clean'),
+                                  onTap: () =>
+                                      _performAction(gameProvider, 'clean'),
                                 ),
-                                
+
                                 // 5. Train - For Intelligence
                                 _buildCompactActionItem(
                                   icon: Icons.school,
                                   label: 'Train\n(T)',
                                   color: Colors.green,
-                                  onTap: () => _performAction(gameProvider, 'train'),
+                                  onTap: () =>
+                                      _performAction(gameProvider, 'train'),
                                 ),
-                                
+
                                 // 6. Medicine - Emergency Only
                                 _buildCompactActionItem(
                                   icon: Icons.medical_services,
                                   label: 'Medicine\n(M)',
                                   color: Colors.red,
-                                  onTap: () => _performAction(gameProvider, 'medicine'),
+                                  onTap: () =>
+                                      _performAction(gameProvider, 'medicine'),
                                 ),
                               ],
                             ),
@@ -278,39 +329,53 @@ class _CompactGameScreenState extends State<CompactGameScreen> {
                             children: [
                               Expanded(
                                 child: ElevatedButton.icon(
-                                  onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const MiniGamesScreen())),
+                                  onPressed: () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => Container())),
                                   icon: const Icon(Icons.games),
                                   label: const Text('Games (G)'),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.purple,
                                     foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 12),
                                   ),
                                 ),
                               ),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: ElevatedButton.icon(
-                                  onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const CustomizationScreen())),
+                                  onPressed: () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              const CustomizationScreen())),
                                   icon: const Icon(Icons.palette),
                                   label: const Text('Style (Z)'),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.pink,
                                     foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 12),
                                   ),
                                 ),
                               ),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: ElevatedButton.icon(
-                                  onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ObstacleCourseScreen())),
+                                  onPressed: () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              const ObstacleCourseScreen())),
                                   icon: const Icon(Icons.directions_run),
                                   label: const Text('Course (O)'),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.orange,
                                     foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 12),
                                   ),
                                 ),
                               ),
@@ -338,18 +403,22 @@ class _CompactGameScreenState extends State<CompactGameScreen> {
           children: [
             Text(
               label,
-              style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold),
             ),
             Text(
               '$value%',
-              style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  color: color, fontSize: 12, fontWeight: FontWeight.bold),
             ),
           ],
         ),
         Container(
           height: 6,
           decoration: BoxDecoration(
-            color: Colors.grey.withOpacity(0.3),
+            color: Colors.grey.withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(3),
           ),
           child: FractionallySizedBox(
@@ -377,9 +446,9 @@ class _CompactGameScreenState extends State<CompactGameScreen> {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: color.withOpacity(0.2),
+          color: color.withValues(alpha: 0.2),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withOpacity(0.5), width: 2),
+          border: Border.all(color: color.withValues(alpha: 0.5), width: 2),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

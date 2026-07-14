@@ -22,7 +22,7 @@ class Account {
     this.petsOwned = 1,
     this.coins = 100,
     this.gems = 50,
-    this.isPremium = false,
+    this.isPremium = true,
     this.unlockedFeatures = const [],
     this.preferences = const {},
   });
@@ -49,13 +49,15 @@ class Account {
       id: json['id'] ?? '',
       username: json['username'] ?? '',
       email: json['email'] ?? '',
-      createdAt: DateTime.parse(json['createdAt'] ?? DateTime.now().toIso8601String()),
+      createdAt: DateTime.parse(
+        json['createdAt'] ?? DateTime.now().toIso8601String(),
+      ),
       totalPlayTime: json['totalPlayTime'] ?? 0,
       achievementsUnlocked: json['achievementsUnlocked'] ?? 0,
       petsOwned: json['petsOwned'] ?? 1,
       coins: json['coins'] ?? 100,
       gems: json['gems'] ?? 50,
-      isPremium: json['isPremium'] ?? false,
+      isPremium: json['isPremium'] ?? true,
       unlockedFeatures: List<String>.from(json['unlockedFeatures'] ?? []),
       preferences: Map<String, dynamic>.from(json['preferences'] ?? {}),
     );

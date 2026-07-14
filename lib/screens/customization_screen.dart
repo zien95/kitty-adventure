@@ -18,27 +18,127 @@ class _CustomizationScreenState extends State<CustomizationScreen> {
   Color selectedColor = Colors.blue;
 
   final List<Map<String, dynamic>> themes = [
-    {'name': 'default', 'color': Colors.blue, 'icon': Icons.palette, 'isPremium': false},
-    {'name': 'dark', 'color': Colors.grey[800]!, 'icon': Icons.nightlight, 'isPremium': false},
-    {'name': 'ocean', 'color': Colors.cyan, 'icon': Icons.waves, 'isPremium': false},
-    {'name': 'forest', 'color': Colors.green, 'icon': Icons.forest, 'isPremium': false},
-    {'name': 'sunset', 'color': Colors.orange, 'icon': Icons.wb_sunny, 'isPremium': false},
-    {'name': 'galaxy', 'color': Colors.purple, 'icon': Icons.star, 'isPremium': true},
-    {'name': 'rainbow', 'color': Colors.pink, 'icon': Icons.gradient, 'isPremium': true},
-    {'name': 'golden', 'color': Colors.amber, 'icon': Icons.auto_awesome, 'isPremium': true},
+    {
+      'name': 'default',
+      'color': Colors.blue,
+      'icon': Icons.palette,
+      'isPremium': false,
+    },
+    {
+      'name': 'dark',
+      'color': Colors.grey[800]!,
+      'icon': Icons.nightlight,
+      'isPremium': false,
+    },
+    {
+      'name': 'ocean',
+      'color': Colors.cyan,
+      'icon': Icons.waves,
+      'isPremium': false,
+    },
+    {
+      'name': 'forest',
+      'color': Colors.green,
+      'icon': Icons.forest,
+      'isPremium': false,
+    },
+    {
+      'name': 'sunset',
+      'color': Colors.orange,
+      'icon': Icons.wb_sunny,
+      'isPremium': false,
+    },
+    {
+      'name': 'galaxy',
+      'color': Colors.purple,
+      'icon': Icons.star,
+      'isPremium': true,
+    },
+    {
+      'name': 'rainbow',
+      'color': Colors.pink,
+      'icon': Icons.gradient,
+      'isPremium': true,
+    },
+    {
+      'name': 'golden',
+      'color': Colors.amber,
+      'icon': Icons.auto_awesome,
+      'isPremium': true,
+    },
   ];
 
   final List<Map<String, dynamic>> accessories = [
-    {'name': 'hat', 'emoji': '🎩', 'price': 20, 'type': 'gem', 'isPremium': false},
-    {'name': 'scarf', 'emoji': '🧣', 'price': 15, 'type': 'gem', 'isPremium': false},
-    {'name': 'glasses', 'emoji': '🕶️', 'price': 25, 'type': 'gem', 'isPremium': false},
-    {'name': 'bow', 'emoji': '🎀', 'price': 10, 'type': 'gem', 'isPremium': false},
-    {'name': 'collar', 'emoji': '📿', 'price': 18, 'type': 'gem', 'isPremium': false},
-    {'name': 'crown', 'emoji': '👑', 'price': 50, 'type': 'gem', 'isPremium': true},
-    {'name': 'wings', 'emoji': '👼', 'price': 100, 'type': 'gem', 'isPremium': true},
-    {'name': 'halo', 'emoji': '😇', 'price': 75, 'type': 'gem', 'isPremium': true},
-    {'name': 'throne', 'emoji': '👸', 'price': 150, 'type': 'gem', 'isPremium': true},
-    {'name': 'magic', 'emoji': '✨', 'price': 200, 'type': 'gem', 'isPremium': true},
+    {
+      'name': 'hat',
+      'emoji': '🎩',
+      'price': 20,
+      'type': 'gem',
+      'isPremium': false,
+    },
+    {
+      'name': 'scarf',
+      'emoji': '🧣',
+      'price': 15,
+      'type': 'gem',
+      'isPremium': false,
+    },
+    {
+      'name': 'glasses',
+      'emoji': '🕶️',
+      'price': 25,
+      'type': 'gem',
+      'isPremium': false,
+    },
+    {
+      'name': 'bow',
+      'emoji': '🎀',
+      'price': 10,
+      'type': 'gem',
+      'isPremium': false,
+    },
+    {
+      'name': 'collar',
+      'emoji': '📿',
+      'price': 18,
+      'type': 'gem',
+      'isPremium': false,
+    },
+    {
+      'name': 'crown',
+      'emoji': '👑',
+      'price': 50,
+      'type': 'gem',
+      'isPremium': true,
+    },
+    {
+      'name': 'wings',
+      'emoji': '👼',
+      'price': 100,
+      'type': 'gem',
+      'isPremium': true,
+    },
+    {
+      'name': 'halo',
+      'emoji': '😇',
+      'price': 75,
+      'type': 'gem',
+      'isPremium': true,
+    },
+    {
+      'name': 'throne',
+      'emoji': '👸',
+      'price': 150,
+      'type': 'gem',
+      'isPremium': true,
+    },
+    {
+      'name': 'magic',
+      'emoji': '✨',
+      'price': 200,
+      'type': 'gem',
+      'isPremium': true,
+    },
   ];
 
   @override
@@ -46,8 +146,8 @@ class _CustomizationScreenState extends State<CustomizationScreen> {
     return Consumer2<GameProvider, AccountProvider>(
       builder: (context, gameProvider, accountProvider, child) {
         final pet = gameProvider.pet;
-        final isPremium = accountProvider.account?.isPremium ?? false;
-        
+        final isPremium = accountProvider.isPremium;
+
         if (pet == null) {
           return const Scaffold(
             backgroundColor: Color(0xFF2D2D3A),
@@ -68,12 +168,18 @@ class _CustomizationScreenState extends State<CustomizationScreen> {
               children: [
                 const Text(
                   '🎨 Customization',
-                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 if (isPremium) ...[
                   const SizedBox(width: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.amber.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(8),
@@ -116,7 +222,10 @@ class _CustomizationScreenState extends State<CustomizationScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF7B1FA2),
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 32,
+                        vertical: 16,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -231,26 +340,28 @@ class _CustomizationScreenState extends State<CustomizationScreen> {
         final theme = themes[index];
         final isSelected = selectedTheme == theme['name'];
         final isLocked = theme['isPremium'] as bool && !isPremium;
-        
+
         return GestureDetector(
-          onTap: isLocked ? null : () {
-            setState(() {
-              selectedTheme = theme['name'];
-              selectedColor = theme['color'];
-            });
-          },
+          onTap: isLocked
+              ? null
+              : () {
+                  setState(() {
+                    selectedTheme = theme['name'];
+                    selectedColor = theme['color'];
+                  });
+                },
           child: Container(
             decoration: BoxDecoration(
-              color: isLocked 
-                ? Colors.grey.withValues(alpha: 0.2)
-                : theme['color'].withValues(alpha: 0.2),
+              color: isLocked
+                  ? Colors.grey.withValues(alpha: 0.2)
+                  : theme['color'].withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: isSelected 
-                  ? theme['color']! 
-                  : isLocked 
-                    ? Colors.grey.withValues(alpha: 0.3)
-                    : theme['color'].withValues(alpha: 0.3),
+                color: isSelected
+                    ? theme['color']!
+                    : isLocked
+                        ? Colors.grey.withValues(alpha: 0.3)
+                        : theme['color'].withValues(alpha: 0.3),
                 width: isSelected ? 3 : 1,
               ),
             ),
@@ -262,22 +373,22 @@ class _CustomizationScreenState extends State<CustomizationScreen> {
                     children: [
                       Icon(
                         theme['icon'],
-                        color: isLocked 
-                          ? Colors.grey 
-                          : isSelected 
-                            ? theme['color'] as Color 
-                            : Colors.white70,
+                        color: isLocked
+                            ? Colors.grey
+                            : isSelected
+                                ? theme['color'] as Color
+                                : Colors.white70,
                         size: 24,
                       ),
                       const SizedBox(height: 4),
                       Text(
                         theme['name'].toUpperCase(),
                         style: TextStyle(
-                          color: isLocked 
-                            ? Colors.grey 
-                            : isSelected 
-                              ? theme['color'] as Color 
-                              : Colors.white70,
+                          color: isLocked
+                              ? Colors.grey
+                              : isSelected
+                                  ? theme['color'] as Color
+                                  : Colors.white70,
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
                         ),
@@ -289,11 +400,7 @@ class _CustomizationScreenState extends State<CustomizationScreen> {
                   Positioned(
                     top: 4,
                     right: 4,
-                    child: Icon(
-                      Icons.lock,
-                      color: Colors.amber,
-                      size: 16,
-                    ),
+                    child: Icon(Icons.lock, color: Colors.amber, size: 16),
                   ),
               ],
             ),
@@ -374,19 +481,33 @@ class _CustomizationScreenState extends State<CustomizationScreen> {
       itemBuilder: (context, index) {
         final accessory = accessories[index];
         final isSelected = selectedAccessory == accessory['name'];
-        final isOwned = gameProvider.pet?.accessories.contains(accessory['name']) ?? false;
+        final isOwned =
+            gameProvider.pet?.accessories.contains(accessory['name']) ?? false;
         final isLocked = accessory['isPremium'] as bool && !isPremium;
-        final canAfford = !isLocked && ((accessory['type'] == 'gem' && (gameProvider.pet?.gems ?? 0) >= accessory['price']) ||
-                           (accessory['type'] == 'coin' && (gameProvider.pet?.coins ?? 0) >= accessory['price']));
-        
+        final canAfford = !isLocked &&
+            ((accessory['type'] == 'gem' &&
+                    (gameProvider.pet?.gems ?? 0) >= accessory['price']) ||
+                (accessory['type'] == 'coin' &&
+                    (gameProvider.pet?.coins ?? 0) >= accessory['price']));
+
         return GestureDetector(
-          onTap: isLocked || !canAfford ? null : () => _selectAccessory(accessory, gameProvider),
+          onTap: isLocked || !canAfford
+              ? null
+              : () => _selectAccessory(accessory, gameProvider),
           child: Container(
             decoration: BoxDecoration(
-              color: isSelected ? selectedColor.withValues(alpha: 0.3) : (isLocked ? Colors.grey.withValues(alpha: 0.2) : const Color(0xFF3D3D4A)),
+              color: isSelected
+                  ? selectedColor.withValues(alpha: 0.3)
+                  : (isLocked
+                      ? Colors.grey.withValues(alpha: 0.2)
+                      : const Color(0xFF3D3D4A)),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: isSelected ? selectedColor : (isLocked ? Colors.grey : (isOwned ? Colors.green : Colors.grey)),
+                color: isSelected
+                    ? selectedColor
+                    : (isLocked
+                        ? Colors.grey
+                        : (isOwned ? Colors.green : Colors.grey)),
                 width: isSelected ? 3 : 1,
               ),
             ),
@@ -406,7 +527,11 @@ class _CustomizationScreenState extends State<CustomizationScreen> {
                     Text(
                       accessory['name'].toUpperCase(),
                       style: TextStyle(
-                        color: isSelected ? selectedColor : (isLocked ? Colors.grey : (isOwned ? Colors.green : Colors.grey)),
+                        color: isSelected
+                            ? selectedColor
+                            : (isLocked
+                                ? Colors.grey
+                                : (isOwned ? Colors.green : Colors.grey)),
                         fontSize: 8,
                         fontWeight: FontWeight.bold,
                       ),
@@ -425,21 +550,13 @@ class _CustomizationScreenState extends State<CustomizationScreen> {
                   Positioned(
                     top: 4,
                     right: 4,
-                    child: Icon(
-                      Icons.lock,
-                      color: Colors.amber,
-                      size: 16,
-                    ),
+                    child: Icon(Icons.lock, color: Colors.amber, size: 16),
                   ),
                 if (!canAfford && !isLocked)
                   Positioned(
                     top: 4,
                     right: 4,
-                    child: Icon(
-                      Icons.money_off,
-                      color: Colors.red,
-                      size: 16,
-                    ),
+                    child: Icon(Icons.money_off, color: Colors.red, size: 16),
                   ),
               ],
             ),
@@ -449,7 +566,10 @@ class _CustomizationScreenState extends State<CustomizationScreen> {
     );
   }
 
-  void _selectAccessory(Map<String, dynamic> accessory, GameProvider gameProvider) {
+  void _selectAccessory(
+    Map<String, dynamic> accessory,
+    GameProvider gameProvider,
+  ) {
     setState(() {
       selectedAccessory = accessory['name'];
     });
@@ -458,12 +578,12 @@ class _CustomizationScreenState extends State<CustomizationScreen> {
   void _saveCustomization(GameProvider gameProvider) {
     // Apply theme color to pet
     gameProvider.updatePetColor(selectedColor);
-    
+
     // Apply selected accessory
     if (selectedAccessory != null) {
       gameProvider.addAccessory(selectedAccessory!);
     }
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Customization saved successfully!'),

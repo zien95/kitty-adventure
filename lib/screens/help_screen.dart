@@ -9,7 +9,8 @@ class HelpScreen extends StatelessWidget {
       backgroundColor: const Color(0xFF2D2D3A),
       appBar: AppBar(
         backgroundColor: const Color(0xFF7B1FA2),
-        title: const Text('🎮 Help & Guide', style: TextStyle(color: Colors.white)),
+        title: const Text('🎮 Help & Guide',
+            style: TextStyle(color: Colors.white)),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: SingleChildScrollView(
@@ -79,29 +80,29 @@ class HelpScreen extends StatelessWidget {
       _buildHelpItem(
         '⌨️ Pet Care Shortcuts',
         '• F - Feed pet\n'
-        '• P - Play with pet\n'
-        '• C - Clean pet\n'
-        '• S - Sleep pet\n'
-        '• T - Train pet\n'
-        '• M - Give medicine',
+            '• P - Play with pet\n'
+            '• C - Clean pet\n'
+            '• S - Sleep pet\n'
+            '• T - Train pet\n'
+            '• M - Give medicine',
         Icons.pets,
       ),
       _buildHelpItem(
         '🎮 Navigation Shortcuts',
         '• G - Open Games menu\n'
-        '• Z - Open Customization\n'
-        '• O - Open Obstacle Course\n'
-        '• H - Open Help screen\n'
-        '• Set - Open Settings\n'
-        '• A - Toggle Actions menu\n'
-        '• ESC - Close Actions menu',
+            '• Z - Open Customization\n'
+            '• O - Open Obstacle Course\n'
+            '• H - Open Help screen\n'
+            '• Set - Open Settings\n'
+            '• A - Toggle Actions menu\n'
+            '• ESC - Close Actions menu',
         Icons.navigation,
       ),
       _buildHelpItem(
         '♿ Accessibility Features',
         'Keyboard shortcuts make the app accessible to users who '
-        'prefer keyboard navigation or have difficulty using touch controls. '
-        'All shortcuts are designed to be intuitive and easy to remember.',
+            'prefer keyboard navigation or have difficulty using touch controls. '
+            'All shortcuts are designed to be intuitive and easy to remember.',
         Icons.accessibility,
       ),
     ];
@@ -110,8 +111,8 @@ class HelpScreen extends StatelessWidget {
   List<Widget> _whatsNewContent() {
     return [
       _buildFeatureItem(
-        '🌍 DIMENSIONS v26.5',
-        '3 Complete Worlds: Overworld, Nether, End\nPress T to teleport between dimensions\nEach world has unique blocks and ores',
+        '🌍 BLOCK BUILDER v26.8.1',
+        '3 complete worlds to explore\nPress T to teleport between dimensions\nEach world has unique blocks and surprises',
       ),
       _buildFeatureItem(
         '🔬 QUANTUM PHYSICS',
@@ -323,7 +324,7 @@ class HelpScreen extends StatelessWidget {
         decoration: BoxDecoration(
           color: const Color(0xFF3D3D4A),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.cyan.withOpacity(0.3)),
+          border: Border.all(color: Colors.cyan.withValues(alpha: 0.3)),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -331,7 +332,7 @@ class HelpScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.cyan.withOpacity(0.2),
+                color: Colors.cyan.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(icon, color: Colors.cyan, size: 20),

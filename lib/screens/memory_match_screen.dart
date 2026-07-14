@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/game_provider.dart';
 import '../providers/account_provider.dart';
 
 class MemoryMatchScreen extends StatefulWidget {
@@ -115,21 +114,30 @@ class _MemoryMatchScreenState extends State<MemoryMatchScreen> {
   }
 
   void _showWinDialog() {
-    final bonusScore = _seconds < 60 ? 200 : _seconds < 120 ? 100 : 50;
+    final bonusScore = _seconds < 60
+        ? 200
+        : _seconds < 120
+            ? 100
+            : 50;
     final totalScore = _score + bonusScore;
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF2D2D3A),
-        title: const Text('🎉 Congratulations!', style: TextStyle(color: Colors.white)),
+        title: const Text('🎉 Congratulations!',
+            style: TextStyle(color: Colors.white)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Time: $_seconds seconds', style: const TextStyle(color: Colors.white)),
+            Text('Time: $_seconds seconds',
+                style: const TextStyle(color: Colors.white)),
             Text('Moves: $_moves', style: const TextStyle(color: Colors.white)),
-            Text('Score: $totalScore', style: const TextStyle(color: Colors.yellow)),
-            if (bonusScore > 0) Text('Time Bonus: $bonusScore', style: const TextStyle(color: Colors.green)),
+            Text('Score: $totalScore',
+                style: const TextStyle(color: Colors.yellow)),
+            if (bonusScore > 0)
+              Text('Time Bonus: $bonusScore',
+                  style: const TextStyle(color: Colors.green)),
           ],
         ),
         actions: [
@@ -146,8 +154,10 @@ class _MemoryMatchScreenState extends State<MemoryMatchScreen> {
               _initializeGame();
               _startTimer();
             },
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF7B1FA2)),
-            child: const Text('Play Again', style: TextStyle(color: Colors.white)),
+            style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF7B1FA2)),
+            child:
+                const Text('Play Again', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -160,15 +170,18 @@ class _MemoryMatchScreenState extends State<MemoryMatchScreen> {
       backgroundColor: const Color(0xFF2D2D3A),
       appBar: AppBar(
         backgroundColor: const Color(0xFF7B1FA2),
-        title: const Text('Memory Match', style: TextStyle(color: Colors.white)),
+        title:
+            const Text('Memory Match', style: TextStyle(color: Colors.white)),
         actions: [
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text('Score: $_score', style: const TextStyle(color: Colors.yellow, fontSize: 16)),
-                Text('Time: $_seconds', style: const TextStyle(color: Colors.white, fontSize: 12)),
+                Text('Score: $_score',
+                    style: const TextStyle(color: Colors.yellow, fontSize: 16)),
+                Text('Time: $_seconds',
+                    style: const TextStyle(color: Colors.white, fontSize: 12)),
               ],
             ),
           ),
@@ -210,7 +223,9 @@ class _MemoryMatchScreenState extends State<MemoryMatchScreen> {
                           : const Color(0xFF4A4A6A),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: card.isMatched ? Colors.green : Colors.white.withOpacity(0.3),
+                        color: card.isMatched
+                            ? Colors.green
+                            : Colors.white.withValues(alpha: 0.3),
                         width: 2,
                       ),
                     ),
@@ -239,8 +254,13 @@ class _MemoryMatchScreenState extends State<MemoryMatchScreen> {
   Widget _buildStat(String label, String value) {
     return Column(
       children: [
-        Text(value, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-        Text(label, style: const TextStyle(color: Colors.white70, fontSize: 12)),
+        Text(value,
+            style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold)),
+        Text(label,
+            style: const TextStyle(color: Colors.white70, fontSize: 12)),
       ],
     );
   }
@@ -252,5 +272,9 @@ class CardModel {
   bool isFlipped;
   bool isMatched;
 
-  CardModel({required this.id, required this.emoji, this.isFlipped = false, this.isMatched = false});
+  CardModel(
+      {required this.id,
+      required this.emoji,
+      this.isFlipped = false,
+      this.isMatched = false});
 }

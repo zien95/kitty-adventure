@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
-import '../providers/game_provider.dart';
 import '../providers/account_provider.dart';
 
 class RhythmGameScreen extends StatefulWidget {
@@ -11,7 +10,8 @@ class RhythmGameScreen extends StatefulWidget {
   State<RhythmGameScreen> createState() => _RhythmGameScreenState();
 }
 
-class _RhythmGameScreenState extends State<RhythmGameScreen> with TickerProviderStateMixin {
+class _RhythmGameScreenState extends State<RhythmGameScreen>
+    with TickerProviderStateMixin {
   static const List<String> _songs = [
     'Pet Dance',
     'Happy Beats',
@@ -27,13 +27,13 @@ class _RhythmGameScreenState extends State<RhythmGameScreen> with TickerProvider
   bool _gameOver = false;
   int _missedNotes = 0;
   int _hitNotes = 0;
-  
+
   late AnimationController _gameController;
   late AnimationController _noteController;
   List<Note> _notes = [];
   Timer? _gameTimer;
   Timer? _noteGenerator;
-  
+
   static const double _noteSpeed = 5.0;
   static const double _hitZoneTop = 0.7;
   static const double _hitZoneBottom = 0.8;
@@ -71,16 +71,16 @@ class _RhythmGameScreenState extends State<RhythmGameScreen> with TickerProvider
       _hitNotes = 0;
       _notes.clear();
     });
-    
+
     _gameController.reset();
     _gameController.forward();
-    
+
     _noteGenerator = Timer.periodic(const Duration(milliseconds: 500), (timer) {
       if (_isPlaying && !_gameOver) {
         _generateNote();
       }
     });
-    
+
     _gameTimer = Timer.periodic(const Duration(milliseconds: 50), (timer) {
       if (_isPlaying && !_gameOver) {
         _updateGame();
@@ -92,7 +92,7 @@ class _RhythmGameScreenState extends State<RhythmGameScreen> with TickerProvider
     final lanes = [0, 1, 2, 3];
     lanes.shuffle();
     final lane = lanes.first;
-    
+
     _notes.add(Note(
       lane: lane,
       position: 0.0,
@@ -106,7 +106,7 @@ class _RhythmGameScreenState extends State<RhythmGameScreen> with TickerProvider
       for (var note in _notes) {
         note.position += _noteSpeed / 100;
       }
-      
+
       // Remove notes that are off screen
       _notes.removeWhere((note) {
         if (note.position > 1.0) {
@@ -119,7 +119,7 @@ class _RhythmGameScreenState extends State<RhythmGameScreen> with TickerProvider
         }
         return false;
       });
-      
+
       // Check if song ended
       if (_gameController.isCompleted) {
         _endGame();
@@ -128,19 +128,22 @@ class _RhythmGameScreenState extends State<RhythmGameScreen> with TickerProvider
   }
 
   void _hitNote(int lane) {
-    final hitNotes = _notes.where((note) => 
-      note.lane == lane && 
-      !note.hit &&
-      note.position >= _hitZoneTop - 0.05 && 
-      note.position <= _hitZoneBottom + 0.05
-    ).toList();
-    
+    final hitNotes = _notes
+        .where((note) =>
+            note.lane == lane &&
+            !note.hit &&
+            note.position >= _hitZoneTop - 0.05 &&
+            note.position <= _hitZoneBottom + 0.05)
+        .toList();
+
     if (hitNotes.isNotEmpty) {
       // Hit the closest note
-      hitNotes.sort((a, b) => (a.position - _hitZoneTop).abs().compareTo((b.position - _hitZoneTop).abs()));
+      hitNotes.sort((a, b) => (a.position - _hitZoneTop)
+          .abs()
+          .compareTo((b.position - _hitZoneTop).abs()));
       final note = hitNotes.first;
       note.hit = true;
-      
+
       // Calculate score based on timing
       final timing = (note.position - _hitZoneTop).abs();
       int points;
@@ -151,7 +154,7 @@ class _RhythmGameScreenState extends State<RhythmGameScreen> with TickerProvider
       } else {
         points = 25; // OK
       }
-      
+
       setState(() {
         _score += points * (1 + _combo ~/ 10);
         _combo++;
@@ -160,9 +163,9 @@ class _RhythmGameScreenState extends State<RhythmGameScreen> with TickerProvider
           _maxCombo = _combo;
         }
       });
-      
+
       _noteController.forward().then((_) => _noteController.reset());
-      
+
       // Update account stats
       context.read<AccountProvider>().updateStats(achievementsUnlocked: 1);
     } else {
@@ -182,20 +185,20 @@ class _RhythmGameScreenState extends State<RhythmGameScreen> with TickerProvider
   void _endGame() {
     _gameTimer?.cancel();
     _noteGenerator?.cancel();
-    
+
     setState(() {
       _isPlaying = false;
       _gameOver = true;
     });
-    
+
     _showGameOverDialog();
   }
 
   void _showGameOverDialog() {
-    final accuracy = _hitNotes + _missedNotes > 0 
+    final accuracy = _hitNotes + _missedNotes > 0
         ? ((_hitNotes / (_hitNotes + _missedNotes)) * 100).round()
         : 0;
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -207,11 +210,16 @@ class _RhythmGameScreenState extends State<RhythmGameScreen> with TickerProvider
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Score: $_score', style: const TextStyle(color: Colors.yellow, fontSize: 20)),
-            Text('Accuracy: $accuracy%', style: const TextStyle(color: Colors.green)),
-            Text('Max Combo: $_maxCombo', style: const TextStyle(color: Colors.orange)),
-            Text('Hit Notes: $_hitNotes', style: const TextStyle(color: Colors.blue)),
-            Text('Missed Notes: $_missedNotes', style: const TextStyle(color: Colors.red)),
+            Text('Score: $_score',
+                style: const TextStyle(color: Colors.yellow, fontSize: 20)),
+            Text('Accuracy: $accuracy%',
+                style: const TextStyle(color: Colors.green)),
+            Text('Max Combo: $_maxCombo',
+                style: const TextStyle(color: Colors.orange)),
+            Text('Hit Notes: $_hitNotes',
+                style: const TextStyle(color: Colors.blue)),
+            Text('Missed Notes: $_missedNotes',
+                style: const TextStyle(color: Colors.red)),
           ],
         ),
         actions: [
@@ -227,8 +235,10 @@ class _RhythmGameScreenState extends State<RhythmGameScreen> with TickerProvider
               Navigator.pop(context);
               _startGame();
             },
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF7B1FA2)),
-            child: const Text('Play Again', style: TextStyle(color: Colors.white)),
+            style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF7B1FA2)),
+            child:
+                const Text('Play Again', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -241,15 +251,18 @@ class _RhythmGameScreenState extends State<RhythmGameScreen> with TickerProvider
       backgroundColor: const Color(0xFF2D2D3A),
       appBar: AppBar(
         backgroundColor: const Color(0xFF7B1FA2),
-        title: Text('Rhythm Game - ${_songs[_currentSongIndex]}', style: const TextStyle(color: Colors.white)),
+        title: Text('Rhythm Game - ${_songs[_currentSongIndex]}',
+            style: const TextStyle(color: Colors.white)),
         actions: [
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text('Score: $_score', style: const TextStyle(color: Colors.yellow, fontSize: 16)),
-                Text('Combo: $_combo', style: const TextStyle(color: Colors.orange, fontSize: 12)),
+                Text('Score: $_score',
+                    style: const TextStyle(color: Colors.yellow, fontSize: 16)),
+                Text('Combo: $_combo',
+                    style: const TextStyle(color: Colors.orange, fontSize: 12)),
               ],
             ),
           ),
@@ -269,7 +282,7 @@ class _RhythmGameScreenState extends State<RhythmGameScreen> with TickerProvider
               ],
             ),
           ),
-          
+
           // Game Area
           Expanded(
             child: Container(
@@ -277,7 +290,7 @@ class _RhythmGameScreenState extends State<RhythmGameScreen> with TickerProvider
               decoration: BoxDecoration(
                 color: const Color(0xFF1a1a2e),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.white.withOpacity(0.2)),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
               ),
               child: Stack(
                 children: [
@@ -286,27 +299,29 @@ class _RhythmGameScreenState extends State<RhythmGameScreen> with TickerProvider
                     top: MediaQuery.of(context).size.height * _hitZoneTop,
                     left: 0,
                     right: 0,
-                    height: MediaQuery.of(context).size.height * (_hitZoneBottom - _hitZoneTop),
+                    height: MediaQuery.of(context).size.height *
+                        (_hitZoneBottom - _hitZoneTop),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Colors.green.withOpacity(0.2),
+                        color: Colors.green.withValues(alpha: 0.2),
                         border: Border.symmetric(
-                          horizontal: BorderSide(color: Colors.green.withOpacity(0.5)),
+                          horizontal: BorderSide(
+                              color: Colors.green.withValues(alpha: 0.5)),
                         ),
                       ),
                     ),
                   ),
-                  
+
                   // Notes
                   ..._notes.map((note) => _buildNote(note)),
-                  
+
                   // Lanes
                   ...List.generate(4, (lane) => _buildLane(lane)),
                 ],
               ),
             ),
           ),
-          
+
           // Controls
           Container(
             padding: const EdgeInsets.all(16),
@@ -318,12 +333,15 @@ class _RhythmGameScreenState extends State<RhythmGameScreen> with TickerProvider
                     onPressed: _startGame,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF7B1FA2),
-                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 40, vertical: 16),
                     ),
-                    child: const Text('Start Game', style: TextStyle(color: Colors.white)),
+                    child: const Text('Start Game',
+                        style: TextStyle(color: Colors.white)),
                   ),
-                ...List.generate(4, (lane) => 
-                  Expanded(
+                ...List.generate(
+                  4,
+                  (lane) => Expanded(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 4),
                       child: ElevatedButton(
@@ -334,7 +352,8 @@ class _RhythmGameScreenState extends State<RhythmGameScreen> with TickerProvider
                         ),
                         child: Text(
                           String.fromCharCode(65 + lane), // A, B, C, D
-                          style: const TextStyle(color: Colors.white, fontSize: 20),
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 20),
                         ),
                       ),
                     ),
@@ -351,8 +370,11 @@ class _RhythmGameScreenState extends State<RhythmGameScreen> with TickerProvider
   Widget _buildStat(String label, String value, Color color) {
     return Column(
       children: [
-        Text(value, style: TextStyle(color: color, fontSize: 18, fontWeight: FontWeight.bold)),
-        Text(label, style: const TextStyle(color: Colors.white70, fontSize: 12)),
+        Text(value,
+            style: TextStyle(
+                color: color, fontSize: 18, fontWeight: FontWeight.bold)),
+        Text(label,
+            style: const TextStyle(color: Colors.white70, fontSize: 12)),
       ],
     );
   }
@@ -366,7 +388,7 @@ class _RhythmGameScreenState extends State<RhythmGameScreen> with TickerProvider
       child: Container(
         decoration: BoxDecoration(
           border: Border.symmetric(
-            vertical: BorderSide(color: Colors.white.withOpacity(0.1)),
+            vertical: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
           ),
         ),
       ),
@@ -375,7 +397,7 @@ class _RhythmGameScreenState extends State<RhythmGameScreen> with TickerProvider
 
   Widget _buildNote(Note note) {
     if (note.hit) return const SizedBox.shrink();
-    
+
     return Positioned(
       top: MediaQuery.of(context).size.height * note.position,
       left: MediaQuery.of(context).size.width * (0.125 + note.lane * 0.25),
@@ -389,7 +411,7 @@ class _RhythmGameScreenState extends State<RhythmGameScreen> with TickerProvider
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: _getLaneColor(note.lane).withOpacity(0.5),
+                color: _getLaneColor(note.lane).withValues(alpha: 0.5),
                 blurRadius: 8,
                 spreadRadius: 2,
               ),
@@ -402,11 +424,16 @@ class _RhythmGameScreenState extends State<RhythmGameScreen> with TickerProvider
 
   Color _getLaneColor(int lane) {
     switch (lane) {
-      case 0: return Colors.red;
-      case 1: return Colors.blue;
-      case 2: return Colors.green;
-      case 3: return Colors.yellow;
-      default: return Colors.purple;
+      case 0:
+        return Colors.red;
+      case 1:
+        return Colors.blue;
+      case 2:
+        return Colors.green;
+      case 3:
+        return Colors.yellow;
+      default:
+        return Colors.purple;
     }
   }
 }

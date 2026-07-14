@@ -1,0 +1,17 @@
+{
+  "app": "Kitty Adventure",
+  "version": "26.8.3",
+  "title": "Kitty Adventure v26.8.3",
+  "required": false,
+  "release_date": "2026-07-12",
+  "size": "See download",
+  "changelog": [
+    "New UI",
+    "Cat updates"
+  ],
+  "download_url": "https://unstamped-revisit-underling.ngrok-free.dev/files/kitty-adventure-web-v26.8.3.zip",
+  "web_url": "https://kitty-adventure-zona.web.app/",
+  "apk_url": "https://unstamped-revisit-underling.ngrok-free.dev/files/kitty-adventure-v26.8.3.apk",
+  "ipa_url": "https://unstamped-revisit-underling.ngrok-free.dev/files/kitty-adventure-Sideloadly-v26.8.3.ipa",
+  "macos_url": "https://unstamped-revisit-underling.ngrok-free.dev/files/kitty-adventure-macos-v26.8.3.zip"
+}

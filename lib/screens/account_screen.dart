@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/account_provider.dart';
-import '../providers/game_provider.dart';
 
 class AccountScreen extends StatelessWidget {
   const AccountScreen({super.key});
@@ -30,7 +29,8 @@ class AccountScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLoginScreen(BuildContext context, AccountProvider accountProvider) {
+  Widget _buildLoginScreen(
+      BuildContext context, AccountProvider accountProvider) {
     final usernameController = TextEditingController();
     final emailController = TextEditingController();
 
@@ -41,7 +41,8 @@ class AccountScreen extends StatelessWidget {
         children: [
           const Icon(Icons.account_circle, size: 100, color: Color(0xFF7B1FA2)),
           const SizedBox(height: 20),
-          const Text('Welcome to Pet Care!', style: TextStyle(fontSize: 24, color: Colors.white)),
+          const Text('Welcome to Pet Care!',
+              style: TextStyle(fontSize: 24, color: Colors.white)),
           const SizedBox(height: 30),
           TextField(
             controller: usernameController,
@@ -49,7 +50,8 @@ class AccountScreen extends StatelessWidget {
             decoration: InputDecoration(
               labelText: 'Username',
               labelStyle: const TextStyle(color: Colors.white70),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
             ),
           ),
           const SizedBox(height: 16),
@@ -59,30 +61,34 @@ class AccountScreen extends StatelessWidget {
             decoration: InputDecoration(
               labelText: 'Email',
               labelStyle: const TextStyle(color: Colors.white70),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
             ),
           ),
           const SizedBox(height: 30),
           ElevatedButton(
             onPressed: () {
-              if (usernameController.text.isNotEmpty && emailController.text.isNotEmpty) {
-                accountProvider.login(usernameController.text, emailController.text);
+              if (usernameController.text.isNotEmpty &&
+                  emailController.text.isNotEmpty) {
+                accountProvider.login(
+                    usernameController.text, emailController.text);
               }
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF7B1FA2),
               padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
             ),
-            child: const Text('Create Account', style: TextStyle(color: Colors.white)),
+            child: const Text('Create Account',
+                style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildAccountScreen(BuildContext context, AccountProvider accountProvider) {
+  Widget _buildAccountScreen(
+      BuildContext context, AccountProvider accountProvider) {
     final account = accountProvider.account!;
-    final gameProvider = context.read<GameProvider>();
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -97,12 +103,19 @@ class AccountScreen extends StatelessWidget {
             ),
             child: Column(
               children: [
-                const Icon(Icons.account_circle, size: 80, color: Color(0xFF7B1FA2)),
+                const Icon(Icons.account_circle,
+                    size: 80, color: Color(0xFF7B1FA2)),
                 const SizedBox(height: 10),
-                Text(account.username, style: const TextStyle(fontSize: 24, color: Colors.white, fontWeight: FontWeight.bold)),
-                Text(account.email, style: const TextStyle(color: Colors.white70)),
-                Text('Member since ${account.createdAt.day}/${account.createdAt.month}/${account.createdAt.year}', 
-                     style: const TextStyle(color: Colors.white54)),
+                Text(account.username,
+                    style: const TextStyle(
+                        fontSize: 24,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold)),
+                Text(account.email,
+                    style: const TextStyle(color: Colors.white70)),
+                Text(
+                    'Member since ${account.createdAt.day}/${account.createdAt.month}/${account.createdAt.year}',
+                    style: const TextStyle(color: Colors.white54)),
               ],
             ),
           ),
@@ -119,7 +132,8 @@ class AccountScreen extends StatelessWidget {
             children: [
               _buildStatCard('💰 Coins', '${account.coins}', Colors.yellow),
               _buildStatCard('💎 Gems', '${account.gems}', Colors.cyan),
-              _buildStatCard('🏆 Achievements', '${account.achievementsUnlocked}', Colors.orange),
+              _buildStatCard('🏆 Achievements',
+                  '${account.achievementsUnlocked}', Colors.orange),
               _buildStatCard('🐾 Pets', '${account.petsOwned}', Colors.pink),
             ],
           ),
@@ -129,17 +143,21 @@ class AccountScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: account.isPremium ? Colors.amber.withOpacity(0.2) : Colors.grey.withOpacity(0.2),
+              color: account.isPremium
+                  ? Colors.amber.withValues(alpha: 0.2)
+                  : Colors.grey.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: account.isPremium ? Colors.amber : Colors.grey),
+              border: Border.all(
+                  color: account.isPremium ? Colors.amber : Colors.grey),
             ),
             child: Row(
               children: [
-                Icon(account.isPremium ? Icons.star : Icons.star_border, 
-                     color: account.isPremium ? Colors.amber : Colors.grey),
+                Icon(account.isPremium ? Icons.star : Icons.star_border,
+                    color: account.isPremium ? Colors.amber : Colors.grey),
                 const SizedBox(width: 10),
-                Text(account.isPremium ? 'Premium Member' : 'Free Account', 
-                     style: TextStyle(color: account.isPremium ? Colors.amber : Colors.grey)),
+                Text(account.isPremium ? 'Premium Member' : 'Free Account',
+                    style: TextStyle(
+                        color: account.isPremium ? Colors.amber : Colors.grey)),
               ],
             ),
           ),
@@ -170,7 +188,9 @@ class AccountScreen extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(value, style: TextStyle(fontSize: 24, color: color, fontWeight: FontWeight.bold)),
+          Text(value,
+              style: TextStyle(
+                  fontSize: 24, color: color, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           Text(title, style: const TextStyle(color: Colors.white70)),
         ],

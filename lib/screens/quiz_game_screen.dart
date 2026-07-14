@@ -31,17 +31,32 @@ class _QuizGameScreenState extends State<QuizGameScreen> {
     },
     {
       'question': 'What does the shower (clean) action do now?',
-      'options': ['Only cleans', 'Makes pet happy', 'Only gives XP', 'Reduces energy'],
+      'options': [
+        'Only cleans',
+        'Makes pet happy',
+        'Only gives XP',
+        'Reduces energy'
+      ],
       'correct': 1,
     },
     {
       'question': 'When should you use medicine on your pet?',
-      'options': ['When hungry', 'When health is low', 'When happy', 'When sleeping'],
+      'options': [
+        'When hungry',
+        'When health is low',
+        'When happy',
+        'When sleeping'
+      ],
       'correct': 1,
     },
     {
       'question': 'What happens at level 10 in the game?',
-      'options': ['Pet evolves', 'Get more coins', 'New game unlocks', 'Nothing special'],
+      'options': [
+        'Pet evolves',
+        'Get more coins',
+        'New game unlocks',
+        'Nothing special'
+      ],
       'correct': 0,
     },
     {
@@ -51,7 +66,12 @@ class _QuizGameScreenState extends State<QuizGameScreen> {
     },
     {
       'question': 'What is the best way to increase social stats?',
-      'options': ['Sleep more', 'Play and bond', 'Feed treats', 'Train intelligence'],
+      'options': [
+        'Sleep more',
+        'Play and bond',
+        'Feed treats',
+        'Train intelligence'
+      ],
       'correct': 1,
     },
     {
@@ -73,7 +93,8 @@ class _QuizGameScreenState extends State<QuizGameScreen> {
       backgroundColor: const Color(0xFF2D2D3A),
       appBar: AppBar(
         backgroundColor: Colors.indigo,
-        title: const Text('📝 Quiz Game', style: TextStyle(color: Colors.white)),
+        title:
+            const Text('📝 Quiz Game', style: TextStyle(color: Colors.white)),
         foregroundColor: Colors.white,
         actions: [
           Padding(
@@ -99,7 +120,7 @@ class _QuizGameScreenState extends State<QuizGameScreen> {
               minHeight: 8,
             ),
           ),
-          
+
           // Question
           Padding(
             padding: const EdgeInsets.all(16),
@@ -108,7 +129,7 @@ class _QuizGameScreenState extends State<QuizGameScreen> {
               style: const TextStyle(color: Colors.white, fontSize: 16),
             ),
           ),
-          
+
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 16),
             padding: const EdgeInsets.all(20),
@@ -126,9 +147,9 @@ class _QuizGameScreenState extends State<QuizGameScreen> {
               textAlign: TextAlign.center,
             ),
           ),
-          
+
           const SizedBox(height: 30),
-          
+
           // Answer options
           Expanded(
             child: ListView.builder(
@@ -138,28 +159,28 @@ class _QuizGameScreenState extends State<QuizGameScreen> {
                 final isCorrect = index == question['correct'];
                 final isSelected = index == _selectedAnswer;
                 final showResult = _isAnswered;
-                
+
                 Color backgroundColor;
                 Color borderColor;
-                
+
                 if (showResult) {
                   if (isCorrect) {
-                    backgroundColor = Colors.green.withOpacity(0.3);
+                    backgroundColor = Colors.green.withValues(alpha: 0.3);
                     borderColor = Colors.green;
                   } else if (isSelected && !isCorrect) {
-                    backgroundColor = Colors.red.withOpacity(0.3);
+                    backgroundColor = Colors.red.withValues(alpha: 0.3);
                     borderColor = Colors.red;
                   } else {
                     backgroundColor = const Color(0xFF3D3D4A);
                     borderColor = Colors.grey;
                   }
                 } else {
-                  backgroundColor = isSelected 
-                      ? Colors.indigo.withOpacity(0.3)
+                  backgroundColor = isSelected
+                      ? Colors.indigo.withValues(alpha: 0.3)
                       : const Color(0xFF3D3D4A);
                   borderColor = isSelected ? Colors.indigo : Colors.grey;
                 }
-                
+
                 return Container(
                   margin: const EdgeInsets.only(bottom: 12),
                   child: GestureDetector(
@@ -198,14 +219,18 @@ class _QuizGameScreenState extends State<QuizGameScreen> {
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
-                                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                fontWeight: isSelected
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
                               ),
                             ),
                           ),
                           if (showResult && isCorrect)
-                            const Icon(Icons.check_circle, color: Colors.green, size: 24),
+                            const Icon(Icons.check_circle,
+                                color: Colors.green, size: 24),
                           if (showResult && isSelected && !isCorrect)
-                            const Icon(Icons.cancel, color: Colors.red, size: 24),
+                            const Icon(Icons.cancel,
+                                color: Colors.red, size: 24),
                         ],
                       ),
                     ),
@@ -214,7 +239,7 @@ class _QuizGameScreenState extends State<QuizGameScreen> {
               },
             ),
           ),
-          
+
           // Next button
           if (_isAnswered)
             Container(
@@ -229,8 +254,11 @@ class _QuizGameScreenState extends State<QuizGameScreen> {
                   ),
                 ),
                 child: Text(
-                  _currentQuestion < _questions.length - 1 ? 'Next Question' : 'See Results',
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  _currentQuestion < _questions.length - 1
+                      ? 'Next Question'
+                      : 'See Results',
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ),
             ),
@@ -244,7 +272,7 @@ class _QuizGameScreenState extends State<QuizGameScreen> {
       _selectedAnswer = index;
       _isAnswered = true;
     });
-    
+
     final question = _questions[_currentQuestion];
     if (index == question['correct']) {
       _score += 10;
@@ -253,7 +281,7 @@ class _QuizGameScreenState extends State<QuizGameScreen> {
     } else {
       _soundService.playSound('click');
     }
-    
+
     // Auto-advance after 2 seconds
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted && _isAnswered) {
@@ -276,15 +304,16 @@ class _QuizGameScreenState extends State<QuizGameScreen> {
     final xpReward = 20 + (_correctAnswers * 5);
     final coinReward = 10 + (_correctAnswers * 2);
     final gemReward = _correctAnswers >= 6 ? 2 : 1;
-    
+
     // Award rewards
     gameProvider.awardGameRewards(xpReward, gemReward, coinReward);
-    
+
     return Scaffold(
       backgroundColor: const Color(0xFF2D2D3A),
       appBar: AppBar(
         backgroundColor: Colors.indigo,
-        title: const Text('📝 Quiz Results', style: TextStyle(color: Colors.white)),
+        title: const Text('📝 Quiz Results',
+            style: TextStyle(color: Colors.white)),
         foregroundColor: Colors.white,
         automaticallyImplyLeading: false,
       ),
@@ -328,11 +357,13 @@ class _QuizGameScreenState extends State<QuizGameScreen> {
                     const SizedBox(height: 20),
                     Text(
                       '$_correctAnswers out of ${_questions.length} correct',
-                      style: const TextStyle(color: Colors.white70, fontSize: 16),
+                      style:
+                          const TextStyle(color: Colors.white70, fontSize: 16),
                     ),
                     Text(
                       'Final Score: $_score',
-                      style: const TextStyle(color: Colors.yellow, fontSize: 18),
+                      style:
+                          const TextStyle(color: Colors.yellow, fontSize: 18),
                     ),
                   ],
                 ),
@@ -340,7 +371,10 @@ class _QuizGameScreenState extends State<QuizGameScreen> {
               const SizedBox(height: 30),
               Text(
                 'Rewards Earned:',
-                style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 10),
               Text(
@@ -357,7 +391,8 @@ class _QuizGameScreenState extends State<QuizGameScreen> {
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.grey,
-                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 30, vertical: 15),
                     ),
                     child: const Text('Exit', style: TextStyle(fontSize: 16)),
                   ),
@@ -365,9 +400,11 @@ class _QuizGameScreenState extends State<QuizGameScreen> {
                     onPressed: _resetQuiz,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.indigo,
-                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 30, vertical: 15),
                     ),
-                    child: const Text('Play Again', style: TextStyle(fontSize: 16)),
+                    child: const Text('Play Again',
+                        style: TextStyle(fontSize: 16)),
                   ),
                 ],
               ),

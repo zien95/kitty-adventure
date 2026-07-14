@@ -82,7 +82,7 @@ class _PuzzleGameScreenState extends State<PuzzleGameScreen> {
     final xpReward = 30;
     final coinReward = 15;
     final gemReward = 1;
-    
+
     gameProvider.awardGameRewards(xpReward, gemReward, coinReward);
 
     showDialog(
@@ -122,7 +122,8 @@ class _PuzzleGameScreenState extends State<PuzzleGameScreen> {
               _resetGame();
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-            child: const Text('Play Again', style: TextStyle(color: Colors.white)),
+            child:
+                const Text('Play Again', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -143,9 +144,15 @@ class _PuzzleGameScreenState extends State<PuzzleGameScreen> {
       backgroundColor: const Color(0xFF2D2D3A),
       appBar: AppBar(
         backgroundColor: Colors.red,
-        title: const Text('🧩 Puzzle Game', style: TextStyle(color: Colors.white)),
+        title:
+            const Text('🧩 Puzzle Game', style: TextStyle(color: Colors.white)),
         foregroundColor: Colors.white,
         actions: [
+          IconButton(
+            tooltip: 'How to play',
+            icon: const Icon(Icons.help_outline),
+            onPressed: _showHowToPlay,
+          ),
           Padding(
             padding: const EdgeInsets.only(right: 16),
             child: Center(
@@ -159,6 +166,7 @@ class _PuzzleGameScreenState extends State<PuzzleGameScreen> {
       ),
       body: Column(
         children: [
+          _buildHowToPlayCard(),
           Expanded(
             child: Center(
               child: AspectRatio(
@@ -170,7 +178,7 @@ class _PuzzleGameScreenState extends State<PuzzleGameScreen> {
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.3),
+                        color: Colors.black.withValues(alpha: 0.3),
                         blurRadius: 10,
                         offset: const Offset(0, 5),
                       ),
@@ -178,7 +186,8 @@ class _PuzzleGameScreenState extends State<PuzzleGameScreen> {
                   ),
                   child: GridView.builder(
                     physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 3,
                       crossAxisSpacing: 4,
                       mainAxisSpacing: 4,
@@ -187,24 +196,24 @@ class _PuzzleGameScreenState extends State<PuzzleGameScreen> {
                     itemBuilder: (context, index) {
                       final tileNumber = _tiles[index];
                       final isEmpty = tileNumber == 8;
-                      
+
                       return GestureDetector(
                         onTap: () => _moveTile(index),
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
                           decoration: BoxDecoration(
-                            color: isEmpty 
-                                ? Colors.transparent 
-                                : Colors.red.withOpacity(0.8),
+                            color: isEmpty
+                                ? Colors.transparent
+                                : Colors.red.withValues(alpha: 0.8),
                             borderRadius: BorderRadius.circular(8),
-                            border: isEmpty 
-                                ? null 
+                            border: isEmpty
+                                ? null
                                 : Border.all(color: Colors.white, width: 2),
-                            boxShadow: isEmpty 
-                                ? null 
+                            boxShadow: isEmpty
+                                ? null
                                 : [
                                     BoxShadow(
-                                      color: Colors.red.withOpacity(0.3),
+                                      color: Colors.red.withValues(alpha: 0.3),
                                       blurRadius: 5,
                                       offset: const Offset(0, 2),
                                     ),
@@ -239,7 +248,8 @@ class _PuzzleGameScreenState extends State<PuzzleGameScreen> {
                   onPressed: _resetGame,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orange,
-                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 30, vertical: 15),
                   ),
                   child: const Text('New Game', style: TextStyle(fontSize: 16)),
                 ),
@@ -247,12 +257,58 @@ class _PuzzleGameScreenState extends State<PuzzleGameScreen> {
                   onPressed: () => Navigator.of(context).pop(),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.grey,
-                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 30, vertical: 15),
                   ),
                   child: const Text('Exit', style: TextStyle(fontSize: 16)),
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHowToPlayCard() {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.18)),
+      ),
+      child: const Text(
+        'How to play: tap a tile next to the empty space to slide it. Put 1-8 in order, then leave the blank space at the end.',
+        style: TextStyle(color: Colors.white, fontSize: 13, height: 1.35),
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+
+  void _showHowToPlay() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF2D2D3A),
+        title: const Text(
+          'How to Play',
+          style: TextStyle(color: Colors.white),
+        ),
+        content: const Text(
+          'Slide tiles into the empty square until the board is solved.\n\n'
+          '1. Tap a tile beside the empty space.\n'
+          '2. Keep sliding until the tiles read 1, 2, 3, 4, 5, 6, 7, 8.\n'
+          '3. The blank space should finish in the last slot.\n\n'
+          'Try to solve it in as few moves as possible.',
+          style: TextStyle(color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Got it'),
           ),
         ],
       ),

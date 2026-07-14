@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="index, follow">
+  <meta name="description" content="Download the Xenix Updates shell helper for Kitty Adventure releases.">
+  <link rel="canonical" href="https://kitty-adventure-zona.web.app/xenix-updates/">
+  <link rel="icon" type="image/png" href="../favicon.png">
+  <title>Xenix Updates Helper</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: Arial, sans-serif;
+      background: #fff7d6;
+      color: #653e31;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 20% 18%, #ffffff 0 54px, transparent 55px),
+        radial-gradient(circle at 78% 24%, #ffffff 0 70px, transparent 71px),
+        linear-gradient(#cceeff 0 36%, #e9f8c9 36% 100%);
+    }
+
+    header {
+      padding: 28px 20px 22px;
+      text-align: center;
+      background: #ffe58b;
+      border-bottom: 4px solid #c77b3d;
+    }
+
+    h1,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      font-size: clamp(28px, 6vw, 46px);
+    }
+
+    header p {
+      margin-top: 8px;
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    main {
+      width: min(860px, calc(100% - 32px));
+      margin: 28px auto;
+      display: grid;
+      gap: 18px;
+    }
+
+    .panel {
+      padding: 20px;
+      background: #ffffff;
+      border: 3px solid #c77b3d;
+      border-radius: 8px;
+      box-shadow: 0 6px 0 rgb(157 90 48 / 20%);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    a.button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 12px 16px;
+      color: #ffffff;
+      font-weight: 800;
+      text-decoration: none;
+      background: #e95f9f;
+      border: 2px solid #9e3f70;
+      border-radius: 8px;
+    }
+
+    a.button.secondary {
+      color: #653e31;
+      background: #b9e8ff;
+      border-color: #5a99c3;
+    }
+
+    code,
+    pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    pre {
+      margin: 14px 0 0;
+      padding: 14px;
+      overflow-x: auto;
+      color: #fff7d6;
+      background: #3e2c2a;
+      border-radius: 8px;
+    }
+
+    .note {
+      margin-top: 10px;
+      line-height: 1.45;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🛠️ Xenix Updates</h1>
+    <p>The tiny shell helper for grabbing Kitty Adventure release files.</p>
+  </header>
+  <main>
+    <section class="panel">
+      <h2>Get the .sh</h2>
+      <p class="note">
+        Open it to inspect the script, or save it and run it from Terminal.
+      </p>
+      <div class="actions">
+        <a class="button" href="./xenix-updates.sh">View xenix-updates.sh</a>
+        <a class="button secondary" href="/files/">Back to downloads</a>
+      </div>
+    </section>
+    <section class="panel">
+      <h2>Terminal way</h2>
+      <p class="note">This downloads the helper into your current folder and runs it.</p>
+      <pre><code>curl -fsSL https://kitty-adventure-zona.web.app/xenix-updates/xenix-updates.sh -o xenix-updates.sh
+bash xenix-updates.sh</code></pre>
+    </section>
+  </main>
+</body>
+</html>

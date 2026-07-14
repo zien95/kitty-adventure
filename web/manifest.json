@@ -1,11 +1,11 @@
 {
-    "name": "trying_to_restore_pup",
-    "short_name": "trying_to_restore_pup",
+    "name": "Kitty Adventure",
+    "short_name": "Kitty Adventure",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#FFF7D6",
+    "theme_color": "#FF76B7",
+    "description": "Play, care for, and grow your cat family.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

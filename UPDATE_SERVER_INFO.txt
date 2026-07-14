@@ -1,0 +1,25 @@
+Kitty Adventure Update Server
+=============================
+GENERATED_AT=2026-07-13T13:08:30+0400
+UPDATE_DIR=/Users/linaahmed/KittyAdventureUpdates
+PORT=8081
+LOCAL_IP=192.168.100.131
+PUBLIC_IP=154.176.188.149
+LAN_BASE_URL=http://192.168.100.131:8081
+LAN_MANIFEST_URL=http://192.168.100.131:8081/latest.json
+DIRECT_PUBLIC_BASE_URL=http://154.176.188.149:8081
+DIRECT_PUBLIC_MANIFEST_URL=http://154.176.188.149:8081/latest.json
+PUBLIC_BASE_URL=https://unstamped-revisit-underling.ngrok-free.dev
+PUBLIC_MANIFEST_URL=https://unstamped-revisit-underling.ngrok-free.dev/latest.json
+WORLDWIDE_READY=yes
+HELPER_PID=1097
+SERVER_PID=2922
+TUNNEL_PID=2924
+SERVER_LOG=/Users/linaahmed/KittyAdventureUpdates/logs/update-server.log
+TUNNEL_LOG=/Users/linaahmed/KittyAdventureUpdates/logs/ngrok.log
+
+Notes:
+- LAN_MANIFEST_URL works on the same Wi-Fi.
+- PUBLIC_MANIFEST_URL works worldwide when WORLDWIDE_READY=yes.
+- PUBLIC_IP alone still needs router forwarding and may fail with CGNAT.
+- The ngrok dev-domain URL stays the same after helper restarts.

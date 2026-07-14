@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vibration/vibration.dart';
@@ -11,7 +10,11 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'screens/pet_game_screen.dart';
+import 'providers/account_provider.dart' as app_account;
+import 'providers/game_provider.dart' as app_game;
+import 'services/notification_service.dart' as app_notifications;
+import 'widgets/app_wrapper.dart';
 
 // ==================== CONSTANTS ====================
 
@@ -65,60 +68,78 @@ class ActionConstants {
 // ==================== MODELS ====================
 
 enum PetType { dog, cat, bunny, bird, dragon, phoenix, griffin, unicorn }
+
 enum PetPersonality { playful, lazy, curious, shy, energetic, calm }
+
 enum PetMood { happy, excited, sleepy, hungry, sad, sick, playful, loving }
+
 enum EvolutionStage { baby, child, teen, adult, elder }
 
 extension PetTypeExtension on PetType {
   String get emoji {
     switch (this) {
-      case PetType.dog: return '🐶';
-      case PetType.cat: return '🐱';
-      case PetType.bunny: return '🐰';
-      case PetType.bird: return '🐦';
-      case PetType.dragon: return '🐉';
-      case PetType.phoenix: return '🔥';
-      case PetType.griffin: return '🦅';
-      case PetType.unicorn: return '🦄';
+      case PetType.dog:
+        return '🐶';
+      case PetType.cat:
+        return '🐱';
+      case PetType.bunny:
+        return '🐰';
+      case PetType.bird:
+        return '🐦';
+      case PetType.dragon:
+        return '🐉';
+      case PetType.phoenix:
+        return '🔥';
+      case PetType.griffin:
+        return '🦅';
+      case PetType.unicorn:
+        return '🦄';
     }
   }
 
   String get name {
     switch (this) {
-      case PetType.dog: return 'Dog';
-      case PetType.cat: return 'Cat';
-      case PetType.bunny: return 'Bunny';
-      case PetType.bird: return 'Bird';
-      case PetType.dragon: return 'Dragon';
-      case PetType.phoenix: return 'Phoenix';
-      case PetType.griffin: return 'Griffin';
-      case PetType.unicorn: return 'Unicorn';
+      case PetType.dog:
+        return 'Dog';
+      case PetType.cat:
+        return 'Cat';
+      case PetType.bunny:
+        return 'Bunny';
+      case PetType.bird:
+        return 'Bird';
+      case PetType.dragon:
+        return 'Dragon';
+      case PetType.phoenix:
+        return 'Phoenix';
+      case PetType.griffin:
+        return 'Griffin';
+      case PetType.unicorn:
+        return 'Unicorn';
     }
   }
 
   Color get color {
     switch (this) {
-      case PetType.dog: return const Color(0xFF8D6E63);
-      case PetType.cat: return const Color(0xFFFFA726);
-      case PetType.bunny: return const Color(0xFFFCE4EC);
-      case PetType.bird: return const Color(0xFF4FC3F7);
-      case PetType.dragon: return const Color(0xFF66BB6A);
-      case PetType.phoenix: return const Color(0xFFFF5722);
-      case PetType.griffin: return const Color(0xFFCDDC39);
-      case PetType.unicorn: return const Color(0xFFE040FB);
+      case PetType.dog:
+        return const Color(0xFF8D6E63);
+      case PetType.cat:
+        return const Color(0xFFFFA726);
+      case PetType.bunny:
+        return const Color(0xFFFCE4EC);
+      case PetType.bird:
+        return const Color(0xFF4FC3F7);
+      case PetType.dragon:
+        return const Color(0xFF66BB6A);
+      case PetType.phoenix:
+        return const Color(0xFFFF5722);
+      case PetType.griffin:
+        return const Color(0xFFCDDC39);
+      case PetType.unicorn:
+        return const Color(0xFFE040FB);
     }
   }
 
-  bool get isPremium {
-    switch (this) {
-      case PetType.phoenix:
-      case PetType.griffin:
-      case PetType.unicorn:
-        return true;
-      default:
-        return false;
-    }
-  }
+  bool get isPremium => false;
 }
 
 class Pet {
@@ -186,7 +207,7 @@ class Pet {
     this.isAsleep = false,
     this.currentAccessory = '',
     DateTime? lastBackup,
-  }) : createdAt = createdAt ?? DateTime.now(),
+  })  : createdAt = createdAt ?? DateTime.now(),
         lastFed = lastFed ?? DateTime.now(),
         lastPlayed = lastPlayed ?? DateTime.now(),
         lastBackup = lastBackup ?? DateTime.now();
@@ -229,7 +250,8 @@ class Pet {
 
   factory Pet.fromJson(Map<String, dynamic> json) {
     return Pet(
-      id: json['id']?.toString() ?? DateTime.now().millisecondsSinceEpoch.toString(),
+      id: json['id']?.toString() ??
+          DateTime.now().millisecondsSinceEpoch.toString(),
       name: json['name'] ?? 'Unknown Pet',
       type: PetType.values[json['type'] ?? 0],
       personality: PetPersonality.values[json['personality'] ?? 0],
@@ -248,18 +270,26 @@ class Pet {
       loyalty: json['loyalty'] ?? 10,
       coins: json['coins'] ?? 100,
       gems: json['gems'] ?? 5,
-      createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : DateTime.now(),
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'])
+          : DateTime.now(),
       playTimeMinutes: json['playTimeMinutes'] ?? 0,
       accessories: List<String>.from(json['accessories'] ?? []),
       achievements: List<String>.from(json['achievements'] ?? []),
       skills: Map<String, int>.from(json['skills'] ?? {}),
       inventory: List<String>.from(json['inventory'] ?? []),
       friendshipLevel: json['friendshipLevel'] ?? 0,
-      lastFed: json['lastFed'] != null ? DateTime.parse(json['lastFed']) : DateTime.now(),
-      lastPlayed: json['lastPlayed'] != null ? DateTime.parse(json['lastPlayed']) : DateTime.now(),
+      lastFed: json['lastFed'] != null
+          ? DateTime.parse(json['lastFed'])
+          : DateTime.now(),
+      lastPlayed: json['lastPlayed'] != null
+          ? DateTime.parse(json['lastPlayed'])
+          : DateTime.now(),
       isAsleep: json['isAsleep'] ?? false,
       currentAccessory: json['currentAccessory'] ?? '',
-      lastBackup: json['lastBackup'] != null ? DateTime.parse(json['lastBackup']) : DateTime.now(),
+      lastBackup: json['lastBackup'] != null
+          ? DateTime.parse(json['lastBackup'])
+          : DateTime.now(),
     );
   }
 
@@ -269,9 +299,21 @@ class Pet {
     if (energy <= 20) return 'Exhausted';
     if (cleanliness <= 20) return 'Dirty';
     if (happiness <= 20) return 'Sad';
-    if (health >= 90 && hunger <= 20 && energy >= 90 && cleanliness >= 90 && happiness >= 90) return 'Perfect';
-    if (health >= 80 && hunger <= 30 && energy >= 80 && cleanliness >= 80 && happiness >= 80) return 'Excellent';
-    if (health >= 60 && hunger <= 40 && energy >= 60 && cleanliness >= 60 && happiness >= 60) return 'Happy';
+    if (health >= 90 &&
+        hunger <= 20 &&
+        energy >= 90 &&
+        cleanliness >= 90 &&
+        happiness >= 90) return 'Perfect';
+    if (health >= 80 &&
+        hunger <= 30 &&
+        energy >= 80 &&
+        cleanliness >= 80 &&
+        happiness >= 80) return 'Excellent';
+    if (health >= 60 &&
+        hunger <= 40 &&
+        energy >= 60 &&
+        cleanliness >= 60 &&
+        happiness >= 60) return 'Happy';
     return 'Okay';
   }
 
@@ -288,15 +330,22 @@ class Pet {
   void decayStats() {
     hunger = (hunger + DecayConstants.HUNGER_DECAY).clamp(0, 100).toInt();
     energy = (energy - DecayConstants.ENERGY_DECAY).clamp(0, 100).toInt();
-    cleanliness = (cleanliness - DecayConstants.CLEANLINESS_DECAY).clamp(0, 100).toInt();
-    happiness = (happiness - DecayConstants.HAPPINESS_DECAY).clamp(0, 100).toInt();
-    intelligence = (intelligence - DecayConstants.INTELLIGENCE_DECAY).clamp(0, 100).toInt();
+    cleanliness =
+        (cleanliness - DecayConstants.CLEANLINESS_DECAY).clamp(0, 100).toInt();
+    happiness =
+        (happiness - DecayConstants.HAPPINESS_DECAY).clamp(0, 100).toInt();
+    intelligence = (intelligence - DecayConstants.INTELLIGENCE_DECAY)
+        .clamp(0, 100)
+        .toInt();
     social = (social - DecayConstants.SOCIAL_DECAY).clamp(0, 100).toInt();
     loyalty = (loyalty - DecayConstants.LOYALTY_DECAY).clamp(0, 100).toInt();
 
     if (hunger > 80 || energy < 30 || cleanliness < 30) {
       health = (health - 2).clamp(0, 100);
-    } else if (hunger < 30 && energy > 70 && cleanliness > 70 && happiness > 70) {
+    } else if (hunger < 30 &&
+        energy > 70 &&
+        cleanliness > 70 &&
+        happiness > 70) {
       health = (health + 1).clamp(0, 100);
     }
 
@@ -325,13 +374,17 @@ class Pet {
   void _checkEvolution() {
     EvolutionStage newStage = evolutionStage;
 
-    if (level >= EvolutionConstants.BABY_TO_CHILD && evolutionStage == EvolutionStage.baby) {
+    if (level >= EvolutionConstants.BABY_TO_CHILD &&
+        evolutionStage == EvolutionStage.baby) {
       newStage = EvolutionStage.child;
-    } else if (level >= EvolutionConstants.CHILD_TO_TEEN && evolutionStage == EvolutionStage.child) {
+    } else if (level >= EvolutionConstants.CHILD_TO_TEEN &&
+        evolutionStage == EvolutionStage.child) {
       newStage = EvolutionStage.teen;
-    } else if (level >= EvolutionConstants.TEEN_TO_ADULT && evolutionStage == EvolutionStage.teen) {
+    } else if (level >= EvolutionConstants.TEEN_TO_ADULT &&
+        evolutionStage == EvolutionStage.teen) {
       newStage = EvolutionStage.adult;
-    } else if (level >= EvolutionConstants.ADULT_TO_ELDER && evolutionStage == EvolutionStage.adult) {
+    } else if (level >= EvolutionConstants.ADULT_TO_ELDER &&
+        evolutionStage == EvolutionStage.adult) {
       newStage = EvolutionStage.elder;
     }
 
@@ -344,24 +397,37 @@ class Pet {
 
   String get evolutionEmoji {
     switch (evolutionStage) {
-      case EvolutionStage.baby: return '👶';
-      case EvolutionStage.child: return '🧒';
-      case EvolutionStage.teen: return '🧑';
-      case EvolutionStage.adult: return '👨';
-      case EvolutionStage.elder: return '👴';
+      case EvolutionStage.baby:
+        return '👶';
+      case EvolutionStage.child:
+        return '🧒';
+      case EvolutionStage.teen:
+        return '🧑';
+      case EvolutionStage.adult:
+        return '👨';
+      case EvolutionStage.elder:
+        return '👴';
     }
   }
 
   String get moodEmoji {
     switch (currentMood) {
-      case PetMood.happy: return '😊';
-      case PetMood.excited: return '🤗';
-      case PetMood.sleepy: return '😴';
-      case PetMood.hungry: return '🍽️';
-      case PetMood.sad: return '😢';
-      case PetMood.sick: return '🤒';
-      case PetMood.playful: return '🎮';
-      case PetMood.loving: return '❤️';
+      case PetMood.happy:
+        return '😊';
+      case PetMood.excited:
+        return '🤗';
+      case PetMood.sleepy:
+        return '😴';
+      case PetMood.hungry:
+        return '🍽️';
+      case PetMood.sad:
+        return '😢';
+      case PetMood.sick:
+        return '🤒';
+      case PetMood.playful:
+        return '🎮';
+      case PetMood.loving:
+        return '❤️';
     }
   }
 }
@@ -391,7 +457,7 @@ class Account {
     this.petsOwned = 1,
     this.coins = 100,
     this.gems = 50,
-    this.isPremium = false,
+    this.isPremium = true,
     this.unlockedFeatures = const [],
     this.preferences = const {},
     DateTime? lastPremiumCheck,
@@ -420,13 +486,15 @@ class Account {
       id: json['id'] ?? '',
       username: json['username'] ?? '',
       email: json['email'] ?? '',
-      createdAt: DateTime.parse(json['createdAt'] ?? DateTime.now().toIso8601String()),
+      createdAt: DateTime.parse(
+        json['createdAt'] ?? DateTime.now().toIso8601String(),
+      ),
       totalPlayTime: json['totalPlayTime'] ?? 0,
       achievementsUnlocked: json['achievementsUnlocked'] ?? 0,
       petsOwned: json['petsOwned'] ?? 1,
       coins: json['coins'] ?? 100,
       gems: json['gems'] ?? 50,
-      isPremium: json['isPremium'] ?? false,
+      isPremium: json['isPremium'] ?? true,
       unlockedFeatures: List<String>.from(json['unlockedFeatures'] ?? []),
       preferences: Map<String, dynamic>.from(json['preferences'] ?? {}),
       lastPremiumCheck: json['lastPremiumCheck'] != null
@@ -508,9 +576,10 @@ class NotificationService {
 
   final List<GameNotification> _notifications = [];
   final StreamController<GameNotification> _notificationController =
-  StreamController<GameNotification>.broadcast();
+      StreamController<GameNotification>.broadcast();
 
-  Stream<GameNotification> get notificationStream => _notificationController.stream;
+  Stream<GameNotification> get notificationStream =>
+      _notificationController.stream;
   List<GameNotification> get notifications => List.unmodifiable(_notifications);
 
   void addNotification(GameNotification notification) {
@@ -523,25 +592,29 @@ class NotificationService {
   }
 
   void showDailyRewardNotification() {
-    addNotification(GameNotification(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      title: 'Daily Reward Available!',
-      message: 'Claim your daily reward now!',
-      type: NotificationType.reward,
-      icon: Icons.card_giftcard,
-      color: Colors.amber,
-    ));
+    addNotification(
+      GameNotification(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        title: 'Daily Reward Available!',
+        message: 'Claim your daily reward now!',
+        type: NotificationType.reward,
+        icon: Icons.card_giftcard,
+        color: Colors.amber,
+      ),
+    );
   }
 
   void showSystemNotification(String title, String message) {
-    addNotification(GameNotification(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      title: title,
-      message: message,
-      type: NotificationType.system,
-      icon: Icons.info,
-      color: Colors.grey,
-    ));
+    addNotification(
+      GameNotification(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        title: title,
+        message: message,
+        type: NotificationType.system,
+        icon: Icons.info,
+        color: Colors.grey,
+      ),
+    );
   }
 }
 
@@ -592,7 +665,8 @@ class BackupService {
         await backupDir.create(recursive: true);
       }
 
-      final fileName = 'pet_backup_${DateTime.now().millisecondsSinceEpoch}.json';
+      final fileName =
+          'pet_backup_${DateTime.now().millisecondsSinceEpoch}.json';
       final file = File('${backupDir.path}/$fileName');
 
       await file.writeAsString(jsonEncode(pet.toJson()));
@@ -636,12 +710,14 @@ class BackupService {
           final accountJson = prefs.getString('user_account');
 
           if (petJson != null && accountJson != null) {
-            final exportFile = File('${directory.path}/pup_export_${DateTime.now().millisecondsSinceEpoch}.json');
+            final exportFile = File(
+              '${directory.path}/pup_export_${DateTime.now().millisecondsSinceEpoch}.json',
+            );
             final exportData = {
               'pet': jsonDecode(petJson),
               'account': jsonDecode(accountJson),
               'exportDate': DateTime.now().toIso8601String(),
-              'version': '27.0',
+              'version': '26.8.1',
             };
             await exportFile.writeAsString(jsonEncode(exportData));
             return true;
@@ -656,8 +732,9 @@ class BackupService {
 
   Future<bool> importFromUSB() async {
     try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
+      FilePickerResult? result = await FilePicker.pickFiles(
         allowMultiple: false,
+        type: FileType.custom,
         allowedExtensions: ['json'],
       );
 
@@ -687,7 +764,9 @@ class BackupService {
         final tempDir = await getTemporaryDirectory();
         final tempFile = File('${tempDir.path}/pup_share.json');
         await tempFile.writeAsString(petJson);
-        await Share.shareXFiles([XFile(tempFile.path)], text: 'My Pup Pet Backup');
+        await Share.shareXFiles([
+          XFile(tempFile.path),
+        ], text: 'My Pup Pet Backup');
         return true;
       }
       return false;
@@ -699,83 +778,70 @@ class BackupService {
 
 // ==================== PATREON SERVICE ====================
 
-class PatreonService {
-  static final PatreonService _instance = PatreonService._internal();
-  factory PatreonService() => _instance;
-  PatreonService._internal();
+class SupportUnlockService {
+  static final SupportUnlockService _instance =
+      SupportUnlockService._internal();
+  factory SupportUnlockService() => _instance;
+  SupportUnlockService._internal();
 
-  // Patreon campaign and tier information
-  static const String patreonUrl = 'https://www.patreon.com/join/yourcampaign';
-  static const String creatorUrl = 'https://www.patreon.com/yourcreator';
-  
+  // support campaign and tier information
+  static const String supportUrl = 'https://www.support.com/join/yourcampaign';
+  static const String creatorUrl = 'https://www.support.com/yourcreator';
+
   // Premium tiers
   static const Map<String, Map<String, dynamic>> premiumTiers = {
     'bronze': {
       'name': 'Bronze Supporter',
       'price': '\$3/month',
-      'benefits': ['Unlock Phoenix pet', 'Ad-free experience', 'Bonus daily rewards'],
+      'benefits': [
+        'Unlock Phoenix pet',
+        'Ad-free experience',
+        'Bonus daily rewards',
+      ],
       'color': Colors.brown,
     },
     'silver': {
-      'name': 'Silver Supporter', 
+      'name': 'Silver Supporter',
       'price': '\$5/month',
-      'benefits': ['Unlock Phoenix & Griffin', 'All Bronze benefits', 'Exclusive accessories', '2x XP boost'],
+      'benefits': [
+        'Unlock Phoenix & Griffin',
+        'All Bronze benefits',
+        'Exclusive accessories',
+        '2x XP boost',
+      ],
       'color': Colors.grey,
     },
     'gold': {
       'name': 'Gold Supporter',
-      'price': '\$10/month', 
-      'benefits': ['Unlock all premium pets', 'All Silver benefits', 'Golden accessories', '3x XP boost', 'Priority support'],
+      'price': '\$10/month',
+      'benefits': [
+        'Unlock all premium pets',
+        'All Silver benefits',
+        'Golden accessories',
+        '3x XP boost',
+        'Priority support',
+      ],
       'color': Colors.amber,
     },
   };
 
-  Future<bool> launchPatreonPage() async {
-    final Uri url = Uri.parse(patreonUrl);
-    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-      return false;
-    }
-    return true;
-  }
+  Future<bool> launchsupportPage() async => true;
 
-  Future<bool> launchCreatorPage() async {
-    final Uri url = Uri.parse(creatorUrl);
-    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-      return false;
-    }
-    return true;
-  }
+  Future<bool> launchCreatorPage() async => true;
 
-  Future<bool> validatePatreonSupporter(String email) async {
-    // In a real implementation, this would call Patreon API
-    // For now, simulate validation with basic check
-    try {
-      // Simulate API call delay
-      await Future.delayed(const Duration(seconds: 2));
-      
-      // Mock validation - in real app, verify against Patreon API
-      if (email.contains('@') && email.length > 5) {
-        // Simulate different tiers based on email patterns (for demo)
-        if (email.contains('gold') || email.contains('premium')) {
-          return await _updatePremiumStatus('gold');
-        } else if (email.contains('silver')) {
-          return await _updatePremiumStatus('silver');
-        } else {
-          return await _updatePremiumStatus('bronze');
-        }
-      }
-      return false;
-    } catch (e) {
-      return false;
-    }
+  Future<bool> validatesupportSupporter(String email) async {
+    return _updatePremiumStatus('free');
   }
 
   Future<bool> _updatePremiumStatus(String tier) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('patreon_tier', tier);
+      await prefs.setString('support_tier', tier);
       await prefs.setBool('is_premium', true);
-      await prefs.setString('premium_expires', DateTime.now().add(const Duration(days: 30)).toIso8601String());
+      await prefs.setString(
+        'premium_expires',
+        DateTime.now().add(const Duration(days: 30)).toIso8601String(),
+      );
       return true;
     } catch (e) {
       return false;
@@ -785,7 +851,7 @@ class PatreonService {
   Future<String?> getCurrentTier() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      return prefs.getString('patreon_tier');
+      return prefs.getString('support_tier') ?? 'free';
     } catch (e) {
       return null;
     }
@@ -793,14 +859,8 @@ class PatreonService {
 
   Future<bool> isPremiumActive() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final isPremium = prefs.getBool('is_premium') ?? false;
-      final expiresString = prefs.getString('premium_expires');
-      
-      if (!isPremium || expiresString == null) return false;
-      
-      final expires = DateTime.parse(expiresString);
-      return DateTime.now().isBefore(expires);
+      await _updatePremiumStatus('free');
+      return true;
     } catch (e) {
       return false;
     }
@@ -818,10 +878,7 @@ class PatreonService {
 
   Future<void> clearPremiumStatus() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove('patreon_tier');
-      await prefs.remove('is_premium');
-      await prefs.remove('premium_expires');
+      await _updatePremiumStatus('free');
     } catch (e) {
       // Handle error silently
     }
@@ -838,7 +895,6 @@ class GameProvider extends ChangeNotifier {
   Timer? _autoBackupTimer;
   final SoundService _soundService = SoundService();
   final BackupService _backupService = BackupService();
-  static const String _currentVersion = '27.0';
 
   Map<String, dynamic> _globalStats = {
     'totalPlayTime': 0,
@@ -849,8 +905,8 @@ class GameProvider extends ChangeNotifier {
 
   List<Map<String, dynamic>> _availableGames = [
     {
-      'id': 'minecraft',
-      'name': 'Minecraft 2D',
+      'id': 'block_builder',
+      'name': 'Block Builder 2D',
       'icon': '🎮',
       'color': Colors.green,
       'description': 'Build and explore in 2D',
@@ -946,7 +1002,8 @@ class GameProvider extends ChangeNotifier {
     _playTimeTimer = Timer.periodic(const Duration(minutes: 1), (_) {
       if (_pet != null) {
         _pet!.playTimeMinutes++;
-        _globalStats['totalPlayTime'] = (_globalStats['totalPlayTime'] as int) + 1;
+        _globalStats['totalPlayTime'] =
+            (_globalStats['totalPlayTime'] as int) + 1;
         saveGame();
         _saveStats();
         notifyListeners();
@@ -965,8 +1022,12 @@ class GameProvider extends ChangeNotifier {
     if (_pet == null) return;
     _soundService.playSound('feed');
     int oldLevel = _pet!.level;
-    _pet!.hunger = (_pet!.hunger - ActionConstants.FEED_HUNGER_REDUCTION).clamp(0, 100);
-    _pet!.happiness = (_pet!.happiness + ActionConstants.FEED_HAPPINESS_BOOST).clamp(0, 100);
+    _pet!.hunger = (_pet!.hunger - ActionConstants.FEED_HUNGER_REDUCTION).clamp(
+      0,
+      100,
+    );
+    _pet!.happiness =
+        (_pet!.happiness + ActionConstants.FEED_HAPPINESS_BOOST).clamp(0, 100);
     _pet!.addXp(ActionConstants.FEED_XP);
 
     if (_pet!.level > oldLevel) {
@@ -982,10 +1043,20 @@ class GameProvider extends ChangeNotifier {
     if (_pet == null) return;
     _soundService.playSound('play');
     int oldLevel = _pet!.level;
-    _pet!.happiness = (_pet!.happiness + ActionConstants.PLAY_HAPPINESS_BOOST).clamp(0, 100);
-    _pet!.energy = (_pet!.energy - ActionConstants.PLAY_ENERGY_COST).clamp(0, 100);
-    _pet!.social = (_pet!.social + ActionConstants.PLAY_SOCIAL_BOOST).clamp(0, 100);
-    _pet!.hunger = (_pet!.hunger + ActionConstants.PLAY_HUNGER_COST).clamp(0, 100);
+    _pet!.happiness =
+        (_pet!.happiness + ActionConstants.PLAY_HAPPINESS_BOOST).clamp(0, 100);
+    _pet!.energy = (_pet!.energy - ActionConstants.PLAY_ENERGY_COST).clamp(
+      0,
+      100,
+    );
+    _pet!.social = (_pet!.social + ActionConstants.PLAY_SOCIAL_BOOST).clamp(
+      0,
+      100,
+    );
+    _pet!.hunger = (_pet!.hunger + ActionConstants.PLAY_HUNGER_COST).clamp(
+      0,
+      100,
+    );
     _pet!.addXp(ActionConstants.PLAY_XP);
 
     if (_pet!.level > oldLevel) {
@@ -1001,8 +1072,13 @@ class GameProvider extends ChangeNotifier {
     if (_pet == null) return;
     _soundService.playSound('clean');
     int oldLevel = _pet!.level;
-    _pet!.cleanliness = (_pet!.cleanliness + ActionConstants.CLEAN_CLEANLINESS_BOOST).clamp(0, 100);
-    _pet!.happiness = (_pet!.happiness + ActionConstants.CLEAN_HAPPINESS_BOOST).clamp(0, 100);
+    _pet!.cleanliness =
+        (_pet!.cleanliness + ActionConstants.CLEAN_CLEANLINESS_BOOST).clamp(
+      0,
+      100,
+    );
+    _pet!.happiness =
+        (_pet!.happiness + ActionConstants.CLEAN_HAPPINESS_BOOST).clamp(0, 100);
     _pet!.addXp(ActionConstants.CLEAN_XP);
 
     if (_pet!.level > oldLevel) {
@@ -1018,9 +1094,18 @@ class GameProvider extends ChangeNotifier {
     if (_pet == null) return;
     _soundService.playSound('sleep');
     int oldLevel = _pet!.level;
-    _pet!.energy = (_pet!.energy + ActionConstants.SLEEP_ENERGY_BOOST).clamp(0, 100);
-    _pet!.health = (_pet!.health + ActionConstants.SLEEP_HEALTH_BOOST).clamp(0, 100);
-    _pet!.hunger = (_pet!.hunger + ActionConstants.SLEEP_HUNGER_COST).clamp(0, 100);
+    _pet!.energy = (_pet!.energy + ActionConstants.SLEEP_ENERGY_BOOST).clamp(
+      0,
+      100,
+    );
+    _pet!.health = (_pet!.health + ActionConstants.SLEEP_HEALTH_BOOST).clamp(
+      0,
+      100,
+    );
+    _pet!.hunger = (_pet!.hunger + ActionConstants.SLEEP_HUNGER_COST).clamp(
+      0,
+      100,
+    );
     _pet!.addXp(ActionConstants.SLEEP_XP);
 
     if (_pet!.level > oldLevel) {
@@ -1036,10 +1121,21 @@ class GameProvider extends ChangeNotifier {
     if (_pet == null) return;
     _soundService.playSound('train');
     int oldLevel = _pet!.level;
-    _pet!.energy = (_pet!.energy - ActionConstants.TRAIN_ENERGY_COST).clamp(0, 100);
-    _pet!.happiness = (_pet!.happiness + ActionConstants.TRAIN_HAPPINESS_BOOST).clamp(0, 100);
-    _pet!.intelligence = (_pet!.intelligence + ActionConstants.TRAIN_INTELLIGENCE_BOOST).clamp(0, 100);
-    _pet!.hunger = (_pet!.hunger + ActionConstants.TRAIN_HUNGER_COST).clamp(0, 100);
+    _pet!.energy = (_pet!.energy - ActionConstants.TRAIN_ENERGY_COST).clamp(
+      0,
+      100,
+    );
+    _pet!.happiness =
+        (_pet!.happiness + ActionConstants.TRAIN_HAPPINESS_BOOST).clamp(0, 100);
+    _pet!.intelligence =
+        (_pet!.intelligence + ActionConstants.TRAIN_INTELLIGENCE_BOOST).clamp(
+      0,
+      100,
+    );
+    _pet!.hunger = (_pet!.hunger + ActionConstants.TRAIN_HUNGER_COST).clamp(
+      0,
+      100,
+    );
     _pet!.addXp(ActionConstants.TRAIN_XP);
 
     if (_pet!.level > oldLevel) {
@@ -1055,7 +1151,10 @@ class GameProvider extends ChangeNotifier {
     if (_pet == null) return;
     _soundService.playSound('medicine');
     int oldLevel = _pet!.level;
-    _pet!.health = (_pet!.health + ActionConstants.MEDICINE_HEALTH_BOOST).clamp(0, 100);
+    _pet!.health = (_pet!.health + ActionConstants.MEDICINE_HEALTH_BOOST).clamp(
+      0,
+      100,
+    );
     _pet!.addXp(ActionConstants.MEDICINE_XP);
 
     if (_pet!.level > oldLevel) {
@@ -1131,15 +1230,22 @@ class AccountProvider extends ChangeNotifier {
   Account? _account;
   bool _isLoggedIn = false;
   bool _isLoading = false;
-  final PatreonService _patreonService = PatreonService();
+  final SupportUnlockService _supportService = SupportUnlockService();
 
-  Account? get account => _account;
+  Account? get account {
+    if (_account != null && !_account!.isPremium) {
+      _account!.isPremium = true;
+    }
+    return _account;
+  }
+
   bool get isLoggedIn => _isLoggedIn;
   bool get isLoading => _isLoading;
+  bool get isPremium => true;
 
   AccountProvider() {
     _loadAccount();
-    _checkPatreonStatus();
+    _checksupportStatus();
   }
 
   Future<void> _loadAccount() async {
@@ -1151,6 +1257,7 @@ class AccountProvider extends ChangeNotifier {
 
     if (accountJson != null) {
       _account = Account.fromJson(json.decode(accountJson));
+      _account!.isPremium = true;
       _isLoggedIn = true;
     }
 
@@ -1167,6 +1274,7 @@ class AccountProvider extends ChangeNotifier {
       username: username,
       email: email,
       createdAt: DateTime.now(),
+      isPremium: true,
     );
 
     _account = newAccount;
@@ -1174,9 +1282,8 @@ class AccountProvider extends ChangeNotifier {
 
     await _saveAccount();
 
-    // Check if this email is a Patreon supporter
-    await _patreonService.validatePatreonSupporter(email);
-    await _checkPatreonStatus();
+    await _supportService.validatesupportSupporter(email);
+    await _checksupportStatus();
 
     _isLoading = false;
     notifyListeners();
@@ -1185,6 +1292,7 @@ class AccountProvider extends ChangeNotifier {
   Future<void> _saveAccount() async {
     if (_account == null) return;
 
+    _account!.isPremium = true;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('user_account', json.encode(_account!.toJson()));
   }
@@ -1198,15 +1306,14 @@ class AccountProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> _checkPatreonStatus() async {
-    final isPremiumActive = await _patreonService.isPremiumActive();
-    final currentTier = await _patreonService.getCurrentTier();
-    final premiumExpiry = await _patreonService.getPremiumExpiry();
+  Future<void> _checksupportStatus() async {
+    final isPremiumActive = await _supportService.isPremiumActive();
+    final currentTier = await _supportService.getCurrentTier();
+    final premiumExpiry = await _supportService.getPremiumExpiry();
 
     if (isPremiumActive && _account != null) {
       updatePremium(true);
-      
-      // Update account with Patreon info
+
       _account = Account(
         id: _account!.id,
         username: _account!.username,
@@ -1218,10 +1325,13 @@ class AccountProvider extends ChangeNotifier {
         coins: _account!.coins,
         gems: _account!.gems,
         isPremium: true,
-        unlockedFeatures: [..._account!.unlockedFeatures, 'patreon_${currentTier}'],
+        unlockedFeatures: [
+          ..._account!.unlockedFeatures,
+          'free_${currentTier}',
+        ],
         preferences: {
           ..._account!.preferences,
-          'patreon_tier': currentTier,
+          'support_tier': currentTier,
           'premium_expires': premiumExpiry?.toIso8601String(),
         },
         lastPremiumCheck: DateTime.now(),
@@ -1243,7 +1353,7 @@ class AccountProvider extends ChangeNotifier {
         petsOwned: _account!.petsOwned,
         coins: _account!.coins,
         gems: _account!.gems,
-        isPremium: isPremium,
+        isPremium: true,
         unlockedFeatures: _account!.unlockedFeatures,
         preferences: _account!.preferences,
         lastPremiumCheck: DateTime.now(),
@@ -1253,18 +1363,16 @@ class AccountProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> connectPatreon(String email) async {
+  Future<bool> connectsupport(String email) async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      final success = await _patreonService.validatePatreonSupporter(email);
-      if (success) {
-        await _checkPatreonStatus();
-      }
+      await _supportService.validatesupportSupporter(email);
+      await _checksupportStatus();
       _isLoading = false;
       notifyListeners();
-      return success;
+      return true;
     } catch (e) {
       _isLoading = false;
       notifyListeners();
@@ -1272,16 +1380,16 @@ class AccountProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> launchPatreonPage() async {
-    await _patreonService.launchPatreonPage();
+  Future<void> launchsupportPage() async {
+    await _supportService.launchsupportPage();
   }
 
-  Future<String?> getPatreonTier() async {
-    return await _patreonService.getCurrentTier();
+  Future<String?> getsupportTier() async {
+    return await _supportService.getCurrentTier();
   }
 
-  Future<DateTime?> getPatreonExpiry() async {
-    return await _patreonService.getPremiumExpiry();
+  Future<DateTime?> getsupportExpiry() async {
+    return await _supportService.getPremiumExpiry();
   }
 }
 
@@ -1319,7 +1427,10 @@ class StatBar extends StatelessWidget {
           width: 60,
           child: Text(
             label,
-            style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 14),
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.7),
+              fontSize: 14,
+            ),
           ),
         ),
         Expanded(
@@ -1328,7 +1439,9 @@ class StatBar extends StatelessWidget {
             child: LinearProgressIndicator(
               value: value / 100,
               backgroundColor: Colors.white.withValues(alpha: 0.1),
-              valueColor: AlwaysStoppedAnimation<Color>(_getProgressColor(value)),
+              valueColor: AlwaysStoppedAnimation<Color>(
+                _getProgressColor(value),
+              ),
               minHeight: 12,
             ),
           ),
@@ -1338,7 +1451,11 @@ class StatBar extends StatelessWidget {
           width: 36,
           child: Text(
             '$value%',
-            style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+            ),
             textAlign: TextAlign.right,
           ),
         ),
@@ -1361,7 +1478,7 @@ class PetSelectionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isPremium = context.watch<AccountProvider>().account?.isPremium ?? false;
+    final isPremium = context.mounted;
 
     return Scaffold(
       body: Container(
@@ -1381,17 +1498,28 @@ class PetSelectionScreen extends StatelessWidget {
                 children: [
                   const Text(
                     'Pick Your Pet',
-                    style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: Colors.white),
+                    style: TextStyle(
+                      fontSize: 36,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                   const SizedBox(width: 8),
-                  Icon(Icons.pets, color: Colors.white.withValues(alpha: 0.8), size: 32),
+                  Icon(
+                    Icons.pets,
+                    color: Colors.white.withValues(alpha: 0.8),
+                    size: 32,
+                  ),
                 ],
               ),
               if (!isPremium)
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.amber.withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(20),
@@ -1414,7 +1542,8 @@ class PetSelectionScreen extends StatelessWidget {
                     return _PetOption(
                       type: type,
                       isLocked: isPremiumPet && !isPremium,
-                      onTap: () => _selectPet(context, type, isPremiumPet && !isPremium),
+                      onTap: () =>
+                          _selectPet(context, type, isPremiumPet && !isPremium),
                     );
                   }).toList(),
                 ),
@@ -1428,13 +1557,16 @@ class PetSelectionScreen extends StatelessWidget {
 
   void _selectPet(BuildContext context, PetType type, bool isLocked) {
     if (isLocked) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Premium pet! Upgrade to unlock!')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('All pets are free now!')));
       return;
     }
     context.read<GameProvider>().playClickSound();
-    showDialog(context: context, builder: (context) => _NamePetDialog(type: type));
+    showDialog(
+      context: context,
+      builder: (context) => _NamePetDialog(type: type),
+    );
   }
 }
 
@@ -1443,7 +1575,11 @@ class _PetOption extends StatelessWidget {
   final VoidCallback onTap;
   final bool isLocked;
 
-  const _PetOption({required this.type, required this.onTap, this.isLocked = false});
+  const _PetOption({
+    required this.type,
+    required this.onTap,
+    this.isLocked = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1454,7 +1590,11 @@ class _PetOption extends StatelessWidget {
           color: isLocked ? Colors.grey.withValues(alpha: 0.5) : Colors.white,
           borderRadius: BorderRadius.circular(40),
           boxShadow: [
-            BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 8, offset: const Offset(0, 4)),
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.2),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
           ],
         ),
         child: Column(
@@ -1470,8 +1610,7 @@ class _PetOption extends StatelessWidget {
                 color: isLocked ? Colors.grey : const Color(0xFF7B1FA2),
               ),
             ),
-            if (isLocked)
-              const Icon(Icons.lock, color: Colors.grey, size: 20),
+            if (isLocked) const Icon(Icons.lock, color: Colors.grey, size: 20),
           ],
         ),
       ),
@@ -1501,7 +1640,11 @@ class _NamePetDialogState extends State<_NamePetDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       backgroundColor: const Color(0xFF2D2D3A),
-      title: const Text('Name Your Pet', style: TextStyle(color: Colors.white), textAlign: TextAlign.center),
+      title: const Text(
+        'Name Your Pet',
+        style: TextStyle(color: Colors.white),
+        textAlign: TextAlign.center,
+      ),
       content: TextField(
         controller: _controller,
         style: const TextStyle(color: Colors.white),
@@ -1509,7 +1652,10 @@ class _NamePetDialogState extends State<_NamePetDialog> {
         decoration: InputDecoration(
           filled: true,
           fillColor: const Color(0xFF1E1E2C),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
           hintText: 'Enter pet name',
           hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.5)),
         ),
@@ -1530,7 +1676,10 @@ class _NamePetDialogState extends State<_NamePetDialog> {
               Navigator.pop(context);
             }
           },
-          style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF7B1FA2), foregroundColor: Colors.white),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF7B1FA2),
+            foregroundColor: Colors.white,
+          ),
           child: const Text('Save'),
         ),
       ],
@@ -1571,12 +1720,18 @@ class _CompactGameScreenState extends State<CompactGameScreen> {
 
   String _getAccessoryEmoji(String accessory) {
     switch (accessory) {
-      case 'hat': return '🎩';
-      case 'scarf': return '🧣';
-      case 'glasses': return '🕶️';
-      case 'bow': return '🎀';
-      case 'collar': return '📿';
-      default: return '';
+      case 'hat':
+        return '🎩';
+      case 'scarf':
+        return '🧣';
+      case 'glasses':
+        return '🕶️';
+      case 'bow':
+        return '🎀';
+      case 'collar':
+        return '📿';
+      default:
+        return '';
     }
   }
 
@@ -1626,17 +1781,27 @@ class _CompactGameScreenState extends State<CompactGameScreen> {
                       children: [
                         Text(
                           '${pet.name} - Level ${pet.level}',
-                          style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         Row(
                           children: [
                             IconButton(
                               onPressed: () => _showBackupDialog(context),
-                              icon: const Icon(Icons.backup, color: Colors.white),
+                              icon: const Icon(
+                                Icons.backup,
+                                color: Colors.white,
+                              ),
                             ),
                             IconButton(
                               onPressed: () => _showSettingsDialog(context),
-                              icon: const Icon(Icons.settings, color: Colors.white),
+                              icon: const Icon(
+                                Icons.settings,
+                                color: Colors.white,
+                              ),
                             ),
                             IconButton(
                               onPressed: () => _showHelpDialog(context),
@@ -1660,18 +1825,26 @@ class _CompactGameScreenState extends State<CompactGameScreen> {
                                 decoration: BoxDecoration(
                                   color: pet.type.color.withValues(alpha: 0.3),
                                   shape: BoxShape.circle,
-                                  border: Border.all(color: pet.type.color, width: 3),
+                                  border: Border.all(
+                                    color: pet.type.color,
+                                    width: 3,
+                                  ),
                                 ),
                                 child: Stack(
                                   alignment: Alignment.center,
                                   children: [
-                                    Text(pet.type.emoji, style: const TextStyle(fontSize: 50)),
+                                    Text(
+                                      pet.type.emoji,
+                                      style: const TextStyle(fontSize: 50),
+                                    ),
                                     if (pet.currentAccessory.isNotEmpty)
                                       Positioned(
                                         top: 0,
                                         right: 0,
                                         child: Text(
-                                          _getAccessoryEmoji(pet.currentAccessory),
+                                          _getAccessoryEmoji(
+                                            pet.currentAccessory,
+                                          ),
                                           style: const TextStyle(fontSize: 16),
                                         ),
                                       ),
@@ -1683,13 +1856,29 @@ class _CompactGameScreenState extends State<CompactGameScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    _buildCompactStatBar('Health', pet.health, Colors.red),
+                                    _buildCompactStatBar(
+                                      'Health',
+                                      pet.health,
+                                      Colors.red,
+                                    ),
                                     const SizedBox(height: 8),
-                                    _buildCompactStatBar('Hunger', pet.hunger, Colors.orange),
+                                    _buildCompactStatBar(
+                                      'Hunger',
+                                      pet.hunger,
+                                      Colors.orange,
+                                    ),
                                     const SizedBox(height: 8),
-                                    _buildCompactStatBar('Happiness', pet.happiness, Colors.yellow),
+                                    _buildCompactStatBar(
+                                      'Happiness',
+                                      pet.happiness,
+                                      Colors.yellow,
+                                    ),
                                     const SizedBox(height: 8),
-                                    _buildCompactStatBar('Energy', pet.energy, Colors.blue),
+                                    _buildCompactStatBar(
+                                      'Energy',
+                                      pet.energy,
+                                      Colors.blue,
+                                    ),
                                   ],
                                 ),
                               ),
@@ -1706,37 +1895,43 @@ class _CompactGameScreenState extends State<CompactGameScreen> {
                                   icon: Icons.restaurant,
                                   label: 'Feed\n(F)',
                                   color: Colors.orange,
-                                  onTap: () => _performAction(gameProvider, 'feed'),
+                                  onTap: () =>
+                                      _performAction(gameProvider, 'feed'),
                                 ),
                                 _buildCompactActionItem(
                                   icon: Icons.toys,
                                   label: 'Play\n(P)',
                                   color: Colors.purple,
-                                  onTap: () => _performAction(gameProvider, 'play'),
+                                  onTap: () =>
+                                      _performAction(gameProvider, 'play'),
                                 ),
                                 _buildCompactActionItem(
                                   icon: Icons.bed,
                                   label: 'Sleep\n(S)',
                                   color: Colors.blue,
-                                  onTap: () => _performAction(gameProvider, 'sleep'),
+                                  onTap: () =>
+                                      _performAction(gameProvider, 'sleep'),
                                 ),
                                 _buildCompactActionItem(
                                   icon: Icons.shower,
                                   label: 'Clean\n(C)',
                                   color: Colors.cyan,
-                                  onTap: () => _performAction(gameProvider, 'clean'),
+                                  onTap: () =>
+                                      _performAction(gameProvider, 'clean'),
                                 ),
                                 _buildCompactActionItem(
                                   icon: Icons.school,
                                   label: 'Train\n(T)',
                                   color: Colors.green,
-                                  onTap: () => _performAction(gameProvider, 'train'),
+                                  onTap: () =>
+                                      _performAction(gameProvider, 'train'),
                                 ),
                                 _buildCompactActionItem(
                                   icon: Icons.medical_services,
                                   label: 'Medicine\n(M)',
                                   color: Colors.red,
-                                  onTap: () => _performAction(gameProvider, 'medicine'),
+                                  onTap: () =>
+                                      _performAction(gameProvider, 'medicine'),
                                 ),
                               ],
                             ),
@@ -1752,20 +1947,25 @@ class _CompactGameScreenState extends State<CompactGameScreen> {
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.purple,
                                     foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 12,
+                                    ),
                                   ),
                                 ),
                               ),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: ElevatedButton.icon(
-                                  onPressed: () => _showStatsDialog(context, pet),
+                                  onPressed: () =>
+                                      _showStatsDialog(context, pet),
                                   icon: const Icon(Icons.analytics),
                                   label: const Text('Stats'),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.teal,
                                     foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 12,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -1796,7 +1996,11 @@ class _CompactGameScreenState extends State<CompactGameScreen> {
               final success = await context.read<GameProvider>().backupPet();
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(success ? 'Backup created!' : 'Backup failed')),
+                  SnackBar(
+                    content: Text(
+                      success ? 'Backup created!' : 'Backup failed',
+                    ),
+                  ),
                 );
                 Navigator.pop(context);
               }
@@ -1824,7 +2028,11 @@ class _CompactGameScreenState extends State<CompactGameScreen> {
               final success = await context.read<GameProvider>().exportToUSB();
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(success ? 'Exported to storage!' : 'Export failed')),
+                  SnackBar(
+                    content: Text(
+                      success ? 'Exported to storage!' : 'Export failed',
+                    ),
+                  ),
                 );
                 Navigator.pop(context);
               }
@@ -1833,10 +2041,15 @@ class _CompactGameScreenState extends State<CompactGameScreen> {
           ),
           TextButton(
             onPressed: () async {
-              final success = await context.read<GameProvider>().importFromUSB();
+              final success =
+                  await context.read<GameProvider>().importFromUSB();
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(success ? 'Imported from USB!' : 'Import failed')),
+                  SnackBar(
+                    content: Text(
+                      success ? 'Imported from USB!' : 'Import failed',
+                    ),
+                  ),
                 );
                 Navigator.pop(context);
               }
@@ -1848,7 +2061,9 @@ class _CompactGameScreenState extends State<CompactGameScreen> {
               final success = await context.read<GameProvider>().shareBackup();
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(success ? 'Backup shared!' : 'Share failed')),
+                  SnackBar(
+                    content: Text(success ? 'Backup shared!' : 'Share failed'),
+                  ),
                 );
                 Navigator.pop(context);
               }
@@ -1879,10 +2094,14 @@ class _CompactGameScreenState extends State<CompactGameScreen> {
               return ListTile(
                 title: Text(file.path.split('/').last),
                 onTap: () async {
-                  final success = await context.read<GameProvider>().restoreFromBackup(file);
+                  final success = await context
+                      .read<GameProvider>()
+                      .restoreFromBackup(file);
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(success ? 'Restored!' : 'Restore failed')),
+                      SnackBar(
+                        content: Text(success ? 'Restored!' : 'Restore failed'),
+                      ),
                     );
                     Navigator.pop(context);
                     Navigator.pop(context);
@@ -1916,15 +2135,15 @@ class _CompactGameScreenState extends State<CompactGameScreen> {
         title: const Text('Help'),
         content: const Text(
           'Keyboard Shortcuts:\n'
-              'F - Feed\n'
-              'P - Play\n'
-              'C - Clean\n'
-              'S - Sleep\n'
-              'T - Train\n'
-              'M - Medicine\n\n'
-              'Keep your pet happy by managing hunger, energy, cleanliness, and health!\n'
-              'Pet evolves at levels 10, 20, 35, and 50.\n'
-              'Premium pets (Phoenix, Griffin, Unicorn) available with upgrade!',
+          'F - Feed\n'
+          'P - Play\n'
+          'C - Clean\n'
+          'S - Sleep\n'
+          'T - Train\n'
+          'M - Medicine\n\n'
+          'Keep your pet happy by managing hunger, energy, cleanliness, and health!\n'
+          'Pet evolves at levels 10, 20, 35, and 50.\n'
+          'Premium pets (Phoenix, Griffin, Unicorn) available with upgrade!',
         ),
         actions: [
           TextButton(
@@ -1946,17 +2165,24 @@ class _CompactGameScreenState extends State<CompactGameScreen> {
           width: double.maxFinite,
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            children: games.map((game) => ListTile(
-              leading: Text(game['icon'] as String, style: const TextStyle(fontSize: 30)),
-              title: Text(game['name'] as String),
-              subtitle: Text(game['description'] as String),
-              onTap: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('${game['name']} coming soon!')),
-                );
-              },
-            )).toList(),
+            children: games
+                .map(
+                  (game) => ListTile(
+                    leading: Text(
+                      game['icon'] as String,
+                      style: const TextStyle(fontSize: 30),
+                    ),
+                    title: Text(game['name'] as String),
+                    subtitle: Text(game['description'] as String),
+                    onTap: () {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('${game['name']} coming soon!')),
+                      );
+                    },
+                  ),
+                )
+                .toList(),
           ),
         ),
         actions: [
@@ -2013,11 +2239,19 @@ class _CompactGameScreenState extends State<CompactGameScreen> {
           children: [
             Text(
               label,
-              style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             Text(
               '$value%',
-              style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                color: color,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ],
         ),
@@ -2063,7 +2297,11 @@ class _CompactGameScreenState extends State<CompactGameScreen> {
             const SizedBox(height: 4),
             Text(
               label,
-              style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                color: color,
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+              ),
               textAlign: TextAlign.center,
             ),
           ],
@@ -2110,7 +2348,10 @@ class SettingsScreen extends StatelessWidget {
                                 SizedBox(width: 12),
                                 Text(
                                   'Sound',
-                                  style: TextStyle(color: Colors.white, fontSize: 16),
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                  ),
                                 ),
                               ],
                             ),
@@ -2138,32 +2379,22 @@ class SettingsScreen extends StatelessWidget {
                                 SizedBox(width: 12),
                                 Text(
                                   'Premium',
-                                  style: TextStyle(color: Colors.white, fontSize: 16),
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                  ),
                                 ),
                               ],
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              accountProvider.account?.isPremium == true
-                                  ? '✨ Premium Active! ✨'
-                                  : 'Upgrade to unlock: Phoenix, Griffin, Unicorn pets + more!',
-                              style: TextStyle(
-                                color: accountProvider.account?.isPremium == true
-                                    ? Colors.amber
-                                    : Colors.white70,
+                              '✨ Premium is free and active! ✨',
+                              style: const TextStyle(
+                                color: Colors.amber,
                                 fontSize: 14,
                               ),
                             ),
                             const SizedBox(height: 8),
-                            if (accountProvider.account?.isPremium != true)
-                              ElevatedButton(
-                                onPressed: () => _showPatreonDialog(context),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.amber,
-                                  foregroundColor: Colors.black,
-                                ),
-                                child: const Text('Upgrade with Patreon'),
-                              ),
                           ],
                         ),
                       ),
@@ -2179,21 +2410,38 @@ class SettingsScreen extends StatelessWidget {
                           children: [
                             const Row(
                               children: [
-                                Icon(Icons.account_circle, color: Colors.white54),
+                                Icon(
+                                  Icons.account_circle,
+                                  color: Colors.white54,
+                                ),
                                 SizedBox(width: 12),
                                 Text(
                                   'Account',
-                                  style: TextStyle(color: Colors.white, fontSize: 16),
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                  ),
                                 ),
                               ],
                             ),
                             const SizedBox(height: 8),
-                            if (accountProvider.isLoggedIn && accountProvider.account != null)
+                            if (accountProvider.isLoggedIn &&
+                                accountProvider.account != null)
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('Username: ${accountProvider.account!.username}', style: const TextStyle(color: Colors.white70)),
-                                  Text('Email: ${accountProvider.account!.email}', style: const TextStyle(color: Colors.white70)),
+                                  Text(
+                                    'Username: ${accountProvider.account!.username}',
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                    ),
+                                  ),
+                                  Text(
+                                    'Email: ${accountProvider.account!.email}',
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                    ),
+                                  ),
                                   const SizedBox(height: 8),
                                   ElevatedButton(
                                     onPressed: () => accountProvider.logout(),
@@ -2207,7 +2455,10 @@ class SettingsScreen extends StatelessWidget {
                             else
                               Column(
                                 children: [
-                                  const Text('Not logged in', style: TextStyle(color: Colors.white70)),
+                                  const Text(
+                                    'Not logged in',
+                                    style: TextStyle(color: Colors.white70),
+                                  ),
                                   const SizedBox(height: 8),
                                   ElevatedButton(
                                     onPressed: () => _showLoginDialog(context),
@@ -2237,14 +2488,26 @@ class SettingsScreen extends StatelessWidget {
                                 SizedBox(width: 12),
                                 Text(
                                   'About',
-                                  style: TextStyle(color: Colors.white, fontSize: 16),
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                  ),
                                 ),
                               ],
                             ),
                             const SizedBox(height: 8),
-                            const Text('Pup Pet Simulator', style: TextStyle(color: Colors.white70)),
-                            const Text('Version 27.0', style: TextStyle(color: Colors.white70)),
-                            const Text('Build your virtual pet from baby to elder!', style: TextStyle(color: Colors.white70)),
+                            const Text(
+                              'Kitty Adventure',
+                              style: TextStyle(color: Colors.white70),
+                            ),
+                            const Text(
+                              'Version 26.8.1',
+                              style: TextStyle(color: Colors.white70),
+                            ),
+                            const Text(
+                              'Build your virtual pet from baby to elder!',
+                              style: TextStyle(color: Colors.white70),
+                            ),
                           ],
                         ),
                       ),
@@ -2288,8 +2551,12 @@ class SettingsScreen extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () {
-              if (usernameController.text.isNotEmpty && emailController.text.isNotEmpty) {
-                context.read<AccountProvider>().login(usernameController.text, emailController.text);
+              if (usernameController.text.isNotEmpty &&
+                  emailController.text.isNotEmpty) {
+                context.read<AccountProvider>().login(
+                      usernameController.text,
+                      emailController.text,
+                    );
                 Navigator.pop(context);
               }
             },
@@ -2299,145 +2566,102 @@ class SettingsScreen extends StatelessWidget {
       ),
     );
   }
-
-  void _showPatreonDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Row(
-          children: [
-            Icon(Icons.favorite, color: Colors.pink[300]),
-            const SizedBox(width: 8),
-            const Text('Support on Patreon'),
-          ],
-        ),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                'Choose your support tier and unlock amazing benefits!',
-                style: TextStyle(fontSize: 16),
-              ),
-              const SizedBox(height: 16),
-              ...PatreonService.premiumTiers.entries.map((entry) {
-                final tier = entry.value;
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: (tier['color'] as Color?)?.withOpacity(0.1) ?? Colors.grey.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: tier['color'] as Color? ?? Colors.grey),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            tier['name'] as String,
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                          ),
-                          Text(
-                            tier['price'] as String,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: tier['color'] as Color?,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      ...(tier['benefits'] as List<String>).map((benefit) => 
-                        Padding(
-                          padding: const EdgeInsets.only(left: 8, top: 2),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.check, size: 16, color: Colors.green),
-                              const SizedBox(width: 8),
-                              Expanded(child: Text(benefit, style: const TextStyle(fontSize: 14))),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Maybe Later'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              await context.read<AccountProvider>().launchPatreonPage();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.pink[300],
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Become a Patron'),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 // ==================== MAIN APP ====================
 
-class PupApp extends StatelessWidget {
-  const PupApp({super.key});
+class KittyAdventureApp extends StatelessWidget {
+  const KittyAdventureApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'pup',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF9C27B0),
-          brightness: Brightness.dark,
-        ),
-      ),
-      home: Consumer<GameProvider>(
-        builder: (context, gameProvider, child) {
-          if (gameProvider.pet == null) {
-            return const PetSelectionScreen();
-          }
-          return const CompactGameScreen();
-        },
-      ),
+    return Consumer<app_game.GameProvider>(
+      builder: (context, gameProvider, child) {
+        return MaterialApp(
+          title: 'Kitty Adventure',
+          debugShowCheckedModeBanner: false,
+          themeMode:
+              gameProvider.darkModeEnabled ? ThemeMode.dark : ThemeMode.light,
+          theme: ThemeData(
+            useMaterial3: true,
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: const Color(0xFFFF76B7),
+              brightness: Brightness.light,
+            ),
+            scaffoldBackgroundColor: const Color(0xFFFFF7D6),
+          ),
+          darkTheme: ThemeData(
+            useMaterial3: true,
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: const Color(0xFFFF76B7),
+              brightness: Brightness.dark,
+            ),
+            scaffoldBackgroundColor: const Color(0xFF151827),
+          ),
+          home: const AppWrapper(child: PetGameScreen()),
+        );
+      },
     );
   }
 }
 
+Widget _buildLoadingErrorWidget(FlutterErrorDetails details) {
+  return const Directionality(
+    textDirection: TextDirection.ltr,
+    child: Material(
+      color: Color(0xFF151827),
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: 52,
+              height: 52,
+              child: CircularProgressIndicator(
+                strokeWidth: 5,
+                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFFF76B7)),
+              ),
+            ),
+            SizedBox(height: 18),
+            Text(
+              'Loading...',
+              style: TextStyle(
+                color: Color(0xFFFFEAC2),
+                fontSize: 24,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            SizedBox(height: 6),
+            Text(
+              'One sec while Kitty catches up.',
+              style: TextStyle(
+                color: Color(0xFFFFC98E),
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  ErrorWidget.builder = _buildLoadingErrorWidget;
 
   // Request permissions for storage (optional, don't block startup)
   try {
-    await [
-      Permission.storage,
-      Permission.manageExternalStorage,
-    ].request();
+    await [Permission.storage, Permission.manageExternalStorage].request();
   } catch (e) {
     // Permissions failed, continue without them
   }
 
-  final gameProvider = GameProvider();
-  final accountProvider = AccountProvider();
-  final notificationService = NotificationService();
-  
+  final gameProvider = app_game.GameProvider();
+  final accountProvider = app_account.AccountProvider();
+  final notificationService = app_notifications.NotificationService();
+
   try {
     await gameProvider.loadGame();
   } catch (e) {
@@ -2446,7 +2670,10 @@ void main() async {
 
   try {
     notificationService.showDailyRewardNotification();
-    notificationService.showSystemNotification('Welcome Back!', 'Your pet missed you!');
+    notificationService.showSystemNotification(
+      'Welcome Back!',
+      'Your pet missed you!',
+    );
   } catch (e) {
     // Continue even if notifications fail
   }
@@ -2458,7 +2685,7 @@ void main() async {
         ChangeNotifierProvider.value(value: accountProvider),
         Provider.value(value: notificationService),
       ],
-      child: const PupApp(),
+      child: const KittyAdventureApp(),
     ),
   );
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../services/update_service.dart';
 import 'whats_new_dialog.dart';
 
 class AppWrapper extends StatefulWidget {
@@ -18,21 +19,31 @@ class _AppWrapperState extends State<AppWrapper> {
   void initState() {
     super.initState();
     _checkForNewVersion();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkForRemoteUpdate();
+    });
   }
 
   void _checkForNewVersion() async {
     final prefs = await SharedPreferences.getInstance();
-    
-    const String currentVersion = '2.0';
-    final lastVersion = prefs.getString('lastVersion');
-    
-    if (lastVersion != null && lastVersion != currentVersion) {
+
+    const String currentVersion = UpdateService.currentVersion;
+    final lastVersion = prefs.getString('lastWhatsNewVersion');
+
+    if (lastVersion != currentVersion && mounted) {
       setState(() {
         _shouldShowWhatsNew = true;
       });
     }
-    
-    await prefs.setString('lastVersion', currentVersion);
+
+    await prefs.setString('lastWhatsNewVersion', currentVersion);
+  }
+
+  Future<void> _checkForRemoteUpdate() async {
+    await Future<void>.delayed(const Duration(milliseconds: 900));
+    if (!mounted) return;
+
+    await UpdateService.checkForUpdates(context);
   }
 
   void _closeWhatsNew() {

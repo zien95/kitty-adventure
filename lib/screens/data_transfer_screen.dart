@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:network_info_plus/network_info_plus.dart';
-import 'package:wifi_iot/wifi_iot.dart';
 import '../providers/game_provider.dart';
 import '../models/pet.dart';
 import '../screens/cloud_backup_screen.dart';
@@ -24,7 +23,6 @@ class _DataTransferScreenState extends State<DataTransferScreen> {
   bool _isTransferring = false;
   String _statusMessage = 'Ready to transfer data';
   String? _lastTransferTime;
-  bool _debugMode = true; // Enable debug mode
   bool _isWifiServer = false;
   String _wifiStatus = 'Not connected';
   String? _serverIP;
@@ -47,62 +45,39 @@ class _DataTransferScreenState extends State<DataTransferScreen> {
       // First check SharedPreferences directly
       final prefs = await SharedPreferences.getInstance();
       final petJson = prefs.getString('pet');
-      
-      if (_debugMode) {
-        print('DEBUG: Checking SharedPreferences for pet data...');
-        print('DEBUG: Pet JSON exists: ${petJson != null}');
-        if (petJson != null) {
-          print('DEBUG: Pet JSON length: ${petJson.length}');
-          print('DEBUG: Pet JSON preview: ${petJson.substring(0, petJson.length > 100 ? 100 : petJson.length)}...');
-        }
-      }
-      
+
       setState(() {
         if (petJson != null) {
-          _statusMessage = 'Pet data found in storage (${petJson.length} chars), loading...';
+          _statusMessage =
+              'Pet data found in storage (${petJson.length} chars), loading...';
         } else {
           _statusMessage = 'No pet data in storage - please create a pet first';
         }
       });
-      
+
       final gameProvider = context.read<GameProvider>();
-      
-      // Check GameProvider state before loading
-      if (_debugMode) {
-        print('DEBUG: GameProvider pet before load: ${gameProvider.pet}');
-        print('DEBUG: GameProvider hasPet before load: ${gameProvider.hasPet}');
-      }
-      
+
       await gameProvider.loadGame();
-      
-      // Force a notify to ensure UI updates
-      gameProvider.notifyListeners();
-      
+      if (!mounted) return;
+
       // Check pet status after loading
       final pet = gameProvider.pet;
       final hasPet = gameProvider.hasPet;
-      
-      if (_debugMode) {
-        print('DEBUG: GameProvider pet after load: $pet');
-        print('DEBUG: GameProvider hasPet after load: $hasPet');
-      }
-      
+
       setState(() {
         if (pet != null) {
           _statusMessage = '✅ Pet loaded: ${pet.name} (Level ${pet.level})';
         } else if (hasPet) {
           _statusMessage = '⚠️ Pet exists but data is incomplete';
         } else if (petJson != null) {
-          _statusMessage = '❌ Pet data exists but failed to load - trying direct parse...';
+          _statusMessage =
+              '❌ Pet data exists but failed to load - trying direct parse...';
           _tryDirectPetLoad(petJson);
         } else {
           _statusMessage = '❌ No pet found - please create a pet first';
         }
       });
     } catch (e) {
-      if (_debugMode) {
-        print('DEBUG: Error in _loadGameData: $e');
-      }
       setState(() {
         _statusMessage = '❌ Error loading game data: $e';
       });
@@ -111,40 +86,18 @@ class _DataTransferScreenState extends State<DataTransferScreen> {
 
   Future<void> _tryDirectPetLoad(String petJson) async {
     try {
-      if (_debugMode) {
-        print('DEBUG: Attempting direct pet load...');
-        print('DEBUG: JSON to decode: $petJson');
-      }
-      
       final petData = jsonDecode(petJson);
-      
-      if (_debugMode) {
-        print('DEBUG: Decoded pet data: $petData');
-      }
-      
       final pet = Pet.fromJson(petData);
-      
-      if (_debugMode) {
-        print('DEBUG: Pet created from JSON: ${pet.name} (${pet.runtimeType})');
-      }
-      
+
       // Set the pet directly in GameProvider
       final gameProvider = context.read<GameProvider>();
       gameProvider.setPet(pet);
-      
-      if (_debugMode) {
-        print('DEBUG: Pet set in GameProvider');
-        print('DEBUG: GameProvider pet now: ${gameProvider.pet}');
-      }
-      
+
       setState(() {
-        _statusMessage = '✅ Pet loaded directly: ${pet.name} (Level ${pet.level})';
+        _statusMessage =
+            '✅ Pet loaded directly: ${pet.name} (Level ${pet.level})';
       });
     } catch (e) {
-      if (_debugMode) {
-        print('DEBUG: Error in _tryDirectPetLoad: $e');
-        print('DEBUG: Stack trace: ${StackTrace.current}');
-      }
       setState(() {
         _statusMessage = '❌ Direct pet load failed: $e';
       });
@@ -166,17 +119,19 @@ class _DataTransferScreenState extends State<DataTransferScreen> {
           Container(
             margin: const EdgeInsets.only(right: 8),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(8),
             ),
             child: IconButton(
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const UserAccountScreen()),
+                  MaterialPageRoute(
+                      builder: (context) => const UserAccountScreen()),
                 );
               },
-              icon: const Icon(Icons.account_circle, color: Colors.white, size: 24),
+              icon: const Icon(Icons.account_circle,
+                  color: Colors.white, size: 24),
               tooltip: 'User Account',
             ),
           ),
@@ -193,20 +148,25 @@ class _DataTransferScreenState extends State<DataTransferScreen> {
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Colors.blue.withOpacity(0.2), Colors.purple.withOpacity(0.2)],
+                  colors: [
+                    Colors.blue.withValues(alpha: 0.2),
+                    Colors.purple.withValues(alpha: 0.2)
+                  ],
                 ),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.white.withOpacity(0.3)),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
               ),
               child: ElevatedButton.icon(
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const UserAccountScreen()),
+                    MaterialPageRoute(
+                        builder: (context) => const UserAccountScreen()),
                   );
                 },
                 icon: const Icon(Icons.account_circle, size: 20),
-                label: const Text('👤 User Account Login', style: TextStyle(fontSize: 16)),
+                label: const Text('👤 User Account Login',
+                    style: TextStyle(fontSize: 16)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.transparent,
                   foregroundColor: Colors.white,
@@ -215,38 +175,53 @@ class _DataTransferScreenState extends State<DataTransferScreen> {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Status Card
             _buildStatusCard(),
-            
+
             const SizedBox(height: 24),
-            
+
             // Export Section
             _buildSectionTitle('📤 EXPORT DATA'),
             _buildExportSection(),
-            
+
             const SizedBox(height: 24),
-            
+
             // Import Section
             _buildSectionTitle('📥 IMPORT DATA'),
             _buildImportSection(),
-            
+
             const SizedBox(height: 24),
-            
+
             // WiFi Transfer Section
             _buildSectionTitle('📶 WIFI TRANSFER'),
             _buildWifiSection(),
-            
+
             const SizedBox(height: 24),
-            
+
+            _buildSectionTitle('☁️ CLOUD BACKUP'),
+            _buildCloudSection(),
+
+            const SizedBox(height: 24),
+
+            _buildSectionTitle('🐾 PET SHARING'),
+            _buildSharingSection(),
+
+            const SizedBox(height: 24),
+
+            _buildSectionTitle('👤 ACCOUNT'),
+            _buildAccountSection(),
+
+            const SizedBox(height: 24),
+
             // Instructions
             _buildSectionTitle('📋 INSTRUCTIONS'),
             _buildInstructions(),
-            
+
             const SizedBox(height: 24),
-            
+
             // Back Button
             SizedBox(
               width: double.infinity,
@@ -278,7 +253,10 @@ class _DataTransferScreenState extends State<DataTransferScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.blue.withValues(alpha: 0.2), Colors.purple.withValues(alpha: 0.2)],
+          colors: [
+            Colors.blue.withValues(alpha: 0.2),
+            Colors.purple.withValues(alpha: 0.2)
+          ],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
@@ -407,8 +385,7 @@ class _DataTransferScreenState extends State<DataTransferScreen> {
     return Consumer<GameProvider>(
       builder: (context, gameProvider, child) {
         final pet = gameProvider.pet;
-        final hasPet = gameProvider.hasPet;
-        
+
         // Always show the export section with a test pet option
         return Container(
           padding: const EdgeInsets.all(16),
@@ -458,9 +435,12 @@ class _DataTransferScreenState extends State<DataTransferScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  onPressed: _isTransferring ? null : () => _exportData(gameProvider),
+                  onPressed:
+                      _isTransferring ? null : () => _exportData(gameProvider),
                   icon: const Icon(Icons.file_download),
-                  label: Text(pet == null ? 'Create Test Pet & Export' : 'Export to USB'),
+                  label: Text(pet == null
+                      ? 'Create Test Pet & Export'
+                      : 'Export to USB'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: pet == null ? Colors.orange : Colors.green,
                     foregroundColor: Colors.white,
@@ -530,119 +510,119 @@ class _DataTransferScreenState extends State<DataTransferScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-          _buildInstructionItem(
-            '📱 Connect your device to computer via USB',
-            Icons.usb,
-          ),
-          _buildInstructionItem(
-            '📂 Enable file transfer mode on your device',
-            Icons.settings,
-          ),
-          _buildInstructionItem(
-            '💾 Export saves to Downloads/Desktop/Home folder',
-            Icons.file_download,
-          ),
-          _buildInstructionItem(
-            '📁 Import loads from any accessible folder',
-            Icons.file_upload,
-          ),
-          _buildInstructionItem(
-            '🔄 Data includes stats, items, achievements, and progress',
-            Icons.sync,
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            '🔐 HOW TO LOG IN:',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
+            _buildInstructionItem(
+              '📱 Connect your device to computer via USB',
+              Icons.usb,
             ),
-          ),
-          _buildInstructionItem(
-            '1️⃣ Open User Account screen',
-            Icons.account_circle,
-          ),
-          _buildInstructionItem(
-            '2️⃣ Enter your email and password',
-            Icons.email,
-          ),
-          _buildInstructionItem(
-            '3️⃣ Click "Sign In" to access cloud features',
-            Icons.login,
-          ),
-          _buildInstructionItem(
-            '4️⃣ New users can create free accounts',
-            Icons.person_add,
-          ),
-          _buildInstructionItem(
-            '5️⃣ Premium members get unlimited cloud storage',
-            Icons.star,
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            '📍 WHERE IS USER ACCOUNT SCREEN?',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
+            _buildInstructionItem(
+              '📂 Enable file transfer mode on your device',
+              Icons.settings,
             ),
-          ),
-          _buildInstructionItem(
-            '🔝 Click the account icon (👤) in the top-right corner',
-            Icons.account_circle,
-          ),
-          _buildInstructionItem(
-            '📱 Or scroll down to "👤 USER ACCOUNT" section',
-            Icons.arrow_downward,
-          ),
-          _buildInstructionItem(
-            '⚡ Quick access: Tap the profile icon in app bar',
-            Icons.touch_app,
-          ),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.orange.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.orange.withValues(alpha: 0.5)),
+            _buildInstructionItem(
+              '💾 Export saves to Downloads/Desktop/Home folder',
+              Icons.file_download,
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Row(
-                  children: [
-                    Icon(Icons.warning, color: Colors.orange, size: 16),
-                    SizedBox(width: 8),
-                    Text(
-                      'MACOS PERMISSION FIX',
-                      style: TextStyle(
-                        color: Colors.orange,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
+            _buildInstructionItem(
+              '📁 Import loads from any accessible folder',
+              Icons.file_upload,
+            ),
+            _buildInstructionItem(
+              '🔄 Data includes stats, items, achievements, and progress',
+              Icons.sync,
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              '🔐 HOW TO LOG IN:',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            _buildInstructionItem(
+              '1️⃣ Open User Account screen',
+              Icons.account_circle,
+            ),
+            _buildInstructionItem(
+              '2️⃣ Enter your email and password',
+              Icons.email,
+            ),
+            _buildInstructionItem(
+              '3️⃣ Click "Sign In" to access cloud features',
+              Icons.login,
+            ),
+            _buildInstructionItem(
+              '4️⃣ New users can create free accounts',
+              Icons.person_add,
+            ),
+            _buildInstructionItem(
+              '5️⃣ Premium members get unlimited cloud storage',
+              Icons.star,
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              '📍 WHERE IS USER ACCOUNT SCREEN?',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            _buildInstructionItem(
+              '🔝 Click the account icon (👤) in the top-right corner',
+              Icons.account_circle,
+            ),
+            _buildInstructionItem(
+              '📱 Or scroll down to "👤 USER ACCOUNT" section',
+              Icons.arrow_downward,
+            ),
+            _buildInstructionItem(
+              '⚡ Quick access: Tap the profile icon in app bar',
+              Icons.touch_app,
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.orange.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.orange.withValues(alpha: 0.5)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Row(
+                    children: [
+                      Icon(Icons.warning, color: Colors.orange, size: 16),
+                      SizedBox(width: 8),
+                      Text(
+                        'MACOS PERMISSION FIX',
+                        style: TextStyle(
+                          color: Colors.orange,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                _buildInstructionItem(
-                  'Move app to Applications folder',
-                  Icons.folder,
-                ),
-                _buildInstructionItem(
-                  'Grant Full Disk Access in System Preferences',
-                  Icons.security,
-                ),
-                _buildInstructionItem(
-                  'Try running from Terminal: open app.app',
-                  Icons.terminal,
-                ),
-              ],
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  _buildInstructionItem(
+                    'Move app to Applications folder',
+                    Icons.folder,
+                  ),
+                  _buildInstructionItem(
+                    'Grant Full Disk Access in System Preferences',
+                    Icons.security,
+                  ),
+                  _buildInstructionItem(
+                    'Try running from Terminal: open app.app',
+                    Icons.terminal,
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
+          ],
+        ),
       ),
     );
   }
@@ -681,7 +661,8 @@ class _DataTransferScreenState extends State<DataTransferScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.wifi, color: _isWifiServer ? Colors.green : Colors.grey),
+              Icon(Icons.wifi,
+                  color: _isWifiServer ? Colors.green : Colors.grey),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -791,21 +772,18 @@ class _DataTransferScreenState extends State<DataTransferScreen> {
 
       // Get local IP address using multiple methods
       String? wifiIP;
-      
+
       // Method 1: Try network_info_plus
       try {
         final info = NetworkInfo();
         wifiIP = await info.getWifiIP();
-      } catch (e) {
-        if (_debugMode) {
-          print('DEBUG: NetworkInfo failed: $e');
-        }
-      }
-      
+      } catch (_) {}
+
       // Method 2: Try getting from network interfaces
       if (wifiIP == null) {
         try {
-          final interfaces = await NetworkInterface.list(includeLoopback: false, type: InternetAddressType.any);
+          final interfaces = await NetworkInterface.list(
+              includeLoopback: false, type: InternetAddressType.any);
           for (final interface in interfaces) {
             for (final addr in interface.addresses) {
               if (addr.type == InternetAddressType.IPv4) {
@@ -815,44 +793,29 @@ class _DataTransferScreenState extends State<DataTransferScreen> {
             }
             if (wifiIP != null) break;
           }
-        } catch (e) {
-          if (_debugMode) {
-            print('DEBUG: NetworkInterface failed: $e');
-          }
-        }
+        } catch (_) {}
       }
-      
+
       // Method 3: Fallback to localhost for testing
       if (wifiIP == null) {
         wifiIP = '127.0.0.1';
-        if (_debugMode) {
-          print('DEBUG: Using localhost for testing');
-        }
-      }
-      
-      if (_debugMode) {
-        print('DEBUG: Final WiFi IP: $wifiIP');
-      }
-      
-      if (wifiIP == null) {
-        throw Exception('Could not get WiFi IP address');
       }
 
       // Start HTTP server
       _httpServer = await HttpServer.bind('0.0.0.0', 8080);
-      
+
       setState(() {
         _isWifiServer = true;
         _wifiStatus = 'Server running';
         _serverIP = wifiIP;
-        _statusMessage = '✅ WiFi server started!\nIP: $wifiIP:8080\nWaiting for connections...';
+        _statusMessage =
+            '✅ WiFi server started!\nIP: $wifiIP:8080\nWaiting for connections...';
       });
 
       // Listen for connections
       await for (HttpRequest request in _httpServer!) {
         _handleWifiRequest(request);
       }
-
     } catch (e) {
       setState(() {
         _wifiStatus = 'Server failed';
@@ -865,7 +828,7 @@ class _DataTransferScreenState extends State<DataTransferScreen> {
     try {
       await _httpServer?.close();
       _httpServer = null;
-      
+
       setState(() {
         _isWifiServer = false;
         _wifiStatus = 'Server stopped';
@@ -885,10 +848,10 @@ class _DataTransferScreenState extends State<DataTransferScreen> {
         // Serve pet data
         final gameProvider = context.read<GameProvider>();
         Pet? pet = gameProvider.pet;
-        
+
         if (pet == null) {
           // Create test pet if none exists
-          pet = Pet(name: 'WiFi Buddy', type: PetType.dog);
+          pet = Pet(name: 'WiFi Kitty', type: PetType.cat);
           pet.level = 5;
           pet.health = 100;
           pet.hunger = 80;
@@ -937,12 +900,13 @@ class _DataTransferScreenState extends State<DataTransferScreen> {
         request.response
           ..headers.contentType = ContentType.json
           ..write(jsonEncode(exportData));
-        
+
         await request.response.close();
-        
+
         setState(() {
           _lastTransferTime = DateTime.now().toString().substring(0, 19);
-          _statusMessage = '✅ Pet data sent via WiFi!\nTo: ${request.requestedUri.host}\nTime: $_lastTransferTime';
+          _statusMessage =
+              '✅ Pet data sent via WiFi!\nTo: ${request.requestedUri.host}\nTime: $_lastTransferTime';
         });
       } else {
         request.response.statusCode = HttpStatus.methodNotAllowed;
@@ -957,7 +921,7 @@ class _DataTransferScreenState extends State<DataTransferScreen> {
   Future<void> _connectToWifiServer() async {
     // Show dialog to enter server IP
     final controller = TextEditingController(text: '192.168.1.100:8080');
-    
+
     final result = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
@@ -1007,7 +971,7 @@ class _DataTransferScreenState extends State<DataTransferScreen> {
       ),
     );
 
-    if (result != null && result!.isNotEmpty) {
+    if (result != null && result.isNotEmpty) {
       await _importFromWifi(result);
     }
   }
@@ -1018,13 +982,14 @@ class _DataTransferScreenState extends State<DataTransferScreen> {
       if (serverAddress.isEmpty) {
         throw Exception('Server address is empty');
       }
-      
+
       // Ensure the address has http:// prefix
       String fullAddress = serverAddress;
-      if (!serverAddress.startsWith('http://') && !serverAddress.startsWith('https://')) {
+      if (!serverAddress.startsWith('http://') &&
+          !serverAddress.startsWith('https://')) {
         fullAddress = 'http://$serverAddress';
       }
-      
+
       setState(() {
         _isTransferring = true;
         _statusMessage = 'Connecting to WiFi server...\nAddress: $fullAddress';
@@ -1033,25 +998,27 @@ class _DataTransferScreenState extends State<DataTransferScreen> {
       final uri = Uri.parse(fullAddress);
       final request = await HttpClient().getUrl(uri);
       final response = await request.close();
-      
+
       if (response.statusCode == 200) {
         final responseData = await response.transform(utf8.decoder).join();
         final data = jsonDecode(responseData);
-        
+
         if (data['pet'] != null) {
           final pet = Pet.fromJson(data['pet']);
           final gameProvider = context.read<GameProvider>();
           gameProvider.setPet(pet);
-          
+
           setState(() {
-            _statusMessage = '✅ Pet data imported via WiFi!\nPet: ${pet.name} (Level ${pet.level})\nFrom: $serverAddress';
+            _statusMessage =
+                '✅ Pet data imported via WiFi!\nPet: ${pet.name} (Level ${pet.level})\nFrom: $serverAddress';
             _lastTransferTime = DateTime.now().toString().substring(0, 19);
             _isTransferring = false;
           });
-          
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Imported ${pet.name} (Level ${pet.level}) via WiFi'),
+              content:
+                  Text('Imported ${pet.name} (Level ${pet.level}) via WiFi'),
               backgroundColor: Colors.green,
               duration: const Duration(seconds: 5),
             ),
@@ -1064,26 +1031,28 @@ class _DataTransferScreenState extends State<DataTransferScreen> {
       }
     } catch (e) {
       String errorMessage = e.toString();
-      
+
       // Check for specific macOS permission errors
-      if (errorMessage.contains('Operation not permitted') || errorMessage.contains('errno = 1')) {
-        errorMessage = 'macOS Network Permission Error\n\n🔧 SOLUTION:\n1️⃣ System Preferences → Security & Privacy\n2️⃣ Firewall → Turn off "Block all incoming connections"\n3️⃣ Or add port 8080 to allowed apps\n4️⃣ Try using localhost (127.0.0.1) for testing';
+      if (errorMessage.contains('Operation not permitted') ||
+          errorMessage.contains('errno = 1')) {
+        errorMessage =
+            'macOS Network Permission Error\n\n🔧 SOLUTION:\n1️⃣ System Preferences → Security & Privacy\n2️⃣ Firewall → Turn off "Block all incoming connections"\n3️⃣ Or add port 8080 to allowed apps\n4️⃣ Try using localhost (127.0.0.1) for testing';
       }
-      
+
       setState(() {
         _statusMessage = '❌ WiFi import failed: $errorMessage';
         _isTransferring = false;
       });
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Row(
             children: [
               Expanded(
                 child: Text(
-                  errorMessage.contains('Operation not permitted') 
-                    ? 'Network permission denied' 
-                    : 'WiFi import failed',
+                  errorMessage.contains('Operation not permitted')
+                      ? 'Network permission denied'
+                      : 'WiFi import failed',
                   maxLines: 2,
                 ),
               ),
@@ -1104,13 +1073,15 @@ class _DataTransferScreenState extends State<DataTransferScreen> {
           ),
           backgroundColor: Colors.red,
           duration: const Duration(seconds: 8),
-          action: errorMessage.contains('Operation not permitted') ? SnackBarAction(
-            label: 'Fix Guide',
-            textColor: Colors.white,
-            onPressed: () {
-              _showNetworkPermissionGuide();
-            },
-          ) : null,
+          action: errorMessage.contains('Operation not permitted')
+              ? SnackBarAction(
+                  label: 'Fix Guide',
+                  textColor: Colors.white,
+                  onPressed: () {
+                    _showNetworkPermissionGuide();
+                  },
+                )
+              : null,
         ),
       );
     }
@@ -1150,9 +1121,11 @@ class _DataTransferScreenState extends State<DataTransferScreen> {
                   children: [
                     const Text(
                       '💡 ALTERNATIVE:',
-                      style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue),
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, color: Colors.blue),
                     ),
-                    const Text('Use localhost (127.0.0.1:8080) for testing on the same device'),
+                    const Text(
+                        'Use localhost (127.0.0.1:8080) for testing on the same device'),
                   ],
                 ),
               ),
@@ -1242,7 +1215,8 @@ class _DataTransferScreenState extends State<DataTransferScreen> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const CloudBackupScreen()),
+                      MaterialPageRoute(
+                          builder: (context) => const CloudBackupScreen()),
                     );
                   },
                   icon: const Icon(Icons.cloud_upload),
@@ -1260,7 +1234,8 @@ class _DataTransferScreenState extends State<DataTransferScreen> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const CloudBackupScreen()),
+                      MaterialPageRoute(
+                          builder: (context) => const CloudBackupScreen()),
                     );
                   },
                   icon: const Icon(Icons.cloud_download),
@@ -1324,7 +1299,8 @@ class _DataTransferScreenState extends State<DataTransferScreen> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const PetSharingScreen()),
+                  MaterialPageRoute(
+                      builder: (context) => const PetSharingScreen()),
                 );
               },
               icon: const Icon(Icons.pets),
@@ -1386,7 +1362,8 @@ class _DataTransferScreenState extends State<DataTransferScreen> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const UserAccountScreen()),
+                  MaterialPageRoute(
+                      builder: (context) => const UserAccountScreen()),
                 );
               },
               icon: const Icon(Icons.person),
@@ -1411,18 +1388,14 @@ class _DataTransferScreenState extends State<DataTransferScreen> {
 
     try {
       Pet? pet = gameProvider.pet;
-      
+
       // If no pet exists, create a test pet
       if (pet == null) {
-        if (_debugMode) {
-          print('DEBUG: No pet found, creating test pet...');
-        }
-        
         pet = Pet(
-          name: 'Test Buddy',
-          type: PetType.dog,
+          name: 'Test Kitty',
+          type: PetType.cat,
         );
-        
+
         // Set some test stats
         pet.level = 5;
         pet.health = 100;
@@ -1441,10 +1414,6 @@ class _DataTransferScreenState extends State<DataTransferScreen> {
         pet.achievements = ['first_pet', 'happy_pet'];
         pet.inventory = ['food', 'toy'];
         pet.skills = {'play': 3, 'feed': 2};
-        
-        if (_debugMode) {
-          print('DEBUG: Created test pet: ${pet.name}');
-        }
       }
 
       // Create data package
@@ -1452,25 +1421,25 @@ class _DataTransferScreenState extends State<DataTransferScreen> {
         'version': '26.6',
         'timestamp': DateTime.now().toIso8601String(),
         'pet': {
-          'name': pet?.name ?? 'Unknown Pet',
-          'type': pet?.type.name ?? 'dog',
-          'level': pet?.level ?? 1,
-          'health': pet?.health ?? 100,
-          'hunger': pet?.hunger ?? 30,
-          'happiness': pet?.happiness ?? 80,
-          'energy': pet?.energy ?? 80,
-          'intelligence': pet?.intelligence ?? 10,
-          'social': pet?.social ?? 10,
-          'cleanliness': pet?.cleanliness ?? 70,
-          'friendshipLevel': pet?.friendshipLevel ?? 0,
-          'xp': pet?.xp ?? 0,
-          'coins': pet?.coins ?? 100,
-          'gems': pet?.gems ?? 5,
-          'currentAccessory': pet?.currentAccessory ?? '',
-          'accessories': pet?.accessories ?? [],
-          'achievements': pet?.achievements ?? [],
-          'inventory': pet?.inventory ?? [],
-          'skills': pet?.skills ?? {},
+          'name': pet.name,
+          'type': pet.type.name,
+          'level': pet.level,
+          'health': pet.health,
+          'hunger': pet.hunger,
+          'happiness': pet.happiness,
+          'energy': pet.energy,
+          'intelligence': pet.intelligence,
+          'social': pet.social,
+          'cleanliness': pet.cleanliness,
+          'friendshipLevel': pet.friendshipLevel,
+          'xp': pet.xp,
+          'coins': pet.coins,
+          'gems': pet.gems,
+          'currentAccessory': pet.currentAccessory,
+          'accessories': pet.accessories,
+          'achievements': pet.achievements,
+          'inventory': pet.inventory,
+          'skills': pet.skills,
         },
       };
 
@@ -1478,42 +1447,31 @@ class _DataTransferScreenState extends State<DataTransferScreen> {
       // macOS apps have permission to write to temp directory
       Directory tempDir = Directory.systemTemp;
       Directory appTempDir = Directory('${tempDir.path}/pet_game_data');
-      
-      if (_debugMode) {
-        print('DEBUG: Using temp directory: ${tempDir.path}');
-        print('DEBUG: App temp directory: ${appTempDir.path}');
-      }
-      
+
       // Create app-specific temp directory
       try {
         if (!await appTempDir.exists()) {
           await appTempDir.create(recursive: true);
         }
-      } catch (e) {
-        if (_debugMode) {
-          print('DEBUG: Failed to create temp dir: $e');
-        }
+      } catch (_) {
         // Fallback to system temp
         appTempDir = tempDir;
       }
-      
+
       final downloadsDir = appTempDir;
-      
-      if (_debugMode) {
-        print('DEBUG: Final directory: ${downloadsDir.path}');
-        print('DEBUG: Directory exists: ${await downloadsDir.exists()}');
-      }
 
       // Create filename with timestamp
       final timestamp = DateTime.now().millisecondsSinceEpoch;
-      final filename = 'pet_data_${pet?.name ?? 'Pet'}_$timestamp.json';
+      final filename = 'pet_data_${pet.name}_$timestamp.json';
       final file = File('${downloadsDir.path}/$filename');
 
       // Write data to file
       await file.writeAsString(jsonEncode(exportData));
+      if (!mounted) return;
 
       setState(() {
-        _statusMessage = '✅ Data exported successfully!\nFile: $filename\nLocation: ${downloadsDir!.path}\n\n📁 HOW TO SAVE TO USB:\n1️⃣ Open Finder\n2️⃣ Press ⌘+Shift+G\n3️⃣ Paste: ${downloadsDir!.path}\n4️⃣ Copy the .json file to your USB drive\n\n💡 Click status to copy path!';
+        _statusMessage =
+            '✅ Data exported successfully!\nFile: $filename\nLocation: ${downloadsDir.path}\n\n📁 HOW TO SAVE TO USB:\n1️⃣ Open Finder\n2️⃣ Press ⌘+Shift+G\n3️⃣ Paste: ${downloadsDir.path}\n4️⃣ Copy the .json file to your USB drive\n\n💡 Click status to copy path!';
         _lastTransferTime = DateTime.now().toString().substring(0, 19);
         _isTransferring = false;
       });
@@ -1522,10 +1480,13 @@ class _DataTransferScreenState extends State<DataTransferScreen> {
         SnackBar(
           content: Row(
             children: [
-              Expanded(child: Text('Data exported to ${downloadsDir!.path}/$filename')),
+              Expanded(
+                  child:
+                      Text('Data exported to ${downloadsDir.path}/$filename')),
               IconButton(
                 onPressed: () {
-                  Clipboard.setData(ClipboardData(text: '${downloadsDir!.path}/$filename'));
+                  Clipboard.setData(
+                      ClipboardData(text: '${downloadsDir.path}/$filename'));
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('File path copied!'),
@@ -1546,13 +1507,14 @@ class _DataTransferScreenState extends State<DataTransferScreen> {
             onPressed: () async {
               // Try to open Finder with the directory
               try {
-                await Process.run('open', [downloadsDir!.path]);
+                await Process.run('open', [downloadsDir.path]);
               } catch (e) {
                 // Fallback: copy path to clipboard
-                Clipboard.setData(ClipboardData(text: downloadsDir!.path));
+                Clipboard.setData(ClipboardData(text: downloadsDir.path));
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('Path copied to clipboard! Use ⌘+Shift+G in Finder'),
+                    content: Text(
+                        'Path copied to clipboard! Use ⌘+Shift+G in Finder'),
                     backgroundColor: Colors.blue,
                   ),
                 );
@@ -1561,9 +1523,9 @@ class _DataTransferScreenState extends State<DataTransferScreen> {
           ),
         ),
       );
-
     } catch (e) {
-      final errorMessage = '❌ Export failed: ${e.toString()}\n\nTry: Move app to Applications folder or grant file permissions';
+      final errorMessage =
+          '❌ Export failed: ${e.toString()}\n\nTry: Move app to Applications folder or grant file permissions';
       setState(() {
         _statusMessage = errorMessage;
         _isTransferring = false;
@@ -1604,25 +1566,25 @@ class _DataTransferScreenState extends State<DataTransferScreen> {
 
     try {
       // Try multiple directories for macOS compatibility
-      Directory? downloadsDir;
+      late Directory downloadsDir;
       final homeDir = Platform.environment['HOME'];
-      
+
       if (homeDir != null) {
         // Try actual user Downloads directory first
         downloadsDir = Directory('$homeDir/Downloads');
-        
+
         // If Downloads doesn't exist, try Desktop
-        if (!await downloadsDir!.exists()) {
+        if (!await downloadsDir.exists()) {
           downloadsDir = Directory('$homeDir/Desktop');
         }
-        
+
         // If Desktop doesn't exist, try Documents
-        if (!await downloadsDir!.exists()) {
+        if (!await downloadsDir.exists()) {
           downloadsDir = Directory('$homeDir/Documents');
         }
-        
+
         // If Documents doesn't exist, try home directory
-        if (!await downloadsDir!.exists()) {
+        if (!await downloadsDir.exists()) {
           downloadsDir = Directory(homeDir);
         }
       } else {
@@ -1630,7 +1592,7 @@ class _DataTransferScreenState extends State<DataTransferScreen> {
         downloadsDir = Directory.current;
       }
 
-      if (!await downloadsDir!.exists()) {
+      if (!await downloadsDir.exists()) {
         throw Exception('Cannot find accessible directory for import');
       }
 
@@ -1642,11 +1604,13 @@ class _DataTransferScreenState extends State<DataTransferScreen> {
           .toList();
 
       if (files.isEmpty) {
-        throw Exception('No pet data files found. Check:\n• Downloads folder\n• Desktop\n• Home directory\n\nFile should end with .json');
+        throw Exception(
+            'No pet data files found. Check:\n• Downloads folder\n• Desktop\n• Home directory\n\nFile should end with .json');
       }
 
       // Get the most recent file
-      files.sort((a, b) => b.statSync().modified.compareTo(a.statSync().modified));
+      files.sort(
+          (a, b) => b.statSync().modified.compareTo(a.statSync().modified));
       final latestFile = files.first;
 
       // Read and parse data
@@ -1659,15 +1623,16 @@ class _DataTransferScreenState extends State<DataTransferScreen> {
       }
 
       final petData = data['pet'] as Map<String, dynamic>;
-      
+
       // Create pet from data
       final petType = PetType.values.firstWhere(
         (type) => type.name == petData['type'],
-        orElse: () => PetType.dog,
+        orElse: () => PetType.cat,
       );
 
       final pet = Pet(
-        id: petData['id']?.toString() ?? DateTime.now().millisecondsSinceEpoch.toString(),
+        id: petData['id']?.toString() ??
+            DateTime.now().millisecondsSinceEpoch.toString(),
         name: petData['name'] ?? 'Pet',
         type: petType,
       );
@@ -1697,7 +1662,8 @@ class _DataTransferScreenState extends State<DataTransferScreen> {
       await gameProvider.saveGame();
 
       setState(() {
-        _statusMessage = '✅ Data imported successfully!\nPet: ${pet.name} (Level ${pet.level})\nFrom: ${latestFile.path}';
+        _statusMessage =
+            '✅ Data imported successfully!\nPet: ${pet.name} (Level ${pet.level})\nFrom: ${latestFile.path}';
         _lastTransferTime = DateTime.now().toString().substring(0, 19);
         _isTransferring = false;
       });
@@ -1709,9 +1675,9 @@ class _DataTransferScreenState extends State<DataTransferScreen> {
           duration: const Duration(seconds: 5),
         ),
       );
-
     } catch (e) {
-      final errorMessage = '❌ Import failed: ${e.toString()}\n\nTry: Move app to Applications folder or grant file permissions';
+      final errorMessage =
+          '❌ Import failed: ${e.toString()}\n\nTry: Move app to Applications folder or grant file permissions';
       setState(() {
         _statusMessage = errorMessage;
         _isTransferring = false;

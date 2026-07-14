@@ -11,7 +11,7 @@ class StatsScreen extends StatelessWidget {
       builder: (context, gameProvider, child) {
         final stats = gameProvider.globalStats;
         final games = gameProvider.availableGames;
-        
+
         return Scaffold(
           backgroundColor: const Color(0xFF2D2D3A),
           appBar: AppBar(
@@ -31,69 +31,86 @@ class StatsScreen extends StatelessWidget {
                 _buildSectionCard(
                   '🎮 Overall Statistics',
                   [
-                    _buildStatRow('Total Play Time', '${_formatMinutes(stats['totalPlayTime'])}'),
+                    _buildStatRow('Total Play Time',
+                        '${_formatMinutes(stats['totalPlayTime'])}'),
                     _buildStatRow('Total Score', '${stats['totalScore']}'),
                     _buildStatRow('Games Played', '${stats['gamesPlayed']}'),
-                    _buildStatRow('Achievements', '${stats['achievementsUnlocked']}'),
+                    _buildStatRow(
+                        'Achievements', '${stats['achievementsUnlocked']}'),
                   ],
                 ),
-                
+
                 const SizedBox(height: 20),
-                
-                // Minecraft Stats
+
+                // Block Builder Stats
                 _buildSectionCard(
-                  '🎮 Minecraft 2D',
+                  '🎮 Block Builder 2D',
                   [
-                    _buildStatRow('Blocks Placed', '${stats['minecraftStats']['blocksPlaced']}'),
-                    _buildStatRow('Blocks Broken', '${stats['minecraftStats']['blocksBroken']}'),
-                    _buildStatRow('Highest Score', '${stats['minecraftStats']['highestScore']}'),
-                    _buildStatRow('Worlds Created', '${stats['minecraftStats']['worldsCreated']}'),
+                    _buildStatRow('Blocks Placed',
+                        '${stats['blockBuilderStats']['blocksPlaced']}'),
+                    _buildStatRow('Blocks Broken',
+                        '${stats['blockBuilderStats']['blocksBroken']}'),
+                    _buildStatRow('Highest Score',
+                        '${stats['blockBuilderStats']['highestScore']}'),
+                    _buildStatRow('Worlds Created',
+                        '${stats['blockBuilderStats']['worldsCreated']}'),
                   ],
                 ),
-                
+
                 const SizedBox(height: 20),
-                
+
                 // Pet Stats
                 _buildSectionCard(
                   '🐾 Pet Statistics',
                   [
-                    _buildStatRow('Pets Owned', '${stats['petStats']['petsOwned']}'),
-                    _buildStatRow('Pets Evolved', '${stats['petStats']['petsEvolved']}'),
-                    _buildStatRow('Times Fed', '${stats['petStats']['totalFed']}'),
-                    _buildStatRow('Times Played', '${stats['petStats']['totalPlayed']}'),
+                    _buildStatRow(
+                        'Pets Owned', '${stats['petStats']['petsOwned']}'),
+                    _buildStatRow(
+                        'Pets Evolved', '${stats['petStats']['petsEvolved']}'),
+                    _buildStatRow(
+                        'Times Fed', '${stats['petStats']['totalFed']}'),
+                    _buildStatRow(
+                        'Times Played', '${stats['petStats']['totalPlayed']}'),
                   ],
                 ),
-                
+
                 const SizedBox(height: 20),
-                
+
                 // Mini-Games Stats
                 _buildSectionCard(
                   '🎯 Mini-Games',
                   [
-                    _buildStatRow('Puzzles Won', '${stats['miniGamesStats']['puzzleGamesWon']}'),
-                    _buildStatRow('Arcade Games', '${stats['miniGamesStats']['arcadeGamesPlayed']}'),
-                    _buildStatRow('Best Time Attack', '${stats['miniGamesStats']['timeAttackBest']}s'),
-                    _buildStatRow('Endurance Mode', '${_formatMinutes(stats['miniGamesStats']['enduranceModeTime'])}'),
+                    _buildStatRow('Puzzles Won',
+                        '${stats['miniGamesStats']['puzzleGamesWon']}'),
+                    _buildStatRow('Arcade Games',
+                        '${stats['miniGamesStats']['arcadeGamesPlayed']}'),
+                    _buildStatRow('Best Time Attack',
+                        '${stats['miniGamesStats']['timeAttackBest']}s'),
+                    _buildStatRow('Endurance Mode',
+                        '${_formatMinutes(stats['miniGamesStats']['enduranceModeTime'])}'),
                   ],
                 ),
-                
+
                 const SizedBox(height: 20),
-                
+
                 // Game Performance
                 _buildSectionCard(
                   '🏆 Game Performance',
                   games.map((game) => _buildGamePerformanceRow(game)).toList(),
                 ),
-                
+
                 const SizedBox(height: 20),
-                
+
                 // Session Stats
                 _buildSectionCard(
                   '📅 Session Information',
                   [
-                    _buildStatRow('Current Session', '${_formatMinutes(stats['sessionStats']['currentSessionTime'])}'),
-                    _buildStatRow('Last Play Date', stats['sessionStats']['lastPlayDate'] ?? 'Never'),
-                    _buildStatRow('Consecutive Days', '${stats['sessionStats']['consecutiveDays']}'),
+                    _buildStatRow('Current Session',
+                        '${_formatMinutes(stats['sessionStats']['currentSessionTime'])}'),
+                    _buildStatRow('Last Play Date',
+                        stats['sessionStats']['lastPlayDate'] ?? 'Never'),
+                    _buildStatRow('Consecutive Days',
+                        '${stats['sessionStats']['consecutiveDays']}'),
                   ],
                 ),
               ],
@@ -160,7 +177,7 @@ class StatsScreen extends StatelessWidget {
     final isUnlocked = game['unlocked'] as bool;
     final highScore = game['highScore'] as int;
     final playCount = game['playCount'] as int;
-    
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(

@@ -17,7 +17,8 @@ class _NotificationBellState extends State<NotificationBell> {
   @override
   void initState() {
     super.initState();
-    _notificationSubscription = _notificationService.notificationStream.listen((_) {
+    _notificationSubscription =
+        _notificationService.notificationStream.listen((_) {
       setState(() {});
     });
   }
@@ -30,9 +31,8 @@ class _NotificationBellState extends State<NotificationBell> {
 
   @override
   Widget build(BuildContext context) {
-    final unreadCount = _notificationService.notifications
-        .where((n) => !n.isRead)
-        .length;
+    final unreadCount =
+        _notificationService.notifications.where((n) => !n.isRead).length;
 
     return Stack(
       children: [
@@ -41,7 +41,8 @@ class _NotificationBellState extends State<NotificationBell> {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const NotificationsScreen()),
+              MaterialPageRoute(
+                  builder: (context) => const NotificationsScreen()),
             );
           },
           tooltip: 'Notifications',

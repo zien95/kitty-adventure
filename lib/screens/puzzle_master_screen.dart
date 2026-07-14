@@ -12,7 +12,6 @@ class PuzzleMasterScreen extends StatefulWidget {
 
 class _PuzzleMasterScreenState extends State<PuzzleMasterScreen> {
   List<List<int>> _puzzleGrid = [];
-  List<List<bool>> _revealedGrid = [];
   int _moves = 0;
   int _score = 0;
   int _level = 1;
@@ -43,17 +42,12 @@ class _PuzzleMasterScreenState extends State<PuzzleMasterScreen> {
 
   void _initializePuzzle() {
     final size = 4 + (_level - 1); // 4x4, 5x5, 6x6 grids
-    _puzzleGrid = List.generate(size, (i) => 
-      List.generate(size, (j) => (i * size + j + 1) % (size * size))
-    );
-    
+    _puzzleGrid = List.generate(size,
+        (i) => List.generate(size, (j) => (i * size + j + 1) % (size * size)));
+
     // Shuffle the puzzle
     _shufflePuzzle();
-    
-    _revealedGrid = List.generate(size, (i) => 
-      List.generate(size, (j) => false)
-    );
-    
+
     _moves = 0;
     _score = 0;
     _isGameWon = false;
@@ -63,11 +57,11 @@ class _PuzzleMasterScreenState extends State<PuzzleMasterScreen> {
   void _shufflePuzzle() {
     final size = _puzzleGrid.length;
     final random = DateTime.now().millisecondsSinceEpoch;
-    
+
     for (int i = 0; i < size * size * 10; i++) {
       final row = (random + i) % size;
       final col = ((random + i) ~/ size) % size;
-      
+
       if (row > 0) {
         _swapTiles(row, col, row - 1, col);
       }
@@ -85,9 +79,9 @@ class _PuzzleMasterScreenState extends State<PuzzleMasterScreen> {
 
   void _onTileTap(int row, int col) {
     if (_isGameWon) return;
-    
+
     final size = _puzzleGrid.length;
-    
+
     // Check if adjacent to empty space (0)
     if (row > 0 && _puzzleGrid[row - 1][col] == 0) {
       _swapTiles(row, col, row - 1, col);
@@ -102,7 +96,7 @@ class _PuzzleMasterScreenState extends State<PuzzleMasterScreen> {
       _swapTiles(row, col, row, col + 1);
       _moves++;
     }
-    
+
     _checkWinCondition();
     setState(() {});
   }
@@ -110,7 +104,7 @@ class _PuzzleMasterScreenState extends State<PuzzleMasterScreen> {
   void _checkWinCondition() {
     final size = _puzzleGrid.length;
     bool isWon = true;
-    
+
     for (int i = 0; i < size; i++) {
       for (int j = 0; j < size; j++) {
         final expectedValue = (i * size + j + 1) % (size * size);
@@ -121,7 +115,7 @@ class _PuzzleMasterScreenState extends State<PuzzleMasterScreen> {
       }
       if (!isWon) break;
     }
-    
+
     if (isWon) {
       _isGameWon = true;
       _gameTimer?.cancel();
@@ -135,8 +129,10 @@ class _PuzzleMasterScreenState extends State<PuzzleMasterScreen> {
     final movesPenalty = _moves * 5;
     final timePenalty = _timeElapsed * 2;
     final levelBonus = _level * 100;
-    
-    _score = (baseScore - movesPenalty - timePenalty + levelBonus).clamp(0, double.infinity).toInt();
+
+    _score = (baseScore - movesPenalty - timePenalty + levelBonus)
+        .clamp(0, double.infinity)
+        .toInt();
   }
 
   void _updateGameStats() {
@@ -167,6 +163,12 @@ class _PuzzleMasterScreenState extends State<PuzzleMasterScreen> {
         foregroundColor: Colors.white,
         actions: [
           IconButton(
+            tooltip: 'How to play',
+            icon: const Icon(Icons.help_outline),
+            onPressed: _showHowToPlay,
+          ),
+          IconButton(
+            tooltip: 'Reset',
             icon: const Icon(Icons.refresh),
             onPressed: _resetGame,
           ),
@@ -183,26 +185,32 @@ class _PuzzleMasterScreenState extends State<PuzzleMasterScreen> {
               children: [
                 Column(
                   children: [
-                    const Text('Moves', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Text('Moves',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
                     Text('$_moves', style: const TextStyle(fontSize: 20)),
                   ],
                 ),
                 Column(
                   children: [
-                    const Text('Time', style: TextStyle(fontWeight: FontWeight.bold)),
-                    Text('${_timeElapsed}s', style: const TextStyle(fontSize: 20)),
+                    const Text('Time',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    Text('${_timeElapsed}s',
+                        style: const TextStyle(fontSize: 20)),
                   ],
                 ),
                 Column(
                   children: [
-                    const Text('Score', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Text('Score',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
                     Text('$_score', style: const TextStyle(fontSize: 20)),
                   ],
                 ),
               ],
             ),
           ),
-          
+
+          _buildHowToPlayCard(),
+
           // Puzzle Grid
           Expanded(
             child: Center(
@@ -220,14 +228,14 @@ class _PuzzleMasterScreenState extends State<PuzzleMasterScreen> {
                     final row = index ~/ _puzzleGrid.length;
                     final col = index % _puzzleGrid.length;
                     final value = _puzzleGrid[row][col];
-                    
+
                     return GestureDetector(
                       onTap: () => _onTileTap(row, col),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: value == 0 
-                            ? Colors.grey.shade300 
-                            : Colors.purple.shade400,
+                          color: value == 0
+                              ? Colors.grey.shade300
+                              : Colors.purple.shade400,
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
                             color: Colors.purple.shade600,
@@ -235,17 +243,17 @@ class _PuzzleMasterScreenState extends State<PuzzleMasterScreen> {
                           ),
                         ),
                         child: value == 0
-                          ? null
-                          : Center(
-                              child: Text(
-                                '$value',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
+                            ? null
+                            : Center(
+                                child: Text(
+                                  '$value',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
-                            ),
                       ),
                     );
                   },
@@ -253,7 +261,7 @@ class _PuzzleMasterScreenState extends State<PuzzleMasterScreen> {
               ),
             ),
           ),
-          
+
           // Win Dialog
           if (_isGameWon)
             Container(
@@ -270,7 +278,8 @@ class _PuzzleMasterScreenState extends State<PuzzleMasterScreen> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Text('Score: $_score | Moves: $_moves | Time: ${_timeElapsed}s'),
+                  Text(
+                      'Score: $_score | Moves: $_moves | Time: ${_timeElapsed}s'),
                   const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -296,6 +305,53 @@ class _PuzzleMasterScreenState extends State<PuzzleMasterScreen> {
                 ],
               ),
             ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHowToPlayCard() {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.purple.shade200),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.purple.withValues(alpha: 0.12),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: const Text(
+        'How to play: tap a numbered tile next to the empty square to slide it. Put the numbers in order, with the empty square last. Fewer moves and faster time mean a better score.',
+        style: TextStyle(fontSize: 13, height: 1.35),
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+
+  void _showHowToPlay() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('How to Play'),
+        content: const Text(
+          'Slide tiles into the empty square until the board is in order.\n\n'
+          '1. Tap a tile beside the empty space.\n'
+          '2. Keep sliding tiles until the numbers count up left to right.\n'
+          '3. Finish with the blank tile in the bottom-right corner.\n\n'
+          'Your score is higher when you solve it with fewer moves and less time.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Got it'),
+          ),
         ],
       ),
     );

@@ -1,9 +1,9 @@
 Kitty Adventure Release
 =======================
-VERSION=26.8.3
-RELEASED_AT=2026-07-12T23:28:34+0400
-MANIFEST_URL=https://unstamped-revisit-underling.ngrok-free.dev/latest.json
-BASE_URL=https://unstamped-revisit-underling.ngrok-free.dev
-MANIFEST_FILE=/Users/linaahmed/KittyAdventureUpdates/latest.json
-FILES_DIR=/Users/linaahmed/KittyAdventureUpdates/files
-WEB_DIR=/Users/linaahmed/KittyAdventureUpdates/web
+VERSION=26.8.4
+RELEASED_AT=2026-07-15T18:53:23+0400
+MANIFEST_URL=https://kitty-adventure-zona.web.app/latest.json
+BASE_URL=https://kitty-adventure-zona.web.app
+MANIFEST_FILE=web/latest.json
+FILES_DIR=https://github.com/zien95/kitty-adventure/releases/tag/v26.8.4
+WEB_DIR=build/combo/web

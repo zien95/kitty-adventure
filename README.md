@@ -23,13 +23,13 @@ Kitty Adventure is a virtual pet game where you adopt cats, care for them, play 
 
 ## Latest
 
-Version `26.8.3` focuses on the new Kitty Adventure look:
+Version `26.8.4` refreshes every installable build with today's fixes:
 
-- New moon-garden visual theme.
-- More realistic cat and garden art.
-- Cleaner top UI and stats layout.
-- Cat Manager Center polish.
-- Bug fixes and layout improvements.
+- Added motion to the main pet scene.
+- Added hold-space sprinting in Racing.
+- Fixed pet data saving after mini-games.
+- Updated Android, iPhone/iPad, macOS, and web downloads.
+- Bug fixes.
 
 ## How To Play
 

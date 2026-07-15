@@ -1,6 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'
-    show KeyDownEvent, KeyEvent, KeyRepeatEvent, LogicalKeyboardKey;
+    show KeyDownEvent, KeyEvent, KeyUpEvent, LogicalKeyboardKey;
 import 'package:provider/provider.dart';
 import '../providers/game_provider.dart';
 import '../models/pet.dart';
@@ -21,9 +23,11 @@ class _RacingGameScreenState extends State<RacingGameScreen> {
   double _opponentProgress = 0.0;
   bool _isRacing = false;
   bool _raceFinished = false;
+  bool _spaceHeld = false;
   int _tapCount = 0;
   int _level = 1;
   double _opponentSpeed = 1.0;
+  Timer? _spaceHoldTimer;
 
   @override
   void initState() {
@@ -33,6 +37,7 @@ class _RacingGameScreenState extends State<RacingGameScreen> {
 
   @override
   void dispose() {
+    _stopSpaceHold();
     _raceFocusNode.dispose();
     super.dispose();
   }
@@ -46,6 +51,7 @@ class _RacingGameScreenState extends State<RacingGameScreen> {
   }
 
   void _startRace() {
+    _stopSpaceHold();
     setState(() {
       _isRacing = true;
       _raceFinished = false;
@@ -60,14 +66,36 @@ class _RacingGameScreenState extends State<RacingGameScreen> {
 
   KeyEventResult _handleRaceKey(FocusNode node, KeyEvent event) {
     final isSpace = event.logicalKey == LogicalKeyboardKey.space;
-    final shouldAdvance = event is KeyDownEvent || event is KeyRepeatEvent;
+    if (!isSpace) return KeyEventResult.ignored;
 
-    if (isSpace && shouldAdvance) {
-      _tap();
-      return KeyEventResult.handled;
+    if (event is KeyDownEvent) {
+      _startSpaceHold();
+    } else if (event is KeyUpEvent) {
+      _stopSpaceHold();
     }
 
-    return KeyEventResult.ignored;
+    return KeyEventResult.handled;
+  }
+
+  void _startSpaceHold() {
+    if (!_isRacing || _raceFinished || _spaceHeld) return;
+
+    _spaceHeld = true;
+    _tap();
+    _spaceHoldTimer?.cancel();
+    _spaceHoldTimer = Timer.periodic(const Duration(milliseconds: 35), (timer) {
+      if (!_isRacing || _raceFinished || !_spaceHeld) {
+        _stopSpaceHold();
+        return;
+      }
+      _tap(playSound: false);
+    });
+  }
+
+  void _stopSpaceHold() {
+    _spaceHeld = false;
+    _spaceHoldTimer?.cancel();
+    _spaceHoldTimer = null;
   }
 
   void _raceLoop() {
@@ -82,6 +110,7 @@ class _RacingGameScreenState extends State<RacingGameScreen> {
   }
 
   void _updateRace() {
+    var opponentWon = false;
     setState(() {
       // Opponent moves automatically
       _opponentProgress += _opponentSpeed * 0.5;
@@ -89,14 +118,14 @@ class _RacingGameScreenState extends State<RacingGameScreen> {
 
       // Check if opponent finished
       if (_opponentProgress >= 100 && _progress < 100) {
-        _raceFinished = true;
-        _isRacing = false;
-        _showRaceResult(false);
+        opponentWon = true;
       }
     });
+
+    if (opponentWon) _finishRace(false);
   }
 
-  void _tap() {
+  void _tap({bool playSound = true}) {
     if (!_isRacing || _raceFinished) return;
 
     setState(() {
@@ -107,16 +136,23 @@ class _RacingGameScreenState extends State<RacingGameScreen> {
       if (_progress > 100) _progress = 100;
     });
 
-    _soundService.playSound('click');
+    if (playSound) _soundService.playSound('click');
 
     // Check if player finished
     if (_progress >= 100 && _opponentProgress < 100) {
-      setState(() {
-        _raceFinished = true;
-        _isRacing = false;
-      });
-      _showRaceResult(true);
+      _finishRace(true);
     }
+  }
+
+  void _finishRace(bool won) {
+    if (_raceFinished) return;
+
+    _stopSpaceHold();
+    setState(() {
+      _raceFinished = true;
+      _isRacing = false;
+    });
+    _showRaceResult(won);
   }
 
   void _showRaceResult(bool won) {
@@ -429,7 +465,7 @@ class _RacingGameScreenState extends State<RacingGameScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Text(
-                    'TAP OR PRESS SPACE FAST TO RUN!\nRace against the opponent to the finish line!',
+                    'TAP FAST OR HOLD SPACE TO SPRINT!\nRace against the opponent to the finish line!',
                     style: TextStyle(
                         color: Colors.white,
                         fontSize: 16,

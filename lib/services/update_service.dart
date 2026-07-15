@@ -21,15 +21,14 @@ class UpdateCheckResult {
 }
 
 class UpdateService {
-  static const String currentVersion = '26.8.3';
+  static const String currentVersion = '26.8.4';
   static const String _manifestUrlKey = 'kitty_update_manifest_url';
   static const String _lastSeenVersionKey = 'kitty_update_last_seen_version';
   static const String _pendingUpdateKey = 'kitty_pending_update';
 
   static const String _builtInManifestUrl = String.fromEnvironment(
     'KITTY_UPDATE_MANIFEST_URL',
-    defaultValue:
-        'https://unstamped-revisit-underling.ngrok-free.dev/latest.json',
+    defaultValue: 'https://kitty-adventure-zona.web.app/latest.json',
   );
   static const String publicServerIp = String.fromEnvironment(
     'KITTY_UPDATE_PUBLIC_IP',

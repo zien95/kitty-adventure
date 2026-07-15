@@ -40,9 +40,12 @@ class PetGameScreen extends StatefulWidget {
   State<PetGameScreen> createState() => _PetGameScreenState();
 }
 
-class _PetGameScreenState extends State<PetGameScreen> {
+class _PetGameScreenState extends State<PetGameScreen>
+    with SingleTickerProviderStateMixin {
   static final Uri _downloadsUri =
       Uri.parse('https://kitty-adventure-zona.web.app/files/');
+
+  late final AnimationController _motionController;
 
   Pet? _pet;
   final List<Pet> _cats = [];
@@ -129,6 +132,21 @@ class _PetGameScreenState extends State<PetGameScreen> {
       color: Color(0xFF52D6E7),
     ),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _motionController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 3600),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _motionController.dispose();
+    super.dispose();
+  }
 
   static final List<_RoomDecorItem> _roomDecorItems = [
     _RoomDecorItem(
@@ -443,7 +461,7 @@ class _PetGameScreenState extends State<PetGameScreen> {
   static final List<_ReleaseChecklistItem> _releaseChecklist = [
     _ReleaseChecklistItem(
       title: 'Version locked',
-      detail: 'Keep player-facing version text on v26.8.1 unless we bump it.',
+      detail: 'Keep player-facing version text on v26.8.4 unless we bump it.',
       icon: Icons.verified,
       color: Color(0xFF66C58D),
     ),
@@ -792,12 +810,12 @@ class _PetGameScreenState extends State<PetGameScreen> {
     _cats[_selectedCatIndex] = pet;
   }
 
-  void _syncPetToProvider() {
+  Future<void> _syncPetToProvider() async {
     final pet = _pet;
     if (!mounted || pet == null) return;
     _syncSelectedCat();
     context.read<GameProvider>().setPet(pet);
-    _saveCatCollection();
+    await _saveCatCollection();
   }
 
   void _createPet() {
@@ -2765,6 +2783,7 @@ class _PetGameScreenState extends State<PetGameScreen> {
                   ),
                 ),
               ),
+            if (!liteMode) _buildSceneMotionLayer(width, height, starRoom),
             if (starRoom && !liteMode) ...[
               const Positioned(
                 top: 74,
@@ -2838,6 +2857,123 @@ class _PetGameScreenState extends State<PetGameScreen> {
           ],
         );
       },
+    );
+  }
+
+  Widget _buildSceneMotionLayer(double width, double height, bool starRoom) {
+    return IgnorePointer(
+      child: AnimatedBuilder(
+        animation: _motionController,
+        builder: (context, child) {
+          final time = _motionController.value * math.pi * 2;
+          final isNight = _isDarkMode || starRoom;
+
+          return Stack(
+            children: [
+              _buildFloatingPuff(
+                left: width * 0.08,
+                top: height * 0.18,
+                size: 42,
+                drift: Offset(
+                  math.sin(time * 0.72) * 12,
+                  math.cos(time * 0.54) * 6,
+                ),
+                color: isNight
+                    ? const Color(0xFF99D8FF).withValues(alpha: 0.16)
+                    : Colors.white.withValues(alpha: 0.18),
+              ),
+              _buildFloatingPuff(
+                left: width * 0.78,
+                top: height * 0.28,
+                size: 34,
+                drift: Offset(
+                  math.cos(time * 0.62) * 10,
+                  math.sin(time * 0.82) * 5,
+                ),
+                color: isNight
+                    ? const Color(0xFFE1D3FF).withValues(alpha: 0.18)
+                    : Colors.white.withValues(alpha: 0.16),
+              ),
+              _buildFloatingSparkle(
+                left: width * 0.16,
+                top: height * 0.58,
+                phase: 0.2,
+                time: time,
+                color: const Color(0xFFFFD45E),
+              ),
+              _buildFloatingSparkle(
+                left: width * 0.74,
+                top: height * 0.14,
+                phase: 1.4,
+                time: time,
+                color:
+                    isNight ? const Color(0xFFB9A7FF) : const Color(0xFF70B8FF),
+              ),
+              _buildFloatingSparkle(
+                left: width * 0.88,
+                top: height * 0.62,
+                phase: 2.4,
+                time: time,
+                color: const Color(0xFFFF76B7),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildFloatingPuff({
+    required double left,
+    required double top,
+    required double size,
+    required Offset drift,
+    required Color color,
+  }) {
+    return Positioned(
+      left: left + drift.dx,
+      top: top + drift.dy,
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          color: color,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: color,
+              blurRadius: 18,
+              spreadRadius: 10,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFloatingSparkle({
+    required double left,
+    required double top,
+    required double phase,
+    required double time,
+    required Color color,
+  }) {
+    final pulse = (math.sin(time * 1.4 + phase) + 1) / 2;
+
+    return Positioned(
+      left: left + math.sin(time * 0.7 + phase) * 10,
+      top: top + math.cos(time * 0.9 + phase) * 7,
+      child: Opacity(
+        opacity: 0.34 + pulse * 0.46,
+        child: Transform.rotate(
+          angle: time * 0.2 + phase,
+          child: Icon(
+            Icons.auto_awesome,
+            color: color,
+            size: 14 + pulse * 8,
+          ),
+        ),
+      ),
     );
   }
 
@@ -3360,62 +3496,85 @@ class _PetGameScreenState extends State<PetGameScreen> {
     final portraitAsset = _petPortraitAsset(pet.currentMood);
     final portraitBorder = _petPortraitBorderColor(pet.currentMood);
 
-    return SizedBox(
-      width: petWidth,
-      height: portraitHeight,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          if (!liteMode)
-            Positioned(
-              left: petWidth * 0.16,
-              right: petWidth * 0.16,
-              bottom: 2,
-              height: 28,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFF23404C).withValues(alpha: 0.20),
-                  borderRadius: BorderRadius.circular(100),
-                  boxShadow: [
-                    BoxShadow(
-                      color: portraitBorder.withValues(alpha: 0.14),
-                      blurRadius: 18,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
+    return AnimatedBuilder(
+      animation: _motionController,
+      child: SizedBox(
+        width: petWidth,
+        height: portraitHeight,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            if (!liteMode)
+              Positioned(
+                left: petWidth * 0.16,
+                right: petWidth * 0.16,
+                bottom: 2,
+                height: 28,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF23404C).withValues(alpha: 0.20),
+                    borderRadius: BorderRadius.circular(100),
+                    boxShadow: [
+                      BoxShadow(
+                        color: portraitBorder.withValues(alpha: 0.14),
+                        blurRadius: 18,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+                  ),
                 ),
               ),
+            GestureDetector(
+              onDoubleTap: () => _showEasterEgg('cat'),
+              onLongPress: () => _showEasterEgg('cat'),
+              child: Image.asset(
+                portraitAsset,
+                width: petWidth,
+                height: portraitHeight,
+                fit: BoxFit.contain,
+                filterQuality: FilterQuality.medium,
+              ),
             ),
-          GestureDetector(
-            onDoubleTap: () => _showEasterEgg('cat'),
-            onLongPress: () => _showEasterEgg('cat'),
-            child: Image.asset(
-              portraitAsset,
-              width: petWidth,
-              height: portraitHeight,
-              fit: BoxFit.contain,
-              filterQuality: FilterQuality.medium,
+            if (pet.currentAccessory.isNotEmpty)
+              _buildOutfitBadge(pet.currentAccessory),
+            if (!liteMode)
+              Positioned(
+                right: 10,
+                top: 10,
+                child: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.86),
+                    shape: BoxShape.circle,
+                    border:
+                        Border.all(color: const Color(0xFFF5C3C8), width: 2),
+                  ),
+                  child:
+                      Text(pet.moodEmoji, style: const TextStyle(fontSize: 16)),
+                ),
+              ),
+          ],
+        ),
+      ),
+      builder: (context, child) {
+        if (liteMode) return child!;
+
+        final time = _motionController.value * math.pi * 2;
+        final bob = math.sin(time) * 5;
+        final sway = math.sin(time * 0.55) * 0.018;
+        final breathe = 1 + math.sin(time + math.pi / 2) * 0.012;
+
+        return Transform.translate(
+          offset: Offset(0, bob),
+          child: Transform.rotate(
+            angle: sway,
+            child: Transform.scale(
+              scale: breathe,
+              child: child,
             ),
           ),
-          if (pet.currentAccessory.isNotEmpty)
-            _buildOutfitBadge(pet.currentAccessory),
-          if (!liteMode)
-            Positioned(
-              right: 10,
-              top: 10,
-              child: Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.86),
-                  shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFFF5C3C8), width: 2),
-                ),
-                child:
-                    Text(pet.moodEmoji, style: const TextStyle(fontSize: 16)),
-              ),
-            ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -4090,6 +4249,7 @@ class _PetGameScreenState extends State<PetGameScreen> {
       _pet = updatedPet;
       _refreshMood(PetMood.playful);
     });
+    await _syncPetToProvider();
     _completeQuestStep('mini_game');
 
     var after = _PetRewardSnapshot.fromPet(updatedPet);
@@ -4105,6 +4265,7 @@ class _PetGameScreenState extends State<PetGameScreen> {
         setState(() {
           _pet = rewardedPet;
         });
+        await _syncPetToProvider();
         after = _PetRewardSnapshot.fromPet(rewardedPet);
         coins = before == null ? 5 : after.coins - before.coins;
         gems = before == null ? 0 : after.gems - before.gems;

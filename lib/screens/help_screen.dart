@@ -111,7 +111,7 @@ class HelpScreen extends StatelessWidget {
   List<Widget> _whatsNewContent() {
     return [
       _buildFeatureItem(
-        '🌍 BLOCK BUILDER v26.8.1',
+        '🌍 BLOCK BUILDER v26.8.4',
         '3 complete worlds to explore\nPress T to teleport between dimensions\nEach world has unique blocks and surprises',
       ),
       _buildFeatureItem(

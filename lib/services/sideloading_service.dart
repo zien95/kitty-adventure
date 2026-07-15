@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class SideloadingService {
   static const String _serverUrl = 'https://your-server.com/api';
-  static const String _currentVersion = '26.8.1';
+  static const String _currentVersion = '26.8.4';
 
   // Check for updates
   static Future<bool> checkForUpdates(BuildContext context) async {
@@ -139,7 +139,7 @@ class SideloadingService {
       final analyticsData = {
         'app_name': 'KittyAdventure',
         'version': _currentVersion,
-        'build': '26.8.1',
+        'build': '26.8.4',
         'platform': Platform.operatingSystem,
         'device_id': deviceId,
         'install_source': await getInstallationSource(),

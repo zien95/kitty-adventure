@@ -1,9 +1,9 @@
 Kitty Adventure Release
 =======================
-VERSION=26.8.4
-RELEASED_AT=2026-07-15T18:53:23+0400
+VERSION=26.8.5
+RELEASED_AT=2026-07-23T14:58:16+0400
 MANIFEST_URL=https://kitty-adventure-zona.web.app/latest.json
 BASE_URL=https://kitty-adventure-zona.web.app
 MANIFEST_FILE=web/latest.json
-FILES_DIR=https://github.com/zien95/kitty-adventure/releases/tag/v26.8.4
+FILES_DIR=https://github.com/zien95/kitty-adventure/releases/tag/v26.8.5
 WEB_DIR=build/combo/web

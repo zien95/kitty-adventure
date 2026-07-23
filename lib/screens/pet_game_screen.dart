@@ -461,7 +461,7 @@ class _PetGameScreenState extends State<PetGameScreen>
   static final List<_ReleaseChecklistItem> _releaseChecklist = [
     _ReleaseChecklistItem(
       title: 'Version locked',
-      detail: 'Keep player-facing version text on v26.8.4 unless we bump it.',
+      detail: 'Keep player-facing version text on v26.8.5 unless we bump it.',
       icon: Icons.verified,
       color: Color(0xFF66C58D),
     ),
@@ -1461,8 +1461,6 @@ class _PetGameScreenState extends State<PetGameScreen>
 
   @override
   Widget build(BuildContext context) {
-    final liteMode = context.watch<GameProvider>().liteModeEnabled;
-
     if (_pet == null) {
       return Scaffold(
         backgroundColor:
@@ -1486,7 +1484,7 @@ class _PetGameScreenState extends State<PetGameScreen>
             Expanded(
               child: Stack(
                 children: [
-                  _buildBackground(_pet!, liteMode),
+                  _buildBackground(_pet!),
                   Positioned(
                     top: 10,
                     left: 12,
@@ -1510,13 +1508,13 @@ class _PetGameScreenState extends State<PetGameScreen>
                     left: 0,
                     right: 0,
                     child: Center(
-                      child: _buildPetCharacter(_pet!, liteMode),
+                      child: _buildPetCharacter(_pet!),
                     ),
                   ),
                 ],
               ),
             ),
-            _buildActionButtons(),
+            _buildActionButtons(_pet!),
           ],
         ),
       ),
@@ -1626,7 +1624,7 @@ class _PetGameScreenState extends State<PetGameScreen>
         padding: const EdgeInsets.fromLTRB(14, 0, 14, 8),
         children: [
           _buildManageCatsChip(),
-          _buildDownloadsChip(),
+          if (kIsWeb) _buildDownloadsChip(),
           for (int i = 0; i < cats.length; i++)
             _buildCatChip(cats[i], i, i == _selectedCatIndex),
           _buildAdoptCatChip(),
@@ -2746,7 +2744,7 @@ class _PetGameScreenState extends State<PetGameScreen>
     }
   }
 
-  Widget _buildBackground(Pet pet, bool liteMode) {
+  Widget _buildBackground(Pet pet) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
@@ -2783,8 +2781,8 @@ class _PetGameScreenState extends State<PetGameScreen>
                   ),
                 ),
               ),
-            if (!liteMode) _buildSceneMotionLayer(width, height, starRoom),
-            if (starRoom && !liteMode) ...[
+            _buildSceneMotionLayer(width, height, starRoom),
+            if (starRoom) ...[
               const Positioned(
                 top: 74,
                 left: 48,
@@ -2801,7 +2799,7 @@ class _PetGameScreenState extends State<PetGameScreen>
                 child: Text('✦', style: TextStyle(fontSize: 20)),
               ),
             ],
-            if (!liteMode) ...[
+            ...[
               _buildBackgroundEggZone(
                 id: 'house',
                 left: width * 0.38,
@@ -2854,13 +2852,18 @@ class _PetGameScreenState extends State<PetGameScreen>
                 ),
               ),
             ],
+            ..._buildRoomDecor(pet.currentRoomDecor, width, height),
           ],
         );
       },
     );
   }
 
-  Widget _buildSceneMotionLayer(double width, double height, bool starRoom) {
+  Widget _buildSceneMotionLayer(
+    double width,
+    double height,
+    bool starRoom,
+  ) {
     return IgnorePointer(
       child: AnimatedBuilder(
         animation: _motionController,
@@ -3274,221 +3277,7 @@ class _PetGameScreenState extends State<PetGameScreen>
     );
   }
 
-  Widget _buildSun() {
-    return GestureDetector(
-      onTap: () => _showEasterEgg('sun'),
-      child: Container(
-        width: 84,
-        height: 84,
-        decoration: BoxDecoration(
-          color: const Color(0xFFFFF2B8),
-          shape: BoxShape.circle,
-          border: Border.all(color: const Color(0xFF8AA7D6), width: 4),
-        ),
-        child: const Center(
-          child: Text(
-            '• ᴗ •',
-            style: TextStyle(
-              color: Color(0xFF60728A),
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCloud(double width, double height) {
-    return GestureDetector(
-      onTap: () => _showEasterEgg('cloud'),
-      child: SizedBox(
-        width: width,
-        height: height,
-        child: Stack(
-          children: [
-            Positioned(
-              left: width * 0.08,
-              bottom: 0,
-              child: Container(
-                width: width * 0.78,
-                height: height * 0.54,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(height),
-                  border: Border.all(color: const Color(0xFFB9D4E6), width: 3),
-                ),
-              ),
-            ),
-            Positioned(
-              left: 0,
-              bottom: height * 0.08,
-              child: Container(
-                width: width * 0.44,
-                height: height * 0.54,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
-            Positioned(
-              left: width * 0.32,
-              bottom: height * 0.18,
-              child: Container(
-                width: width * 0.42,
-                height: height * 0.62,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHouse() {
-    return GestureDetector(
-      onTap: () => _showEasterEgg('house'),
-      child: AspectRatio(
-        aspectRatio: 1.08,
-        child: Stack(
-          alignment: Alignment.bottomCenter,
-          children: [
-            Positioned(
-              left: 18,
-              right: 18,
-              bottom: 0,
-              top: 44,
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFFE8F4FF), Color(0xFFC9D8FF)],
-                  ),
-                  borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: const Color(0xFF6377C6), width: 4),
-                ),
-              ),
-            ),
-            Positioned(
-              top: 14,
-              left: 0,
-              right: 0,
-              child: Container(
-                height: 54,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF8FA7D8),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFF6377C6), width: 4),
-                ),
-              ),
-            ),
-            Positioned(
-              bottom: 0,
-              child: Container(
-                width: 46,
-                height: 78,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFB9D4FF),
-                  borderRadius:
-                      const BorderRadius.vertical(top: Radius.circular(24)),
-                  border: Border.all(color: const Color(0xFF6377C6), width: 3),
-                ),
-              ),
-            ),
-            Positioned(
-              bottom: 94,
-              child: Container(
-                width: 48,
-                height: 42,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF1FCFF),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFF6377C6), width: 3),
-                ),
-                child: const Icon(Icons.window, color: Color(0xFF6EA8C8)),
-              ),
-            ),
-            Positioned(
-              right: 28,
-              bottom: 66,
-              child: Container(
-                width: 42,
-                height: 42,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF1FCFF),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFF6377C6), width: 3),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTree() {
-    return GestureDetector(
-      onDoubleTap: () => _showEasterEgg('tree'),
-      child: SizedBox(
-        width: 100,
-        height: 128,
-        child: Stack(
-          alignment: Alignment.bottomCenter,
-          children: [
-            Container(
-              width: 28,
-              height: 76,
-              decoration: BoxDecoration(
-                color: const Color(0xFF7A6F8D),
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            Positioned(
-              top: 0,
-              child: Container(
-                width: 98,
-                height: 88,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF9DD8B5),
-                  borderRadius: BorderRadius.circular(46),
-                  border: Border.all(color: const Color(0xFF5AAE8E), width: 4),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBush() {
-    return GestureDetector(
-      onTap: () => _showEasterEgg('flower'),
-      child: Container(
-        width: 118,
-        height: 54,
-        decoration: BoxDecoration(
-          color: const Color(0xFF8FCDB1),
-          borderRadius: BorderRadius.circular(28),
-          border: Border.all(color: const Color(0xFF5AAE8E), width: 3),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFlower() {
-    return GestureDetector(
-      onTap: () => _showEasterEgg('flower'),
-      child: const Text('🌼 🌸', style: TextStyle(fontSize: 34)),
-    );
-  }
-
-  Widget _buildPetCharacter(Pet pet, bool liteMode) {
+  Widget _buildPetCharacter(Pet pet) {
     final petWidth = (MediaQuery.sizeOf(context).width * 0.32)
         .clamp(180.0, 260.0)
         .toDouble();
@@ -3504,26 +3293,25 @@ class _PetGameScreenState extends State<PetGameScreen>
         child: Stack(
           clipBehavior: Clip.none,
           children: [
-            if (!liteMode)
-              Positioned(
-                left: petWidth * 0.16,
-                right: petWidth * 0.16,
-                bottom: 2,
-                height: 28,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF23404C).withValues(alpha: 0.20),
-                    borderRadius: BorderRadius.circular(100),
-                    boxShadow: [
-                      BoxShadow(
-                        color: portraitBorder.withValues(alpha: 0.14),
-                        blurRadius: 18,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                  ),
+            Positioned(
+              left: petWidth * 0.16,
+              right: petWidth * 0.16,
+              bottom: 2,
+              height: 28,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFF23404C).withValues(alpha: 0.20),
+                  borderRadius: BorderRadius.circular(100),
+                  boxShadow: [
+                    BoxShadow(
+                      color: portraitBorder.withValues(alpha: 0.14),
+                      blurRadius: 18,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
                 ),
               ),
+            ),
             GestureDetector(
               onDoubleTap: () => _showEasterEgg('cat'),
               onLongPress: () => _showEasterEgg('cat'),
@@ -3537,28 +3325,24 @@ class _PetGameScreenState extends State<PetGameScreen>
             ),
             if (pet.currentAccessory.isNotEmpty)
               _buildOutfitBadge(pet.currentAccessory),
-            if (!liteMode)
-              Positioned(
-                right: 10,
-                top: 10,
-                child: Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.86),
-                    shape: BoxShape.circle,
-                    border:
-                        Border.all(color: const Color(0xFFF5C3C8), width: 2),
-                  ),
-                  child:
-                      Text(pet.moodEmoji, style: const TextStyle(fontSize: 16)),
+            Positioned(
+              right: 10,
+              top: 10,
+              child: Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.86),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: const Color(0xFFF5C3C8), width: 2),
                 ),
+                child:
+                    Text(pet.moodEmoji, style: const TextStyle(fontSize: 16)),
               ),
+            ),
           ],
         ),
       ),
       builder: (context, child) {
-        if (liteMode) return child!;
-
         final time = _motionController.value * math.pi * 2;
         final bob = math.sin(time) * 5;
         final sway = math.sin(time * 0.55) * 0.018;
@@ -3824,12 +3608,154 @@ class _PetGameScreenState extends State<PetGameScreen>
     );
   }
 
-  Widget _buildActionButtons() {
+  _GameplayCoachTip _gameplayCoachTip(Pet pet) {
+    if (pet.health <= 45) {
+      return _GameplayCoachTip(
+        icon: Icons.local_hospital,
+        title: 'Next: MEDICINE',
+        detail: 'Health is low. Heal first.',
+        color: const Color(0xFF5CD8C8),
+        onTap: _giveMedicine,
+      );
+    }
+    if (pet.hunger >= 65) {
+      return _GameplayCoachTip(
+        icon: Icons.set_meal,
+        title: 'Next: FOOD',
+        detail: 'Hunger is high. Food lowers it.',
+        color: const Color(0xFFF0839C),
+        onTap: _feedPet,
+      );
+    }
+    if (pet.energy <= 35) {
+      return _GameplayCoachTip(
+        icon: Icons.bedtime,
+        title: 'Next: SLEEP',
+        detail: 'Energy is low. Sleep restores it.',
+        color: const Color(0xFF6F9EFF),
+        onTap: _sleepPet,
+      );
+    }
+    if (pet.cleanliness <= 45) {
+      return _GameplayCoachTip(
+        icon: Icons.bubble_chart,
+        title: 'Next: CLEAN',
+        detail: 'Cleanliness is low. Clean restores it.',
+        color: const Color(0xFF73E0D4),
+        onTap: _cleanPet,
+      );
+    }
+    if (pet.happiness <= 55) {
+      return _GameplayCoachTip(
+        icon: Icons.sports_baseball,
+        title: 'Next: TOY',
+        detail: 'Happiness is low. Play helps.',
+        color: const Color(0xFF83D7F7),
+        onTap: _playWithPet,
+      );
+    }
+    if (pet.intelligence <= 35) {
+      return _GameplayCoachTip(
+        icon: Icons.fitness_center,
+        title: 'Next: TRAIN',
+        detail: 'Train for IQ and XP.',
+        color: const Color(0xFF9BB3FF),
+        onTap: _trainPet,
+      );
+    }
+    if (pet.friendshipLevel <= 35) {
+      return _GameplayCoachTip(
+        icon: Icons.favorite,
+        title: 'Next: BOND',
+        detail: 'Bond grows friendship scenes.',
+        color: const Color(0xFFFF82B2),
+        onTap: _bondWithPet,
+      );
+    }
+    return _GameplayCoachTip(
+      icon: Icons.sports_esports,
+      title: 'Next: MINI-GAMES',
+      detail: 'Play games for XP, coins, and gems.',
+      color: const Color(0xFFB88CFF),
+      onTap: () => _showMiniGames(context),
+    );
+  }
+
+  Widget _buildGameplayCoach(_GameplayCoachTip tip) {
+    final panelColor = _isDarkMode
+        ? const Color(0xFF172033).withValues(alpha: 0.96)
+        : const Color(0xFFFFF7D6).withValues(alpha: 0.96);
+    final textColor =
+        _isDarkMode ? const Color(0xFFF6FAFF) : const Color(0xFF7A4B3B);
+
+    return Tooltip(
+      message: tip.detail,
+      child: GestureDetector(
+        onTap: tip.onTap,
+        child: Container(
+          height: 30,
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          decoration: BoxDecoration(
+            color: panelColor,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: tip.color.withValues(alpha: 0.75),
+              width: 2,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color:
+                    Colors.black.withValues(alpha: _isDarkMode ? 0.22 : 0.08),
+                blurRadius: 7,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Icon(tip.icon, color: tip.color, size: 17),
+              const SizedBox(width: 6),
+              Text(
+                tip.title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: textColor,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  tip.detail,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: textColor.withValues(alpha: 0.82),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+              Icon(Icons.touch_app, color: tip.color, size: 16),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionButtons(Pet pet) {
+    final coachTip = _gameplayCoachTip(pet);
+
     return Container(
-      height: 124,
+      height: 160,
       padding: const EdgeInsets.fromLTRB(12, 6, 12, 7),
       child: Column(
         children: [
+          _buildGameplayCoach(coachTip),
+          const SizedBox(height: 6),
           SizedBox(
             height: 34,
             child: Row(
@@ -5564,6 +5490,22 @@ class _PlayCutsceneDialogState extends State<_PlayCutsceneDialog>
       ],
     );
   }
+}
+
+class _GameplayCoachTip {
+  final IconData icon;
+  final String title;
+  final String detail;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _GameplayCoachTip({
+    required this.icon,
+    required this.title,
+    required this.detail,
+    required this.color,
+    required this.onTap,
+  });
 }
 
 class _TriangleClipper extends CustomClipper<Path> {

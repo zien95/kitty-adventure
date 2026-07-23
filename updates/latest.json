@@ -1,19 +1,20 @@
 {
   "app": "Kitty Adventure",
-  "version": "26.8.4",
-  "title": "Kitty Adventure v26.8.4",
+  "version": "26.8.5",
+  "title": "Kitty Adventure v26.8.5",
   "required": false,
-  "release_date": "2026-07-15",
+  "release_date": "2026-07-23",
   "size": "See download",
   "changelog": [
-    "Added motion to the main pet scene",
-    "Improved race controls with hold-space sprinting",
-    "Fixed pet data saving after mini-games",
+    "Made native and Lite Mode gameplay use the full heavy-web visuals",
+    "Added the in-game Next Move coach above the care buttons",
+    "Removed the Downloads button from installed app builds",
+    "Made room decor appear in the main gameplay scene",
     "Bug fixes"
   ],
-  "download_url": "https://github.com/zien95/kitty-adventure/releases/download/v26.8.4/kitty-adventure-web-v26.8.4.zip",
+  "download_url": "https://github.com/zien95/kitty-adventure/releases/download/v26.8.5/kitty-adventure-web-v26.8.5.zip",
   "web_url": "https://kitty-adventure-zona.web.app/",
-  "apk_url": "https://github.com/zien95/kitty-adventure/releases/download/v26.8.4/kitty-adventure-v26.8.4.apk",
-  "ipa_url": "https://github.com/zien95/kitty-adventure/releases/download/v26.8.4/kitty-adventure-Sideloadly-v26.8.4.ipa",
-  "macos_url": "https://github.com/zien95/kitty-adventure/releases/download/v26.8.4/kitty-adventure-macos-v26.8.4.dmg"
+  "apk_url": "https://github.com/zien95/kitty-adventure/releases/download/v26.8.5/kitty-adventure-v26.8.5.apk",
+  "ipa_url": "https://github.com/zien95/kitty-adventure/releases/download/v26.8.5/kitty-adventure-Sideloadly-v26.8.5.ipa",
+  "macos_url": "https://github.com/zien95/kitty-adventure/releases/download/v26.8.5/kitty-adventure-macos-v26.8.5.dmg"
 }

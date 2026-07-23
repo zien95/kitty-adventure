@@ -15,7 +15,7 @@ import '../widgets/notification_bell.dart';
 // Pet care game changelog
 final List<Map<String, String>> _petCareChangelog = [
   {
-    'version': 'v26.8.4 - Kitty Hub Update',
+    'version': 'v26.8.5 - Kitty Hub Update',
     'features': '''
 🐾 CAT MANAGER CENTER: Adopt, rename, switch, manage profiles, and play together
 🧰 CAT JOBS: Send cats out for timed rewards

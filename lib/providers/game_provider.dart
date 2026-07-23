@@ -697,6 +697,8 @@ class GameProvider extends ChangeNotifier {
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('pet');
+    await prefs.remove('kittyCatCollection');
+    await prefs.remove('selectedKittyCatIndex');
 
     notifyListeners();
   }

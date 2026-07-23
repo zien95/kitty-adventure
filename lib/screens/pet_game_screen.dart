@@ -60,6 +60,7 @@ class _PetGameScreenState extends State<PetGameScreen>
   final List<Pet> _cats = [];
   int _selectedCatIndex = 0;
   bool _initialized = false;
+  bool _needsPetSelection = false;
   bool _dailyQuestsLoaded = false;
   bool _dailyStreakLoaded = false;
   // ignore: unused_field
@@ -681,18 +682,10 @@ class _PetGameScreenState extends State<PetGameScreen>
     if (_initialized) return;
 
     final gameProvider = context.read<GameProvider>();
-    _pet = gameProvider.pet ?? _createDefaultPet();
-
-    if (!gameProvider.hasPet && _pet != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          context.read<GameProvider>().setPet(_pet!);
-        }
-      });
-    }
+    _pet = gameProvider.pet;
 
     _initialized = true;
-    _loadCatCollection(_pet!);
+    _loadCatCollection(_pet);
     _loadDailyQuests();
     _loadEasterEggJournal();
     _loadSecretCodes();
@@ -815,7 +808,7 @@ class _PetGameScreenState extends State<PetGameScreen>
     return '${type.name} ${_cats.length + 1}';
   }
 
-  Future<void> _loadCatCollection(Pet fallbackPet) async {
+  Future<void> _loadCatCollection(Pet? fallbackPet) async {
     final prefs = await SharedPreferences.getInstance();
     final catsJson = prefs.getString('kittyCatCollection');
     final savedIndex = prefs.getInt('selectedKittyCatIndex') ?? 0;
@@ -834,12 +827,22 @@ class _PetGameScreenState extends State<PetGameScreen>
       }
     }
 
-    if (loadedCats.isEmpty) {
+    if (loadedCats.isEmpty && fallbackPet != null) {
       _ensureCatDefaults(fallbackPet);
       loadedCats.add(fallbackPet);
     }
 
     if (!mounted) return;
+
+    if (loadedCats.isEmpty) {
+      setState(() {
+        _cats.clear();
+        _selectedCatIndex = 0;
+        _pet = null;
+        _needsPetSelection = true;
+      });
+      return;
+    }
 
     setState(() {
       _cats
@@ -847,6 +850,7 @@ class _PetGameScreenState extends State<PetGameScreen>
         ..addAll(loadedCats);
       _selectedCatIndex = savedIndex.clamp(0, _cats.length - 1).toInt();
       _pet = _cats[_selectedCatIndex];
+      _needsPetSelection = false;
     });
     _syncPetToProvider();
     _loadDailyStreakReward();
@@ -885,16 +889,33 @@ class _PetGameScreenState extends State<PetGameScreen>
     await _saveCatCollection();
   }
 
-  void _createPet() {
-    final newPet = _createDefaultPet();
+  void _createPet({PetType type = PetType.cat}) {
+    final newPet = _createDefaultPet(name: _nextPetName(type), type: type);
     setState(() {
       _cats
         ..clear()
         ..add(newPet);
       _selectedCatIndex = 0;
       _pet = newPet;
+      _needsPetSelection = false;
     });
     _syncPetToProvider();
+    _showPetActionMessage('${newPet.type.emoji} ${newPet.name} is ready');
+  }
+
+  Future<void> _resetPetAndShowPicker() async {
+    final gameProvider = context.read<GameProvider>();
+    await gameProvider.resetGame();
+
+    if (!mounted) return;
+
+    setState(() {
+      _cats.clear();
+      _selectedCatIndex = 0;
+      _pet = null;
+      _needsPetSelection = true;
+      _dailyStreakLoaded = false;
+    });
   }
 
   Future<void> _showAdoptPetDialog({StateSetter? modalSetState}) async {
@@ -1605,6 +1626,10 @@ class _PetGameScreenState extends State<PetGameScreen>
   @override
   Widget build(BuildContext context) {
     if (_pet == null) {
+      if (_needsPetSelection) {
+        return _buildPetSelectionScreen();
+      }
+
       return Scaffold(
         backgroundColor:
             _isDarkMode ? const Color(0xFF151827) : const Color(0xFF87CEEB),
@@ -1658,6 +1683,125 @@ class _PetGameScreenState extends State<PetGameScreen>
               ),
             ),
             _buildActionButtons(_pet!),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPetSelectionScreen() {
+    return Scaffold(
+      backgroundColor: _pageBackgroundColor,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 26, 20, 14),
+              child: Column(
+                children: [
+                  Text(
+                    'Pick Your Pet',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: _primaryTextColor,
+                      fontSize: 34,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Choose who starts the next adventure.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: _secondaryTextColor,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final columns = constraints.maxWidth >= 720 ? 3 : 2;
+                  return GridView.count(
+                    crossAxisCount: columns,
+                    padding: const EdgeInsets.fromLTRB(18, 10, 18, 24),
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                    childAspectRatio: columns == 3 ? 1.18 : 0.96,
+                    children: PetType.values
+                        .map((type) => _buildStarterPetCard(type))
+                        .toList(),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStarterPetCard(PetType type) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(22),
+      onTap: () => _createPet(type: type),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: _solidPanelColor,
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(color: type.color, width: 3),
+          boxShadow: [
+            BoxShadow(
+              color: type.color.withValues(alpha: 0.2),
+              blurRadius: 10,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(4),
+                child: Image.asset(
+                  _petPortraitAssets[type] ?? _realPetPortraitAsset,
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, __, ___) => Center(
+                    child: Text(
+                      type.emoji,
+                      style: const TextStyle(fontSize: 54),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '${type.emoji} ${type.name}',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: _primaryTextColor,
+                fontSize: 18,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              _nextPetName(type),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: _secondaryTextColor,
+                fontSize: 12,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
           ],
         ),
       ),
@@ -4573,14 +4717,11 @@ class _PetGameScreenState extends State<PetGameScreen>
                       leading:
                           const Icon(Icons.restart_alt, color: Colors.orange),
                       title: const Text('Reset Pet'),
-                      onTap: () {
+                      subtitle:
+                          const Text('Pick a new starter pet after reset'),
+                      onTap: () async {
                         Navigator.pop(dialogContext);
-                        setState(() {
-                          _pet = null;
-                        });
-                        Future.delayed(const Duration(milliseconds: 100), () {
-                          if (mounted) _createPet();
-                        });
+                        await _resetPetAndShowPicker();
                       },
                     ),
                   ],

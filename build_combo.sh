@@ -18,7 +18,9 @@ SKIP_MACOS="${SKIP_MACOS:-0}"
 SKIP_ANDROID="${SKIP_ANDROID:-0}"
 SKIP_WEB="${SKIP_WEB:-0}"
 SKIP_IOS="${SKIP_IOS:-0}"
-FLUTTER_BUILD_ARGS=()
+# Keep an empty sentinel at index 0 so Bash 3.2 can safely expand the optional
+# arguments under `set -u`. Every build command skips that sentinel.
+FLUTTER_BUILD_ARGS=("")
 
 if [[ -n "${KITTY_UPDATE_MANIFEST_URL:-}" ]]; then
   FLUTTER_BUILD_ARGS+=(
@@ -91,25 +93,38 @@ build_macos() {
   log "Building macOS"
   PATH="$PROJECT_DIR/tools/bin:$PATH" \
     flutter build macos --release --no-tree-shake-icons \
-    "${FLUTTER_BUILD_ARGS[@]}"
+    "${FLUTTER_BUILD_ARGS[@]:1}"
 
   local release_dir="build/macos/Build/Products/Release"
   local app_bundle
+  local app_output
+  local dmg_output
   app_bundle="$(find "$release_dir" -maxdepth 1 -type d -name '*.app' | head -n 1)"
 
   [[ -n "$app_bundle" && -d "$app_bundle" ]] || fail "macOS .app bundle was not found in $release_dir."
 
   mkdir -p "$OUTPUT_DIR/macos"
-  rm -rf "$OUTPUT_DIR/macos/$(basename "$app_bundle")"
-  cp -R "$app_bundle" "$OUTPUT_DIR/macos/"
+  app_output="$OUTPUT_DIR/macos/$(basename "$app_bundle")"
+  dmg_output="$OUTPUT_DIR/macos/${APP_SLUG}-macos-v${VERSION_SLUG}.dmg"
+  rm -rf "$app_output"
+  rm -f "$dmg_output"
+  cp -R "$app_bundle" "$app_output"
+  hdiutil create \
+    -volname "Kitty Adventure" \
+    -srcfolder "$app_output" \
+    -ov \
+    -format UDZO \
+    "$dmg_output"
 
-  printf 'macOS app: %s\n' "$OUTPUT_DIR/macos/$(basename "$app_bundle")"
+  printf 'macOS app: %s\n' "$app_output"
+  printf 'macOS DMG: %s\n' "$dmg_output"
   remove_path "$PROJECT_DIR/build/macos"
 }
 
 build_android() {
   log "Building Android APK"
-  flutter build apk --release --no-tree-shake-icons "${FLUTTER_BUILD_ARGS[@]}"
+  flutter build apk --release --no-tree-shake-icons \
+    "${FLUTTER_BUILD_ARGS[@]:1}"
 
   local apk_source="build/app/outputs/flutter-apk/app-release.apk"
   local apk_output="$OUTPUT_DIR/android/${APP_SLUG}-v${VERSION_SLUG}.apk"
@@ -127,7 +142,7 @@ build_web() {
   log "Building Web"
   flutter build web --release --no-tree-shake-icons --no-wasm-dry-run \
     --base-href / \
-    "${FLUTTER_BUILD_ARGS[@]}"
+    "${FLUTTER_BUILD_ARGS[@]:1}"
 
   local web_output="$OUTPUT_DIR/web"
   local web_zip="$OUTPUT_DIR/${APP_SLUG}-web-v${VERSION_SLUG}.zip"
@@ -149,7 +164,7 @@ build_web() {
 build_sideloadly_ipa() {
   log "Building unsigned iOS app for Sideloadly"
   flutter build ios --release --no-codesign --no-tree-shake-icons \
-    "${FLUTTER_BUILD_ARGS[@]}"
+    "${FLUTTER_BUILD_ARGS[@]:1}"
 
   local ios_app="build/ios/iphoneos/Runner.app"
   local ipa_output="$OUTPUT_DIR/ios/${APP_SLUG}-Sideloadly-v${VERSION_SLUG}.ipa"
@@ -181,7 +196,8 @@ Built at: $(date '+%Y-%m-%d %H:%M:%S')
 Flutter: $(flutter --version | head -n 1)
 
 Outputs:
-- macOS: $OUTPUT_DIR/macos
+- macOS app: $OUTPUT_DIR/macos
+- macOS DMG: $OUTPUT_DIR/macos/${APP_SLUG}-macos-v${VERSION_SLUG}.dmg
 - Android APK: $OUTPUT_DIR/android/${APP_SLUG}-v${VERSION_SLUG}.apk
 - Web files: $OUTPUT_DIR/web
 - Web zip: $OUTPUT_DIR/${APP_SLUG}-web-v${VERSION_SLUG}.zip
@@ -200,6 +216,7 @@ EOF
 main() {
   [[ -f "pubspec.yaml" ]] || fail "Run this script from the Flutter project root."
   require_command flutter
+  require_command hdiutil
   require_command zip
 
   log "Preparing build combo for $APP_NAME v$APP_VERSION"

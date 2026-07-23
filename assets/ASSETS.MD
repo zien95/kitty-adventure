@@ -17,6 +17,11 @@ These are the files and folders expected inside `assets/`.
 - `assets/images/kitty_pet_real_cutout_26_9_1.png`
 - `assets/images/kitty_moon_garden_real_26_9.png`
 - `assets/images/kitty_moon_garden_real_26_9_1.png`
+- `assets/images/pet_dog_cute_4k.png`
+- `assets/images/pet_bunny_cute_4k.png`
+- `assets/images/pet_fox_cute_4k.png`
+- `assets/images/pet_panda_cute_4k.png`
+- `assets/images/pet_bird_cute_4k.png`
 - `assets/images/kitty_pet_happy.png`
 - `assets/images/kitty_pet_excited.png`
 - `assets/images/kitty_pet_sleepy.png`
@@ -93,6 +98,11 @@ Loopable WAV background music beds:
 - `assets/images/kitty_pet_real_cutout_26_9_1.png`
 - `assets/images/kitty_moon_garden_real_26_9.png`
 - `assets/images/kitty_moon_garden_real_26_9_1.png`
+- `assets/images/pet_dog_cute_4k.png`
+- `assets/images/pet_bunny_cute_4k.png`
+- `assets/images/pet_fox_cute_4k.png`
+- `assets/images/pet_panda_cute_4k.png`
+- `assets/images/pet_bird_cute_4k.png`
 - `assets/images/kitty_pet_happy.png`
 - `assets/images/kitty_pet_excited.png`
 - `assets/images/kitty_pet_sleepy.png`

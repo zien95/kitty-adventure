@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum PetType { cat }
+enum PetType { cat, dog, bunny, fox, panda, bird }
 
 enum PetPersonality { playful, lazy, curious, shy, energetic, calm }
 
@@ -13,6 +13,16 @@ extension PetTypeExtension on PetType {
     switch (this) {
       case PetType.cat:
         return '🐱';
+      case PetType.dog:
+        return '🐶';
+      case PetType.bunny:
+        return '🐰';
+      case PetType.fox:
+        return '🦊';
+      case PetType.panda:
+        return '🐼';
+      case PetType.bird:
+        return '🐦';
     }
   }
 
@@ -20,6 +30,16 @@ extension PetTypeExtension on PetType {
     switch (this) {
       case PetType.cat:
         return 'Cat';
+      case PetType.dog:
+        return 'Dog';
+      case PetType.bunny:
+        return 'Bunny';
+      case PetType.fox:
+        return 'Fox';
+      case PetType.panda:
+        return 'Panda';
+      case PetType.bird:
+        return 'Bird';
     }
   }
 
@@ -27,6 +47,16 @@ extension PetTypeExtension on PetType {
     switch (this) {
       case PetType.cat:
         return const Color(0xFFFFA726);
+      case PetType.dog:
+        return const Color(0xFFFFC36A);
+      case PetType.bunny:
+        return const Color(0xFFFFA7C8);
+      case PetType.fox:
+        return const Color(0xFFFF7A3D);
+      case PetType.panda:
+        return const Color(0xFF8EA7FF);
+      case PetType.bird:
+        return const Color(0xFF70B8FF);
     }
   }
 }
@@ -170,13 +200,17 @@ class Pet {
   }
 
   factory Pet.fromJson(Map<String, dynamic> json) {
+    final typeValue = json['type'];
+    final typeIndex = typeValue is int
+        ? typeValue
+        : int.tryParse(typeValue?.toString() ?? '') ?? 0;
+
     return Pet(
       id: json['id']?.toString() ??
           DateTime.now().millisecondsSinceEpoch.toString(),
       name: json['name'] ?? 'Unknown Pet',
-      type: PetType.values[((json['type'] ?? 0) as int)
-          .clamp(0, PetType.values.length - 1)
-          .toInt()],
+      type:
+          PetType.values[typeIndex.clamp(0, PetType.values.length - 1).toInt()],
       personality: PetPersonality.values[((json['personality'] ?? 0) as int)
           .clamp(0, PetPersonality.values.length - 1)
           .toInt()],

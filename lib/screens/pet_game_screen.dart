@@ -29,8 +29,17 @@ const String _realPetPortraitAsset =
 const String _realGardenBackgroundAsset =
     'assets/images/kitty_moon_garden_real_26_9_1.png';
 
-String _petPortraitAssetForMood(PetMood mood) {
-  return _realPetPortraitAsset;
+const Map<PetType, String> _petPortraitAssets = {
+  PetType.cat: _realPetPortraitAsset,
+  PetType.dog: 'assets/images/pet_dog_cute_4k.png',
+  PetType.bunny: 'assets/images/pet_bunny_cute_4k.png',
+  PetType.fox: 'assets/images/pet_fox_cute_4k.png',
+  PetType.panda: 'assets/images/pet_panda_cute_4k.png',
+  PetType.bird: 'assets/images/pet_bird_cute_4k.png',
+};
+
+String _petPortraitAssetForPet(Pet pet) {
+  return _petPortraitAssets[pet.type] ?? _realPetPortraitAsset;
 }
 
 class PetGameScreen extends StatefulWidget {
@@ -72,6 +81,11 @@ class _PetGameScreenState extends State<PetGameScreen>
     'Cheese Pebbles',
     'Cloud Pudding',
     'Snack Confetti',
+    'Biscuit Bites',
+    'Carrot Crunch',
+    'Berry Pops',
+    'Bamboo Treats',
+    'Seed Sprinkles',
   ];
 
   static const List<String> _favoriteToys = [
@@ -82,24 +96,70 @@ class _PetGameScreenState extends State<PetGameScreen>
     'Royal Sock',
     'Puzzle Mouse',
     'Nap Blanket',
+    'Chew Star',
+    'Carrot Rattle',
+    'Leaf Frisbee',
+    'Bamboo Puzzle',
+    'Tiny Bell Perch',
   ];
 
-  static const List<String> _catBios = [
-    'Professional nap critic with dramatic snack opinions.',
-    'Runs the house like a tiny mayor with excellent eyeliner.',
-    'Believes every button is a mystery and every mystery is edible.',
-    'Quietly brave, loudly cute, and allergic to boring afternoons.',
-    'Has a five-step plan for snacks and zero steps for taxes.',
-    'Part-time explorer, full-time soft chaos consultant.',
-    'Treat inspector with suspiciously convenient standards.',
-  ];
+  static const Map<PetType, List<String>> _petNamesByType = {
+    PetType.cat: ['Kitty', 'Mochi', 'Bean', 'Luna', 'Nori', 'Sunny', 'Pip'],
+    PetType.dog: ['Buddy', 'Biscuit', 'Scout', 'Milo', 'Waffles', 'Ziggy'],
+    PetType.bunny: ['Clover', 'Nibbles', 'Bunbun', 'Mopsy', 'Daisy', 'Pebble'],
+    PetType.fox: ['Ember', 'Rusty', 'Flick', 'Maple', 'Cinder', 'Vix'],
+    PetType.panda: ['Bao', 'Bamboo', 'Mochi-Paws', 'Pebble', 'Nori-Bao'],
+    PetType.bird: ['Pipwing', 'Sky', 'Bluebell', 'Chirp', 'Feather', 'Sunny'],
+  };
+
+  static const Map<PetType, List<String>> _petBiosByType = {
+    PetType.cat: [
+      'Professional nap critic with dramatic snack opinions.',
+      'Runs the house like a tiny mayor with excellent eyeliner.',
+      'Believes every button is a mystery and every mystery is edible.',
+      'Quietly brave, loudly cute, and allergic to boring afternoons.',
+      'Has a five-step plan for snacks and zero steps for taxes.',
+      'Part-time explorer, full-time soft chaos consultant.',
+      'Treat inspector with suspiciously convenient standards.',
+    ],
+    PetType.dog: [
+      'Official hallway racer and certified snack cheerleader.',
+      'Thinks every visitor is a parade built specifically for them.',
+      'Can detect dropped crumbs from a different zip code.',
+      'Runs on loyalty, zoomies, and legally questionable enthusiasm.',
+    ],
+    PetType.bunny: [
+      'Tiny hop engine with elite carrot negotiation skills.',
+      'Quietly adorable until the furniture becomes a personal gym.',
+      'Moves like a cloud with opinions.',
+      'Professional floor inspector and soft-footed escape artist.',
+    ],
+    PetType.fox: [
+      'Cute enough to be trusted, clever enough to make that risky.',
+      'Tail contains 80% fluff and 20% suspicious plans.',
+      'Collects shiny things and dramatic exits.',
+      'Looks innocent. Has already solved the puzzle twice.',
+    ],
+    PetType.panda: [
+      'Snack calendar administrator with a bamboo-first worldview.',
+      'Rolls into rooms like a very polite bowling ball.',
+      'Soft, round, and deeply committed to break time.',
+      'Has never rushed anything except dessert.',
+    ],
+    PetType.bird: [
+      'Tiny sky bean with premium chirp acoustics.',
+      'Perches like royalty and judges crumbs from above.',
+      'Wings full of sparkle, schedule full of dramatic swoops.',
+      'Can turn one seed into a whole board meeting.',
+    ],
+  };
 
   static final List<_DailyQuest> _dailyQuests = [
     _DailyQuest(
       id: 'feed_three',
       actionKey: 'feed',
       title: 'Snack Time',
-      detail: 'Feed Kitty 3 times',
+      detail: 'Feed a pet 3 times',
       target: 3,
       rewardCoins: 45,
       rewardGems: 1,
@@ -123,7 +183,7 @@ class _PetGameScreenState extends State<PetGameScreen>
       id: 'clean_once',
       actionKey: 'clean',
       title: 'Fresh Fur',
-      detail: 'Clean Kitty once',
+      detail: 'Clean a pet once',
       target: 1,
       rewardCoins: 35,
       rewardGems: 1,
@@ -395,14 +455,14 @@ class _PetGameScreenState extends State<PetGameScreen>
     _AchievementBadge(
       id: 'first_adoption',
       title: 'First Adoption',
-      detail: 'Have 2 cats in the family.',
+      detail: 'Have 2 pets in the family.',
       icon: Icons.pets,
       color: Color(0xFFFF76B7),
     ),
     _AchievementBadge(
       id: 'seven_cats',
-      title: '7 Cat Household',
-      detail: 'Collect 7 cats.',
+      title: '7 Pet Household',
+      detail: 'Collect 7 pets.',
       icon: Icons.groups,
       color: Color(0xFF70B8FF),
     ),
@@ -527,13 +587,13 @@ class _PetGameScreenState extends State<PetGameScreen>
     ),
     _EasterEggSpot(
       id: 'cat',
-      title: 'Cat Inspection',
-      trigger: 'Double-tap or long-press your cat.',
+      title: 'Pet Inspection',
+      trigger: 'Double-tap or long-press your pet.',
       actionLabel: 'CAT',
       messages: [
-        'Double-tap detected. Kitty now believes this is a formal handshake.',
-        'Kitty has accepted your tap and filed it under compliments.',
-        'Secret cat inspection passed. The tail committee approves.',
+        'Double-tap detected. Your pet now believes this is a formal handshake.',
+        'Your pet accepted the tap and filed it under compliments.',
+        'Secret pet inspection passed. The tiny committee approves.',
       ],
     ),
     _EasterEggSpot(
@@ -553,8 +613,8 @@ class _PetGameScreenState extends State<PetGameScreen>
       trigger: 'Long-press Manage or Adopt.',
       actionLabel: 'MANAGE',
       messages: [
-        'Cat Manager has entered clipboard mode. Very official. Extremely tiny.',
-        'Management note: all cats requested snacks as a team-building exercise.',
+        'Pet Manager has entered clipboard mode. Very official. Extremely tiny.',
+        'Management note: all pets requested snacks as a team-building exercise.',
         'This center is 40% organization and 60% adorable paperwork.',
       ],
     ),
@@ -638,11 +698,11 @@ class _PetGameScreenState extends State<PetGameScreen>
     _loadSecretCodes();
   }
 
-  Pet _createDefaultPet({String name = 'Kitty'}) {
+  Pet _createDefaultPet({String name = 'Kitty', PetType type = PetType.cat}) {
     return Pet(
       id: DateTime.now().microsecondsSinceEpoch.toString(),
       name: name,
-      type: PetType.cat,
+      type: type,
     )
       ..level = 1
       ..health = 100
@@ -651,6 +711,9 @@ class _PetGameScreenState extends State<PetGameScreen>
       ..energy = 90
       ..cleanliness = 90
       ..coins = 1250
+      ..favoriteFood = _profilePick(_favoriteFoods, '$type:$name:food')
+      ..favoriteToy = _profilePick(_favoriteToys, '$type:$name:toy')
+      ..bio = _profilePick(_biosForType(type), '$type:$name:bio')
       ..roomDecorations = ['flower_garden']
       ..currentRoomDecor = 'flower_garden';
   }
@@ -660,7 +723,7 @@ class _PetGameScreenState extends State<PetGameScreen>
       cat.id = DateTime.now().microsecondsSinceEpoch.toString();
     }
     if (cat.name.trim().isEmpty || cat.name == 'Unknown Pet') {
-      cat.name = _nextCatName();
+      cat.name = _nextPetName(cat.type);
     }
     if (cat.roomDecorations.isEmpty) {
       cat.roomDecorations.add('flower_garden');
@@ -675,8 +738,12 @@ class _PetGameScreenState extends State<PetGameScreen>
       cat.favoriteToy = _profilePick(_favoriteToys, cat.name + cat.id);
     }
     if (cat.bio.trim().isEmpty) {
-      cat.bio = _profilePick(_catBios, '${cat.id}:${cat.name}');
+      cat.bio = _profilePick(_biosForType(cat.type), '${cat.id}:${cat.name}');
     }
+  }
+
+  List<String> _biosForType(PetType type) {
+    return _petBiosByType[type] ?? _petBiosByType[PetType.cat]!;
   }
 
   String _profilePick(List<String> values, String seed) {
@@ -739,13 +806,13 @@ class _PetGameScreenState extends State<PetGameScreen>
     }
   }
 
-  String _nextCatName() {
-    const names = ['Kitty', 'Mochi', 'Bean', 'Luna', 'Nori', 'Sunny', 'Pip'];
+  String _nextPetName(PetType type) {
+    final names = _petNamesByType[type] ?? _petNamesByType[PetType.cat]!;
     final usedNames = _cats.map((cat) => cat.name).toSet();
     for (final name in names) {
       if (!usedNames.contains(name)) return name;
     }
-    return 'Kitty ${_cats.length + 1}';
+    return '${type.name} ${_cats.length + 1}';
   }
 
   Future<void> _loadCatCollection(Pet fallbackPet) async {
@@ -830,8 +897,82 @@ class _PetGameScreenState extends State<PetGameScreen>
     _syncPetToProvider();
   }
 
-  void _adoptCat() {
-    final newCat = _createDefaultPet(name: _nextCatName())
+  Future<void> _showAdoptPetDialog({StateSetter? modalSetState}) async {
+    final selectedType = await showDialog<PetType>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: _dialogColor,
+        title: const Text('Adopt a Pet'),
+        content: SizedBox(
+          width: math.min(MediaQuery.sizeOf(dialogContext).width - 48, 430.0),
+          child: Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: PetType.values
+                .map(
+                  (type) => InkWell(
+                    borderRadius: BorderRadius.circular(18),
+                    onTap: () => Navigator.pop(dialogContext, type),
+                    child: Container(
+                      width: 126,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        color: type.color.withValues(alpha: 0.22),
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(color: type.color, width: 2),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            type.emoji,
+                            style: const TextStyle(fontSize: 34),
+                          ),
+                          const SizedBox(height: 5),
+                          Text(
+                            type.name,
+                            style: TextStyle(
+                              color: _primaryTextColor,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                          Text(
+                            _nextPetName(type),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: _secondaryTextColor,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                )
+                .toList(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+        ],
+      ),
+    );
+
+    if (selectedType == null) return;
+    _adoptPet(selectedType);
+    modalSetState?.call(() {});
+  }
+
+  void _adoptPet(PetType type) {
+    final newPet = _createDefaultPet(name: _nextPetName(type), type: type)
       ..coins = 500
       ..happiness = 90
       ..energy = 90
@@ -839,12 +980,14 @@ class _PetGameScreenState extends State<PetGameScreen>
 
     setState(() {
       _syncSelectedCat();
-      _cats.add(newCat);
+      _cats.add(newPet);
       _selectedCatIndex = _cats.length - 1;
-      _pet = newCat;
+      _pet = newPet;
     });
     _syncPetToProvider();
-    _showPetActionMessage('${newCat.name} joined the family');
+    _showPetActionMessage(
+      '${newPet.type.emoji} ${newPet.name} joined the family',
+    );
   }
 
   void _selectCat(int index) {
@@ -1763,7 +1906,7 @@ class _PetGameScreenState extends State<PetGameScreen>
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(cat.moodEmoji, style: const TextStyle(fontSize: 18)),
+              Text(cat.type.emoji, style: const TextStyle(fontSize: 18)),
               const SizedBox(width: 6),
               Text(
                 cat.name,
@@ -1822,7 +1965,7 @@ class _PetGameScreenState extends State<PetGameScreen>
 
   Widget _buildAdoptCatChip() {
     return GestureDetector(
-      onTap: _adoptCat,
+      onTap: () => _showAdoptPetDialog(),
       onLongPress: () => _showEasterEgg('manager'),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -1894,7 +2037,7 @@ class _PetGameScreenState extends State<PetGameScreen>
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Cat Manager Center',
+                                'Pet Manager Center',
                                 style: TextStyle(
                                   color: _primaryTextColor,
                                   fontSize: 22,
@@ -1902,7 +2045,7 @@ class _PetGameScreenState extends State<PetGameScreen>
                                 ),
                               ),
                               Text(
-                                '${cats.length} cats in your family',
+                                '${cats.length} pets in your family',
                                 style: TextStyle(
                                   color: _secondaryTextColor,
                                   fontWeight: FontWeight.w700,
@@ -1924,12 +2067,13 @@ class _PetGameScreenState extends State<PetGameScreen>
                       children: [
                         Expanded(
                           child: ElevatedButton.icon(
-                            onPressed: () {
-                              _adoptCat();
-                              modalSetState(() {});
+                            onPressed: () async {
+                              await _showAdoptPetDialog(
+                                modalSetState: modalSetState,
+                              );
                             },
                             icon: const Icon(Icons.add),
-                            label: const Text('Adopt Cat'),
+                            label: const Text('Adopt Pet'),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF70B8FF),
                               foregroundColor: Colors.white,
@@ -2019,7 +2163,7 @@ class _PetGameScreenState extends State<PetGameScreen>
               border: Border.all(color: const Color(0xFFB96A31), width: 2),
             ),
             child: Center(
-              child: Text(cat.moodEmoji, style: const TextStyle(fontSize: 28)),
+              child: Text(cat.type.emoji, style: const TextStyle(fontSize: 28)),
             ),
           ),
           const SizedBox(width: 12),
@@ -2066,7 +2210,7 @@ class _PetGameScreenState extends State<PetGameScreen>
                 ),
                 const SizedBox(height: 5),
                 Text(
-                  'LV ${cat.level} • ${cat.status} • ${cat.coins} coins',
+                  '${cat.type.name} • LV ${cat.level} • ${cat.status} • ${cat.coins} coins',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -2184,12 +2328,12 @@ class _PetGameScreenState extends State<PetGameScreen>
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: _dialogColor,
-        title: const Text('Rename Cat'),
+        title: const Text('Rename Pet'),
         content: TextField(
           controller: controller,
           autofocus: true,
           maxLength: 18,
-          decoration: const InputDecoration(labelText: 'Cat name'),
+          decoration: const InputDecoration(labelText: 'Pet name'),
           onSubmitted: (value) => Navigator.pop(context, value.trim()),
         ),
         actions: [
@@ -2218,10 +2362,11 @@ class _PetGameScreenState extends State<PetGameScreen>
     _syncPetToProvider();
   }
 
-  Future<void> _editCatProfile(int index, StateSetter _) async {
+  Future<void> _editCatProfile(int index, StateSetter modalSetState) async {
     if (index < 0 || index >= _cats.length) return;
 
     final cat = _cats[index];
+    var selectedType = cat.type;
     var selectedPersonality = cat.personality;
     var selectedFood = cat.favoriteFood.trim().isEmpty
         ? _favoriteFoods.first
@@ -2246,6 +2391,27 @@ class _PetGameScreenState extends State<PetGameScreen>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                DropdownButtonFormField<PetType>(
+                  initialValue: selectedType,
+                  decoration: const InputDecoration(
+                    labelText: 'Pet type',
+                    prefixIcon: Icon(Icons.pets),
+                  ),
+                  items: PetType.values
+                      .map(
+                        (type) => DropdownMenuItem(
+                          value: type,
+                          child: Text('${type.emoji} ${type.name}'),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      dialogSetState(() => selectedType = value);
+                    }
+                  },
+                ),
+                const SizedBox(height: 10),
                 DropdownButtonFormField<PetPersonality>(
                   initialValue: selectedPersonality,
                   decoration: const InputDecoration(
@@ -2351,18 +2517,22 @@ class _PetGameScreenState extends State<PetGameScreen>
     }
 
     final updatedBio = bioController.text.trim().isEmpty
-        ? _profilePick(_catBios, '${cat.id}:${cat.name}:edit')
+        ? _profilePick(_biosForType(selectedType), '${cat.id}:${cat.name}:edit')
         : bioController.text.trim();
     bioController.dispose();
 
-    cat.personality = selectedPersonality;
-    cat.favoriteFood = selectedFood;
-    cat.favoriteToy = selectedToy;
-    cat.bio = updatedBio;
-    if (index == _selectedCatIndex) {
-      _pet = cat;
-    }
-    _saveCatCollection();
+    setState(() {
+      cat.type = selectedType;
+      cat.personality = selectedPersonality;
+      cat.favoriteFood = selectedFood;
+      cat.favoriteToy = selectedToy;
+      cat.bio = updatedBio;
+      if (index == _selectedCatIndex) {
+        _pet = cat;
+      }
+    });
+    modalSetState(() {});
+    _syncPetToProvider();
   }
 
   Widget _buildCounterSegment({
@@ -2720,8 +2890,8 @@ class _PetGameScreenState extends State<PetGameScreen>
     }
   }
 
-  String _petPortraitAsset(PetMood mood) {
-    return _realPetPortraitAsset;
+  String _petPortraitAsset(Pet pet) {
+    return _petPortraitAssetForPet(pet);
   }
 
   Color _petPortraitBorderColor(PetMood mood) {
@@ -3282,7 +3452,7 @@ class _PetGameScreenState extends State<PetGameScreen>
         .clamp(180.0, 260.0)
         .toDouble();
     final portraitHeight = petWidth * 1.06;
-    final portraitAsset = _petPortraitAsset(pet.currentMood);
+    final portraitAsset = _petPortraitAsset(pet);
     final portraitBorder = _petPortraitBorderColor(pet.currentMood);
 
     return AnimatedBuilder(
@@ -5462,7 +5632,7 @@ class _PlayCutsceneDialogState extends State<_PlayCutsceneDialog>
           alignment: Alignment.center,
           transform: Matrix4.diagonal3Values(flip ? -1 : 1, 1, 1),
           child: Image.asset(
-            _petPortraitAssetForMood(cat.currentMood),
+            _petPortraitAssetForPet(cat),
             width: size,
             height: size,
             fit: BoxFit.contain,

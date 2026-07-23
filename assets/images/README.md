@@ -13,6 +13,14 @@ Replace the placeholder files with actual PNG images:
 - **kitty_pet_loving.png** - Loving portrait crop
 - **background_outdoor.png** (1080x1920px) - Outdoor scene with green environment and house
 
+### 4K Companion Portraits
+- **kitty_pet_real_cutout_26_9_1.png** (1254x1254px) - Current real-style cat portrait
+- **pet_dog_cute_4k.png** (4096x4096px) - Cute puppy companion portrait
+- **pet_bunny_cute_4k.png** (4096x4096px) - Cute bunny companion portrait
+- **pet_fox_cute_4k.png** (4096x4096px) - Cute fox companion portrait
+- **pet_panda_cute_4k.png** (4096x4096px) - Cute panda companion portrait
+- **pet_bird_cute_4k.png** (4096x4096px) - Cute bird companion portrait
+
 ### Icon Images (48x48px)
 - **coin_icon.png** - Gold coin, circular, shiny
 - **heart_icon.png** - Red heart, cartoonish, filled

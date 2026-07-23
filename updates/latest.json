@@ -1,7 +1,7 @@
 {
   "app": "Kitty Adventure",
-  "version": "26.8.5",
-  "title": "Kitty Adventure v26.8.5",
+  "version": "26.8.6",
+  "title": "Kitty Adventure v26.8.6",
   "required": false,
   "release_date": "2026-07-23",
   "size": "See download",
@@ -13,9 +13,9 @@
     "Made room decor appear in the main gameplay scene",
     "Bug fixes"
   ],
-  "download_url": "https://github.com/zien95/kitty-adventure/releases/download/v26.8.5/kitty-adventure-web-v26.8.5.zip",
+  "download_url": "https://github.com/zien95/kitty-adventure/releases/download/v26.8.6/kitty-adventure-web-v26.8.6.zip",
   "web_url": "https://kitty-adventure-zona.web.app/",
-  "apk_url": "https://github.com/zien95/kitty-adventure/releases/download/v26.8.5/kitty-adventure-v26.8.5.apk",
-  "ipa_url": "https://github.com/zien95/kitty-adventure/releases/download/v26.8.5/kitty-adventure-Sideloadly-v26.8.5.ipa",
-  "macos_url": "https://github.com/zien95/kitty-adventure/releases/download/v26.8.5/kitty-adventure-macos-v26.8.5.dmg"
+  "apk_url": "https://github.com/zien95/kitty-adventure/releases/download/v26.8.6/kitty-adventure-v26.8.6.apk",
+  "ipa_url": "https://github.com/zien95/kitty-adventure/releases/download/v26.8.6/kitty-adventure-Sideloadly-v26.8.6.ipa",
+  "macos_url": "https://github.com/zien95/kitty-adventure/releases/download/v26.8.6/kitty-adventure-macos-v26.8.6.dmg"
 }

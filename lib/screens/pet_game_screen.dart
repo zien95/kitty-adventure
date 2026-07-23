@@ -521,7 +521,7 @@ class _PetGameScreenState extends State<PetGameScreen>
   static final List<_ReleaseChecklistItem> _releaseChecklist = [
     _ReleaseChecklistItem(
       title: 'Version locked',
-      detail: 'Keep player-facing version text on v26.8.5 unless we bump it.',
+      detail: 'Keep player-facing version text on v26.8.6 unless we bump it.',
       icon: Icons.verified,
       color: Color(0xFF66C58D),
     ),

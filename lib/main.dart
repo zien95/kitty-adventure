@@ -717,7 +717,7 @@ class BackupService {
               'pet': jsonDecode(petJson),
               'account': jsonDecode(accountJson),
               'exportDate': DateTime.now().toIso8601String(),
-              'version': '26.8.5',
+              'version': '26.8.6',
             };
             await exportFile.writeAsString(jsonEncode(exportData));
             return true;
@@ -2501,7 +2501,7 @@ class SettingsScreen extends StatelessWidget {
                               style: TextStyle(color: Colors.white70),
                             ),
                             const Text(
-                              'Version 26.8.5',
+                              'Version 26.8.6',
                               style: TextStyle(color: Colors.white70),
                             ),
                             const Text(

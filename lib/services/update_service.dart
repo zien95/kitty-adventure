@@ -21,7 +21,7 @@ class UpdateCheckResult {
 }
 
 class UpdateService {
-  static const String currentVersion = '26.8.5';
+  static const String currentVersion = '26.8.6';
   static const String _manifestUrlKey = 'kitty_update_manifest_url';
   static const String _lastSeenVersionKey = 'kitty_update_last_seen_version';
   static const String _pendingUpdateKey = 'kitty_pending_update';

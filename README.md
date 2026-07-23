@@ -24,7 +24,7 @@ Kitty Adventure is a virtual pet game where you adopt cute animals, care for the
 
 ## Latest
 
-Version `26.8.5` refreshes every installable build with today's fixes:
+Version `26.8.6` refreshes every installable build with today's fixes:
 
 - Made native and Lite Mode gameplay use the full heavy-web visuals.
 - Added dog, bunny, fox, panda, and bird pets with 4K companion portraits.

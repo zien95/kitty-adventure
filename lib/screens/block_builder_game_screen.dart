@@ -79,7 +79,7 @@ class _BlockBuilderGameScreenState extends State<BlockBuilderGameScreen> {
   // What's New & Changelog
   final List<Map<String, String>> _changelog = [
     {
-      'version': 'v26.8.5 - Builder Update',
+      'version': 'v26.8.6 - Builder Update',
       'features': '''
 🏆 ACHIEVEMENTS: 6 Unlockable achievements with XP rewards
 🎨 CREATIVE MODE: Press C to toggle unlimited blocks & flying
@@ -91,7 +91,7 @@ class _BlockBuilderGameScreenState extends State<BlockBuilderGameScreen> {
 OPTIMIZED: Better performance on tablet and phone
 🎮 CONTROLS: Improved keyboard shortcuts
 💾 SAVE STATE: Complete game persistence
-🆕 NEW v26.8.5 FEATURES:
+🆕 NEW v26.8.6 FEATURES:
 🏗️ BUILDING MASTERY: Track blocks placed and building progress
 🌙 SURVIVAL MODE: Challenge yourself with limited resources
 🎯 GOAL SYSTEM: Clear objectives and rewards
@@ -1329,7 +1329,7 @@ OPTIMIZED: Better performance on tablet and phone
           backgroundColor: Colors.transparent,
           elevation: 0,
           title: Text(
-              'Block Builder 2D v26.8.5 (${_isCreativeMode ? 'Creative' : 'Survival'}) - C=Toggle, N=Whats New, T=Teleport',
+              'Block Builder 2D v26.8.6 (${_isCreativeMode ? 'Creative' : 'Survival'}) - C=Toggle, N=Whats New, T=Teleport',
               style: TextStyle(
                   fontSize: 14, color: _isDay ? Colors.black : Colors.white)),
           actions: [

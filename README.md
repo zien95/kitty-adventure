@@ -1,4 +1,4 @@
-# Kitty Adventure
+# Zona Pets
 
 Cozy virtual pet game with animal care, mini-games, secrets, rewards, and moon-garden vibes. 🐱🌙
 
@@ -6,7 +6,7 @@ Cozy virtual pet game with animal care, mini-games, secrets, rewards, and moon-g
 
 ## About
 
-Kitty Adventure is a virtual pet game where you adopt cute animals, care for them, play mini-games, unlock secrets, and build a little pet family. Feed, clean, train, bond, heal, and spoil your pets while collecting coins, rewards, rooms, outfits, and easter eggs.
+Zona Pets is a virtual pet game where you adopt cute animals, care for them, play mini-games, unlock secrets, and build a little pet family. Feed, clean, train, bond, heal, and spoil your pets while collecting coins, rewards, rooms, outfits, and easter eggs.
 
 ## Features
 
@@ -24,14 +24,12 @@ Kitty Adventure is a virtual pet game where you adopt cute animals, care for the
 
 ## Latest
 
-Version `26.8.6` refreshes every installable build with today's fixes:
+Version `26.8.7` is the great rebranding release:
 
-- Made native and Lite Mode gameplay use the full heavy-web visuals.
-- Added dog, bunny, fox, panda, and bird pets with 4K companion portraits.
-- Added the in-game Next Move coach above the care buttons.
-- Removed the Downloads button from installed app builds.
-- Made room decor appear in the main gameplay scene.
-- Updated Android, iPhone/iPad, macOS, and web downloads.
+- Renamed the game from Kitty Adventure to Zona Pets.
+- Updated web metadata, app titles, native display names, docs, and download pages.
+- Switched player-facing hub language from cat-only to pet-family wording.
+- Kept the existing website and GitHub repo URLs working for continuity.
 - Bug fixes.
 
 ## How To Play
@@ -43,7 +41,7 @@ Version `26.8.6` refreshes every installable build with today's fixes:
 - Use **Train** to raise IQ and progress.
 - Use **Bond** to grow friendship.
 - Use **Medicine** and **Vaccine** for extra care.
-- Open **Shop / Kitty Hub** for jobs, rooms, outfits, eggs, codes, and mini-games.
+- Open **Shop / Pet Hub** for jobs, rooms, outfits, eggs, codes, and mini-games.
 - Use **Manage** to adopt, rename, switch, and profile your pets.
 
 ## Run Locally
@@ -88,10 +86,10 @@ http://127.0.0.1:8080/
 
 ## Status
 
-Kitty Adventure is actively evolving. Every update should keep the game cozy, playable, and at least slightly ridiculous. 😸✨
+Zona Pets is actively evolving. Every update should keep the game cozy, playable, and at least slightly ridiculous. 😸✨
 
 ## License
 
-Kitty Adventure is licensed under the GNU General Public License v3.0.
+Zona Pets is licensed under the GNU General Public License v3.0.
 
 See [LICENSE](LICENSE) for the full license text.

@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "trying_to_restore_pup" "\0"
+            VALUE "FileDescription", "Zona Pets" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "trying_to_restore_pup" "\0"
+            VALUE "InternalName", "zona_pets" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2026 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "trying_to_restore_pup.exe" "\0"
-            VALUE "ProductName", "trying_to_restore_pup" "\0"
+            VALUE "OriginalFilename", "zona_pets.exe" "\0"
+            VALUE "ProductName", "Zona Pets" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

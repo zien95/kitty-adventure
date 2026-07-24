@@ -1,21 +1,20 @@
 {
-  "app": "Kitty Adventure",
-  "version": "26.8.6",
-  "title": "Kitty Adventure v26.8.6",
+  "app": "Zona Pets",
+  "version": "26.8.7",
+  "title": "Zona Pets v26.8.7",
   "required": false,
-  "release_date": "2026-07-23",
+  "release_date": "2026-07-24",
   "size": "See download",
   "changelog": [
-    "Made native and Lite Mode gameplay use the full heavy-web visuals",
-    "Added dog, bunny, fox, panda, and bird pets with 4K companion portraits",
-    "Added the in-game Next Move coach above the care buttons",
-    "Removed the Downloads button from installed app builds",
-    "Made room decor appear in the main gameplay scene",
+    "Renamed Kitty Adventure to Zona Pets",
+    "Updated web metadata, app titles, native display names, docs, and download pages",
+    "Switched cat-only hub wording to pet-family wording",
+    "Kept the existing website and GitHub repo URLs working",
     "Bug fixes"
   ],
-  "download_url": "https://github.com/zien95/kitty-adventure/releases/download/v26.8.6/kitty-adventure-web-v26.8.6.zip",
+  "download_url": "https://github.com/zien95/kitty-adventure/releases/download/v26.8.7/zona-pets-web-v26.8.7.zip",
   "web_url": "https://kitty-adventure-zona.web.app/",
-  "apk_url": "https://github.com/zien95/kitty-adventure/releases/download/v26.8.6/kitty-adventure-v26.8.6.apk",
-  "ipa_url": "https://github.com/zien95/kitty-adventure/releases/download/v26.8.6/kitty-adventure-Sideloadly-v26.8.6.ipa",
-  "macos_url": "https://github.com/zien95/kitty-adventure/releases/download/v26.8.6/kitty-adventure-macos-v26.8.6.dmg"
+  "apk_url": "https://github.com/zien95/kitty-adventure/releases/download/v26.8.7/zona-pets-v26.8.7.apk",
+  "ipa_url": "https://github.com/zien95/kitty-adventure/releases/download/v26.8.7/zona-pets-Sideloadly-v26.8.7.ipa",
+  "macos_url": "https://github.com/zien95/kitty-adventure/releases/download/v26.8.7/zona-pets-macos-v26.8.7.dmg"
 }

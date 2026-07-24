@@ -14,7 +14,7 @@ class GameProvider extends ChangeNotifier {
   Timer? _petPlayTimeTimer;
   Timer? _sessionTimer;
   final SoundService _soundService = SoundService();
-  static const String _currentVersion = '26.8.6';
+  static const String _currentVersion = '26.8.7';
 
   // Comprehensive Stats System
   Map<String, dynamic> _globalStats = {

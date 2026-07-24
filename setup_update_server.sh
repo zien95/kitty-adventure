@@ -3,17 +3,17 @@
 set -Eeuo pipefail
 
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-UPDATE_DIR="${UPDATE_DIR:-$HOME/KittyAdventureUpdates}"
+UPDATE_DIR="${UPDATE_DIR:-$HOME/ZonaPetsUpdates}"
 PORT="${UPDATE_PORT:-8081}"
 INFO_FILE="$PROJECT_DIR/UPDATE_SERVER_INFO.txt"
-LABEL="com.kittyadventure.update-server"
-AWAKE_LABEL="com.kittyadventure.update-awake"
+LABEL="com.zonapets.update-server"
+AWAKE_LABEL="com.zonapets.update-awake"
 PLIST_DIR="$HOME/Library/LaunchAgents"
 PLIST_FILE="$PLIST_DIR/$LABEL.plist"
 AWAKE_PLIST_FILE="$PLIST_DIR/$AWAKE_LABEL.plist"
 HELPER_LOG="$UPDATE_DIR/logs/helper.log"
 COMMAND="${1:-start}"
-TUNNEL_URL="${KITTY_TUNNEL_URL:-https://unstamped-revisit-underling.ngrok-free.dev}"
+TUNNEL_URL="${ZONA_TUNNEL_URL:-${KITTY_TUNNEL_URL:-https://unstamped-revisit-underling.ngrok-free.dev}}"
 
 log() {
   printf '\n==> %s\n' "$1"

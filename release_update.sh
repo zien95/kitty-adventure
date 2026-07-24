@@ -13,8 +13,8 @@ fi
 CHANGELOG=("$@")
 REQUIRED_UPDATE="${REQUIRED_UPDATE:-}"
 SKIP_BUILD="${SKIP_BUILD:-}"
-PUBLIC_GAME_URL="${KITTY_PUBLIC_GAME_URL:-https://kitty-adventure-zona.web.app}"
-INDEXNOW_KEY="${KITTY_INDEXNOW_KEY:-7814c885d95d04f5e4dad44845b8240c}"
+PUBLIC_GAME_URL="${ZONA_PUBLIC_GAME_URL:-${KITTY_PUBLIC_GAME_URL:-https://kitty-adventure-zona.web.app}}"
+INDEXNOW_KEY="${ZONA_INDEXNOW_KEY:-${KITTY_INDEXNOW_KEY:-7814c885d95d04f5e4dad44845b8240c}}"
 
 log() {
   printf '\n==> %s\n' "$1"
@@ -170,14 +170,16 @@ build_release_files() {
   fi
 
   log "Building macOS, Android, web, and Sideloadly IPA"
-  KITTY_UPDATE_MANIFEST_URL="$MANIFEST_URL" \
+  ZONA_UPDATE_MANIFEST_URL="$MANIFEST_URL" \
+    ZONA_UPDATE_PUBLIC_IP="$PUBLIC_IP" \
+    KITTY_UPDATE_MANIFEST_URL="$MANIFEST_URL" \
     KITTY_UPDATE_PUBLIC_IP="$PUBLIC_IP" \
     "$PROJECT_DIR/build_combo.sh"
 }
 
 copy_release_files() {
   local app_name app_slug version_slug output_dir
-  local apk_source ipa_source web_zip_source mac_app mac_zip_name
+  local apk_source ipa_source web_zip_source mac_dmg_source mac_zip_name
 
   app_name="$(awk '/^name:/ {print $2; exit}' "$PROJECT_DIR/pubspec.yaml")"
   app_slug="${app_name//_/-}"
@@ -187,19 +189,13 @@ copy_release_files() {
   apk_source="$output_dir/android/${app_slug}-v${version_slug}.apk"
   ipa_source="$output_dir/ios/${app_slug}-Sideloadly-v${version_slug}.ipa"
   web_zip_source="$output_dir/${app_slug}-web-v${version_slug}.zip"
-  mac_app=""
-  if [[ -d "$output_dir/macos" ]]; then
-    mac_app="$(
-      find "$output_dir/macos" -maxdepth 1 -type d -name '*.app' |
-        head -n 1
-    )"
-  fi
+  mac_dmg_source="$output_dir/macos/${app_slug}-macos-v${version_slug}.dmg"
 
   [[ -f "$apk_source" ]] || fail "Missing Android build: $apk_source"
   [[ -f "$ipa_source" ]] || fail "Missing IPA build: $ipa_source"
   [[ -f "$web_zip_source" ]] || fail "Missing web zip: $web_zip_source"
   [[ -d "$output_dir/web" ]] || fail "Missing web build: $output_dir/web"
-  [[ -n "$mac_app" && -d "$mac_app" ]] || fail "Missing macOS .app build."
+  [[ -f "$mac_dmg_source" ]] || fail "Missing macOS DMG build: $mac_dmg_source"
 
   mkdir -p "$UPDATE_DIR/files" "$UPDATE_DIR/web"
   rm -rf "$UPDATE_DIR/web"
@@ -210,24 +206,13 @@ copy_release_files() {
   APK_NAME="${app_slug}-v${version_slug}.apk"
   IPA_NAME="${app_slug}-Sideloadly-v${version_slug}.ipa"
   WEB_ZIP_NAME="${app_slug}-web-v${version_slug}.zip"
-  mac_zip_name="${app_slug}-macos-v${version_slug}.zip"
+  mac_zip_name="${app_slug}-macos-v${version_slug}.dmg"
   MACOS_ZIP_NAME="$mac_zip_name"
 
   cp "$apk_source" "$UPDATE_DIR/files/$APK_NAME"
   cp "$ipa_source" "$UPDATE_DIR/files/$IPA_NAME"
   cp "$web_zip_source" "$UPDATE_DIR/files/$WEB_ZIP_NAME"
-
-  rm -f "$UPDATE_DIR/files/$MACOS_ZIP_NAME"
-  if command -v ditto >/dev/null 2>&1; then
-    ditto -c -k --sequesterRsrc --keepParent \
-      "$mac_app" \
-      "$UPDATE_DIR/files/$MACOS_ZIP_NAME"
-  else
-    (
-      cd "$(dirname "$mac_app")"
-      zip -qry "$UPDATE_DIR/files/$MACOS_ZIP_NAME" "$(basename "$mac_app")"
-    )
-  fi
+  cp "$mac_dmg_source" "$UPDATE_DIR/files/$MACOS_ZIP_NAME"
 }
 
 write_manifest() {
@@ -260,9 +245,9 @@ changelog = [
 ]
 
 manifest = {
-    "app": "Kitty Adventure",
+    "app": "Zona Pets",
     "version": version,
-    "title": f"Kitty Adventure v{version}",
+    "title": f"Zona Pets v{version}",
     "required": os.environ["REQUIRED_UPDATE"].lower() == "true",
     "release_date": date.today().isoformat(),
     "size": "See download",
@@ -328,8 +313,8 @@ record_release() {
   local release_record="$UPDATE_DIR/LAST_RELEASE.txt"
 
   cat >"$release_record" <<EOF
-Kitty Adventure Release
-=======================
+Zona Pets Release
+=================
 VERSION=$VERSION
 RELEASED_AT=$(date '+%Y-%m-%dT%H:%M:%S%z')
 MANIFEST_URL=$MANIFEST_URL

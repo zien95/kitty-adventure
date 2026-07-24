@@ -34,7 +34,7 @@ class PetSelectionScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text(
-                    'Kitty Adventure',
+                    'Zona Pets',
                     style: TextStyle(
                       fontSize: 36,
                       fontWeight: FontWeight.bold,
@@ -61,7 +61,7 @@ class PetSelectionScreen extends StatelessWidget {
                       ),
                       SizedBox(height: 20),
                       Text(
-                        'Creating your Kitty...',
+                        'Creating your pet...',
                         style: TextStyle(
                           fontSize: 24,
                           color: Colors.white,

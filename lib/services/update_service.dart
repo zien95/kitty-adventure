@@ -21,19 +21,37 @@ class UpdateCheckResult {
 }
 
 class UpdateService {
-  static const String currentVersion = '26.8.6';
+  static const String currentVersion = '26.8.7';
   static const String _manifestUrlKey = 'kitty_update_manifest_url';
   static const String _lastSeenVersionKey = 'kitty_update_last_seen_version';
   static const String _pendingUpdateKey = 'kitty_pending_update';
 
-  static const String _builtInManifestUrl = String.fromEnvironment(
-    'KITTY_UPDATE_MANIFEST_URL',
-    defaultValue: 'https://kitty-adventure-zona.web.app/latest.json',
+  static const String _defaultManifestUrl =
+      'https://kitty-adventure-zona.web.app/latest.json';
+  static const String _zonaBuiltInManifestUrl = String.fromEnvironment(
+    'ZONA_UPDATE_MANIFEST_URL',
+    defaultValue: '',
   );
-  static const String publicServerIp = String.fromEnvironment(
+  static const String _kittyBuiltInManifestUrl = String.fromEnvironment(
+    'KITTY_UPDATE_MANIFEST_URL',
+    defaultValue: '',
+  );
+  static const String _zonaPublicServerIp = String.fromEnvironment(
+    'ZONA_UPDATE_PUBLIC_IP',
+    defaultValue: '',
+  );
+  static const String _kittyPublicServerIp = String.fromEnvironment(
     'KITTY_UPDATE_PUBLIC_IP',
     defaultValue: '',
   );
+  static String get _builtInManifestUrl => _zonaBuiltInManifestUrl.isNotEmpty
+      ? _zonaBuiltInManifestUrl
+      : (_kittyBuiltInManifestUrl.isNotEmpty
+          ? _kittyBuiltInManifestUrl
+          : _defaultManifestUrl);
+  static String get publicServerIp => _zonaPublicServerIp.isNotEmpty
+      ? _zonaPublicServerIp
+      : _kittyPublicServerIp;
 
   static Future<String> getManifestUrl() async {
     final prefs = await SharedPreferences.getInstance();
@@ -96,7 +114,7 @@ class UpdateService {
     try {
       final response = await http.get(
         uri,
-        headers: {'User-Agent': 'KittyAdventure/$currentVersion'},
+        headers: {'User-Agent': 'ZonaPets/$currentVersion'},
       ).timeout(const Duration(seconds: 8));
 
       if (response.statusCode != 200) {
@@ -233,7 +251,7 @@ class UpdateService {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Kitty Adventure v$latestVersion is ready.'),
+              Text('Zona Pets v$latestVersion is ready.'),
               const SizedBox(height: 8),
               if (manifest['release_date'] != null)
                 Text('Release date: ${manifest['release_date']}'),

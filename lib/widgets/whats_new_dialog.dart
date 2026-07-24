@@ -59,7 +59,7 @@ class WhatsNewDialog extends StatelessWidget {
                       Icons.pets,
                       'NEW UI + CAT',
                       'Cleaner home screen\n'
-                          'Consistent gray kitty art\n'
+                          'Consistent cozy pet art\n'
                           'Tidier stats, badges, and action buttons',
                       const Color(0xFFFFD166),
                     ),
@@ -73,9 +73,9 @@ class WhatsNewDialog extends StatelessWidget {
                     ),
                     _buildNewFeature(
                       Icons.groups,
-                      'CAT MANAGER CENTER',
-                      'Adopt more cats\n'
-                          'Rename and switch cats\n'
+                      'PET MANAGER CENTER',
+                      'Adopt more pets\n'
+                          'Rename and switch pets\n'
                           'Edit personality, favorite food, toy, bio, mood, and stats',
                       const Color(0xFFFF80AB),
                     ),
@@ -88,13 +88,13 @@ class WhatsNewDialog extends StatelessWidget {
                     _buildNewFeature(
                       Icons.movie,
                       'GROUP PLAY',
-                      'Play now opens a cute cutscene when your cats play together',
+                      'Play now opens a cute cutscene when your pets play together',
                       const Color(0xFFFF996F),
                     ),
                     _buildNewFeature(
                       Icons.work,
-                      'CAT JOBS',
-                      'Send cats scouting, napping, toy testing, or coin hunting\n'
+                      'PET JOBS',
+                      'Send pets scouting, napping, toy testing, or coin hunting\n'
                           'Come back later to claim rewards',
                       const Color(0xFF8CCB87),
                     ),
@@ -113,7 +113,7 @@ class WhatsNewDialog extends StatelessWidget {
                     _buildNewFeature(
                       Icons.lock_open,
                       'SECRET CODES',
-                      'Redeem one-time codes in Kitty Hub for bonus rewards',
+                      'Redeem one-time codes in Pet Hub for bonus rewards',
                       const Color(0xFFFFD45E),
                     ),
                     _buildNewFeature(

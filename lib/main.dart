@@ -717,7 +717,7 @@ class BackupService {
               'pet': jsonDecode(petJson),
               'account': jsonDecode(accountJson),
               'exportDate': DateTime.now().toIso8601String(),
-              'version': '26.8.6',
+              'version': '26.8.7',
             };
             await exportFile.writeAsString(jsonEncode(exportData));
             return true;
@@ -2497,11 +2497,11 @@ class SettingsScreen extends StatelessWidget {
                             ),
                             const SizedBox(height: 8),
                             const Text(
-                              'Kitty Adventure',
+                              'Zona Pets',
                               style: TextStyle(color: Colors.white70),
                             ),
                             const Text(
-                              'Version 26.8.6',
+                              'Version 26.8.7',
                               style: TextStyle(color: Colors.white70),
                             ),
                             const Text(
@@ -2570,15 +2570,15 @@ class SettingsScreen extends StatelessWidget {
 
 // ==================== MAIN APP ====================
 
-class KittyAdventureApp extends StatelessWidget {
-  const KittyAdventureApp({super.key});
+class ZonaPetsApp extends StatelessWidget {
+  const ZonaPetsApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Consumer<app_game.GameProvider>(
       builder: (context, gameProvider, child) {
         return MaterialApp(
-          title: 'Kitty Adventure',
+          title: 'Zona Pets',
           debugShowCheckedModeBanner: false,
           themeMode:
               gameProvider.darkModeEnabled ? ThemeMode.dark : ThemeMode.light,
@@ -2633,7 +2633,7 @@ Widget _buildLoadingErrorWidget(FlutterErrorDetails details) {
             ),
             SizedBox(height: 6),
             Text(
-              'One sec while Kitty catches up.',
+              'One sec while Zona Pets catches up.',
               style: TextStyle(
                 color: Color(0xFFFFC98E),
                 fontSize: 14,
@@ -2685,7 +2685,7 @@ void main() async {
         ChangeNotifierProvider.value(value: accountProvider),
         Provider.value(value: notificationService),
       ],
-      child: const KittyAdventureApp(),
+      child: const ZonaPetsApp(),
     ),
   );
 }

@@ -22,15 +22,20 @@ SKIP_IOS="${SKIP_IOS:-0}"
 # arguments under `set -u`. Every build command skips that sentinel.
 FLUTTER_BUILD_ARGS=("")
 
-if [[ -n "${KITTY_UPDATE_MANIFEST_URL:-}" ]]; then
+UPDATE_MANIFEST_URL="${ZONA_UPDATE_MANIFEST_URL:-${KITTY_UPDATE_MANIFEST_URL:-}}"
+UPDATE_PUBLIC_IP="${ZONA_UPDATE_PUBLIC_IP:-${KITTY_UPDATE_PUBLIC_IP:-}}"
+
+if [[ -n "$UPDATE_MANIFEST_URL" ]]; then
   FLUTTER_BUILD_ARGS+=(
-    "--dart-define=KITTY_UPDATE_MANIFEST_URL=$KITTY_UPDATE_MANIFEST_URL"
+    "--dart-define=ZONA_UPDATE_MANIFEST_URL=$UPDATE_MANIFEST_URL"
+    "--dart-define=KITTY_UPDATE_MANIFEST_URL=$UPDATE_MANIFEST_URL"
   )
 fi
 
-if [[ -n "${KITTY_UPDATE_PUBLIC_IP:-}" ]]; then
+if [[ -n "$UPDATE_PUBLIC_IP" ]]; then
   FLUTTER_BUILD_ARGS+=(
-    "--dart-define=KITTY_UPDATE_PUBLIC_IP=$KITTY_UPDATE_PUBLIC_IP"
+    "--dart-define=ZONA_UPDATE_PUBLIC_IP=$UPDATE_PUBLIC_IP"
+    "--dart-define=KITTY_UPDATE_PUBLIC_IP=$UPDATE_PUBLIC_IP"
   )
 fi
 
@@ -110,7 +115,7 @@ build_macos() {
   rm -f "$dmg_output"
   cp -R "$app_bundle" "$app_output"
   hdiutil create \
-    -volname "Kitty Adventure" \
+    -volname "Zona Pets" \
     -srcfolder "$app_output" \
     -ov \
     -format UDZO \

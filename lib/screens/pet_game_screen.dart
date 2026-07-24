@@ -522,7 +522,7 @@ class _PetGameScreenState extends State<PetGameScreen>
   static final List<_ReleaseChecklistItem> _releaseChecklist = [
     _ReleaseChecklistItem(
       title: 'Version locked',
-      detail: 'Keep player-facing version text on v26.8.6 unless we bump it.',
+      detail: 'Keep player-facing version text on v26.8.7 unless we bump it.',
       icon: Icons.verified,
       color: Color(0xFF66C58D),
     ),
@@ -559,7 +559,7 @@ class _PetGameScreenState extends State<PetGameScreen>
       trigger: 'Tap the 3rd Anniversary banner.',
       actionLabel: '3RD',
       messages: [
-        '3 years in and Kitty still has not paid rent.',
+        '3 years in and your pet still has not paid rent.',
         'Anniversary mode: emotionally loud, financially suspicious.',
         'The cake is imaginary. The crumbs are legally real.',
       ],
@@ -571,7 +571,7 @@ class _PetGameScreenState extends State<PetGameScreen>
       actionLabel: 'MOOD',
       messages: [
         'Mood scan complete: 82% cute, 18% plotting snack logistics.',
-        'Kitty has entered tiny CEO mode. Meetings are cancelled.',
+        'Your pet has entered tiny CEO mode. Meetings are cancelled.',
         'Current vibe: professionally adorable with mild chaos.',
       ],
     ),
@@ -582,7 +582,7 @@ class _PetGameScreenState extends State<PetGameScreen>
       actionLabel: 'SUN',
       messages: [
         'The sun says: I am not a button, but I respect the curiosity.',
-        'Solar report: bright, round, deeply invested in Kitty lore.',
+        'Solar report: bright, round, deeply invested in Zona Pets lore.',
         'You tapped daylight. Daylight tapped back spiritually.',
       ],
     ),
@@ -604,7 +604,7 @@ class _PetGameScreenState extends State<PetGameScreen>
       actionLabel: 'COINS',
       messages: [
         'Financial report: coins are shiny, math is dramatic.',
-        'Kitty checked the budget and bought one imaginary yacht.',
+        'Your pet checked the budget and bought one imaginary yacht.',
         'Coin counter says: please stop staring, I am doing my best.',
       ],
     ),
@@ -647,7 +647,7 @@ class _PetGameScreenState extends State<PetGameScreen>
       trigger: 'Tap flowers or bushes.',
       actionLabel: 'FLOWER',
       messages: [
-        'Flower gossip says Kitty is the main character. No objections found.',
+        'Flower gossip says your pet is the main character. No objections found.',
         'Petal committee meeting result: more snacks, fewer responsibilities.',
         'The flowers practiced jazz paws. Botanically confusing, spiritually right.',
       ],
@@ -660,7 +660,7 @@ class _PetGameScreenState extends State<PetGameScreen>
       messages: [
         'Tree wisdom: hydrate, stretch, and never trust a silent treat jar.',
         'This tree has seen 3 years of drama and remains leaf-level calm.',
-        'Branch office memo: Kitty is promoted to Chief Nap Officer.',
+        'Branch office memo: your pet is promoted to Chief Nap Officer.',
       ],
     ),
     _EasterEggSpot(
@@ -1104,7 +1104,7 @@ class _PetGameScreenState extends State<PetGameScreen>
             ),
             const SizedBox(height: 12),
             Text(
-              'You came back today. Kitty has prepared a very official pile of rewards.',
+              'You came back today. Your pet prepared a very official pile of rewards.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: _primaryTextColor,
@@ -1505,7 +1505,7 @@ class _PetGameScreenState extends State<PetGameScreen>
       return _FriendshipScene(
         title: 'Forever Friends',
         message:
-            '${_pet?.name ?? 'Kitty'} brought out imaginary fireworks and declared you best humans.',
+            '${_pet?.name ?? 'Your pet'} brought out imaginary fireworks and declared you best humans.',
         icon: Icons.favorite,
         color: const Color(0xFFFF76B7),
       );
@@ -1514,7 +1514,7 @@ class _PetGameScreenState extends State<PetGameScreen>
       return _FriendshipScene(
         title: 'Secret Handshake',
         message:
-            '${_pet?.name ?? 'Kitty'} invented a handshake. It is mostly blinking and one dramatic paw.',
+            '${_pet?.name ?? 'Your pet'} invented a handshake. It is mostly blinking and one dramatic paw.',
         icon: Icons.front_hand,
         color: const Color(0xFFFFB84D),
       );
@@ -1523,7 +1523,7 @@ class _PetGameScreenState extends State<PetGameScreen>
       return _FriendshipScene(
         title: 'Bestie Moment',
         message:
-            '${_pet?.name ?? 'Kitty'} saved you a seat in the very official snack club.',
+            '${_pet?.name ?? 'Your pet'} saved you a seat in the very official snack club.',
         icon: Icons.groups,
         color: const Color(0xFF66C58D),
       );
@@ -1532,7 +1532,7 @@ class _PetGameScreenState extends State<PetGameScreen>
       return _FriendshipScene(
         title: 'First Trust Scene',
         message:
-            '${_pet?.name ?? 'Kitty'} leaned in close and trusted you with a tiny dramatic secret.',
+            '${_pet?.name ?? 'Your pet'} leaned in close and trusted you with a tiny dramatic secret.',
         icon: Icons.auto_awesome,
         color: const Color(0xFF8EA7FF),
       );
@@ -1924,7 +1924,7 @@ class _PetGameScreenState extends State<PetGameScreen>
     return Padding(
       padding: const EdgeInsets.only(right: 8),
       child: Tooltip(
-        message: 'Download Kitty Adventure',
+        message: 'Download Zona Pets',
         child: InkWell(
           borderRadius: BorderRadius.circular(18),
           onTap: _openDownloads,
@@ -4687,7 +4687,7 @@ class _PetGameScreenState extends State<PetGameScreen>
                         'Check for Updates',
                       ),
                       subtitle: Text(
-                        'Kitty Adventure v${UpdateService.currentVersion}',
+                        'Zona Pets v${UpdateService.currentVersion}',
                       ),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () async {
@@ -4823,7 +4823,7 @@ class _PetGameScreenState extends State<PetGameScreen>
                   const Padding(
                     padding: EdgeInsets.fromLTRB(20, 18, 20, 8),
                     child: Text(
-                      'Kitty Hub',
+                      'Pet Hub',
                       textAlign: TextAlign.center,
                       style:
                           TextStyle(fontSize: 22, fontWeight: FontWeight.bold),

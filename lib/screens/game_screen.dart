@@ -15,13 +15,13 @@ import '../widgets/notification_bell.dart';
 // Pet care game changelog
 final List<Map<String, String>> _petCareChangelog = [
   {
-    'version': 'v26.8.6 - Kitty Hub Update',
+    'version': 'v26.8.7 - Pet Hub Update',
     'features': '''
-🐾 CAT MANAGER CENTER: Adopt, rename, switch, manage profiles, and play together
-🧰 CAT JOBS: Send cats out for timed rewards
+🐾 PET MANAGER CENTER: Adopt, rename, switch, manage profiles, and play together
+🧰 PET JOBS: Send pets out for timed rewards
 🏠 ROOM EFFECTS: Equipped rooms boost matching actions
 👗 OUTFIT SETS: Matching outfits unlock bonus boosts
-🔐 SECRET CODES: One-time reward codes in Kitty Hub
+🔐 SECRET CODES: One-time reward codes in Pet Hub
 📖 EASTER EGG JOURNAL: Found secrets are tracked
 🎉 3RD ANNIVERSARY: Corner banner and hidden jokes
 📊 DETAILED STATS: Health, sleep, level, bond, social, IQ, and more

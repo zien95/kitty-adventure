@@ -135,7 +135,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'You have Kitty Adventure v${UpdateService.currentVersion}.',
+                          'You have Zona Pets v${UpdateService.currentVersion}.',
                           style: TextStyle(color: subTextColor, fontSize: 13),
                         ),
                         const SizedBox(height: 6),
@@ -187,7 +187,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '🎮 Kitty Adventure v${UpdateService.currentVersion}',
+                          '🎮 Zona Pets v${UpdateService.currentVersion}',
                           style: TextStyle(
                             color: textColor,
                             fontSize: 18,

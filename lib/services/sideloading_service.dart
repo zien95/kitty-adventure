@@ -6,14 +6,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class SideloadingService {
   static const String _serverUrl = 'https://your-server.com/api';
-  static const String _currentVersion = '26.8.6';
+  static const String _currentVersion = '26.8.7';
 
   // Check for updates
   static Future<bool> checkForUpdates(BuildContext context) async {
     try {
       final response = await http.get(
         Uri.parse('$_serverUrl/version.json'),
-        headers: {'User-Agent': 'KittyAdventure/$_currentVersion'},
+        headers: {'User-Agent': 'ZonaPets/$_currentVersion'},
       ).timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
@@ -137,9 +137,9 @@ class SideloadingService {
       final deviceId = await _getDeviceId();
 
       final analyticsData = {
-        'app_name': 'KittyAdventure',
+        'app_name': 'ZonaPets',
         'version': _currentVersion,
-        'build': '26.8.6',
+        'build': '26.8.7',
         'platform': Platform.operatingSystem,
         'device_id': deviceId,
         'install_source': await getInstallationSource(),

@@ -22,6 +22,8 @@ Replace the placeholder files with actual PNG images:
 - **pet_bird_cute_4k.png** (4096x4096px) - Cute bird companion portrait
 
 ### Icon Images (48x48px)
+- **zona_pets_app_icon.png** (1024x1024px) - Master Zona Pets pet-family app logo
+- **kitty_app_icon.png** (1024x1024px) - Compatibility copy of the current app logo
 - **coin_icon.png** - Gold coin, circular, shiny
 - **heart_icon.png** - Red heart, cartoonish, filled
 - **food_icon.png** - Meat/fish/pet food, colorful

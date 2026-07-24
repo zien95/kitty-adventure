@@ -15,7 +15,7 @@ import '../widgets/notification_bell.dart';
 // Pet care game changelog
 final List<Map<String, String>> _petCareChangelog = [
   {
-    'version': 'v26.8.7 - Pet Hub Update',
+    'version': 'v26.8.8 - Logo Patch',
     'features': '''
 🐾 PET MANAGER CENTER: Adopt, rename, switch, manage profiles, and play together
 🧰 PET JOBS: Send pets out for timed rewards

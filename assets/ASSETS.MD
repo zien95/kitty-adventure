@@ -22,6 +22,7 @@ These are the files and folders expected inside `assets/`.
 - `assets/images/pet_fox_cute_4k.png`
 - `assets/images/pet_panda_cute_4k.png`
 - `assets/images/pet_bird_cute_4k.png`
+- `assets/images/zona_pets_app_icon.png`
 - `assets/images/kitty_pet_happy.png`
 - `assets/images/kitty_pet_excited.png`
 - `assets/images/kitty_pet_sleepy.png`

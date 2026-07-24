@@ -24,12 +24,11 @@ Zona Pets is a virtual pet game where you adopt cute animals, care for them, pla
 
 ## Latest
 
-Version `26.8.7` is the great rebranding release:
+Version `26.8.8` is the logo patch release:
 
-- Renamed the game from Kitty Adventure to Zona Pets.
-- Updated web metadata, app titles, native display names, docs, and download pages.
-- Switched player-facing hub language from cat-only to pet-family wording.
-- Kept the existing website and GitHub repo URLs working for continuity.
+- Added the new Zona Pets pet-family logo.
+- Updated favicon, web app icons, Android launcher icons, iOS icons, and macOS icons.
+- Kept the rebrand name, docs, manifests, and download page aligned.
 - Bug fixes.
 
 ## How To Play

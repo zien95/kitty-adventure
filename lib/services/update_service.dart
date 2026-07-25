@@ -84,101 +84,80 @@ class UpdateService {
     BuildContext context, {
     bool showNoUpdateSnack = false,
   }) async {
-    final manifestUrl = await getManifestUrl();
+    final prefs = await SharedPreferences.getInstance();
+    final savedManifestUrl = prefs.getString(_manifestUrlKey)?.trim();
+    final manifestUrls = _manifestUrlCandidates(savedManifestUrl);
+    UpdateCheckResult? lastFailure;
 
-    if (manifestUrl.trim().isEmpty) {
-      final result = const UpdateCheckResult(
-        checked: false,
-        updateAvailable: false,
-        message: 'Add an update manifest URL in Settings first.',
-      );
-      if (showNoUpdateSnack && context.mounted) {
-        _showSnack(context, result.message);
+    for (final manifestUrl in manifestUrls) {
+      final uri = Uri.tryParse(manifestUrl);
+      if (uri == null || !uri.hasScheme) {
+        lastFailure = const UpdateCheckResult(
+          checked: false,
+          updateAvailable: false,
+          message: 'Update URL needs to start with http:// or https://.',
+        );
+        continue;
       }
-      return result;
-    }
 
-    final uri = Uri.tryParse(manifestUrl.trim());
-    if (uri == null || !uri.hasScheme) {
-      final result = const UpdateCheckResult(
-        checked: false,
-        updateAvailable: false,
-        message: 'Update URL needs to start with http:// or https://.',
-      );
-      if (showNoUpdateSnack && context.mounted) {
-        _showSnack(context, result.message);
-      }
-      return result;
-    }
+      try {
+        final decoded = await _loadManifest(uri);
 
-    try {
-      final response = await http.get(
-        uri,
-        headers: {'User-Agent': 'ZonaPets/$currentVersion'},
-      ).timeout(const Duration(seconds: 8));
+        if (_shouldClearSavedManifestUrl(savedManifestUrl, manifestUrl)) {
+          await prefs.remove(_manifestUrlKey);
+        }
 
-      if (response.statusCode != 200) {
+        final latestVersion = decoded['version']?.toString() ?? currentVersion;
+        final available = isVersionNewer(latestVersion, currentVersion);
+
+        if (available) {
+          if (context.mounted) {
+            await _showUpdateDialog(context, decoded);
+          }
+
+          return UpdateCheckResult(
+            checked: true,
+            updateAvailable: true,
+            message: 'Update $latestVersion is available.',
+            manifest: decoded,
+          );
+        }
+
         final result = UpdateCheckResult(
-          checked: false,
-          updateAvailable: false,
-          message: 'Update server replied ${response.statusCode}.',
-        );
-        if (showNoUpdateSnack && context.mounted) {
-          _showSnack(context, result.message);
-        }
-        return result;
-      }
-
-      final decoded = jsonDecode(response.body);
-      if (decoded is! Map<String, dynamic>) {
-        const result = UpdateCheckResult(
-          checked: false,
-          updateAvailable: false,
-          message: 'Update manifest is not a JSON object.',
-        );
-        if (showNoUpdateSnack && context.mounted) {
-          _showSnack(context, result.message);
-        }
-        return result;
-      }
-
-      final latestVersion = decoded['version']?.toString() ?? currentVersion;
-      final available = isVersionNewer(latestVersion, currentVersion);
-
-      if (available) {
-        if (context.mounted) {
-          await _showUpdateDialog(context, decoded);
-        }
-
-        return UpdateCheckResult(
           checked: true,
-          updateAvailable: true,
-          message: 'Update $latestVersion is available.',
+          updateAvailable: false,
+          message: 'You are up to date on v$currentVersion.',
           manifest: decoded,
         );
+        if (showNoUpdateSnack && context.mounted) {
+          _showSnack(context, result.message);
+        }
+        return result;
+      } on _UpdateManifestException catch (error) {
+        lastFailure = UpdateCheckResult(
+          checked: false,
+          updateAvailable: false,
+          message: error.message,
+        );
+      } catch (error) {
+        lastFailure = const UpdateCheckResult(
+          checked: false,
+          updateAvailable: false,
+          message: 'Update server is not reachable right now.',
+        );
       }
-
-      final result = UpdateCheckResult(
-        checked: true,
-        updateAvailable: false,
-        message: 'You are up to date on v$currentVersion.',
-        manifest: decoded,
-      );
-      if (showNoUpdateSnack && context.mounted) {
-        _showSnack(context, result.message);
-      }
-      return result;
-    } catch (error) {
-      final result = UpdateCheckResult(
-        checked: false,
-        updateAvailable: false,
-        message: 'Update server is not reachable right now.',
-      );
-      if (showNoUpdateSnack && context.mounted) {
-        _showSnack(context, result.message);
-      }
-      return result;
     }
+
+    final result = lastFailure ??
+        const UpdateCheckResult(
+          checked: false,
+          updateAvailable: false,
+          message: 'Add an update manifest URL in Settings first.',
+        );
+    if (showNoUpdateSnack && context.mounted) {
+      _showSnack(context, result.message);
+    }
+    return result;
   }
 
   static bool isVersionNewer(String latest, String current) {
@@ -213,6 +192,55 @@ class UpdateService {
       final match = RegExp(r'\d+').firstMatch(part);
       return int.tryParse(match?.group(0) ?? '0') ?? 0;
     }).toList();
+  }
+
+  static List<String> _manifestUrlCandidates(String? savedManifestUrl) {
+    final candidates = <String>[];
+    final saved = savedManifestUrl?.trim();
+    final builtIn = _builtInManifestUrl.trim();
+
+    if (saved != null && saved.isNotEmpty) {
+      candidates.add(saved);
+    }
+
+    if (builtIn.isNotEmpty && !candidates.contains(builtIn)) {
+      candidates.add(builtIn);
+    }
+
+    return candidates;
+  }
+
+  static bool _shouldClearSavedManifestUrl(
+    String? savedManifestUrl,
+    String workingManifestUrl,
+  ) {
+    final saved = savedManifestUrl?.trim();
+    if (saved == null || saved.isEmpty) return false;
+
+    final builtIn = _builtInManifestUrl.trim();
+    return workingManifestUrl == builtIn && saved != builtIn;
+  }
+
+  static Future<Map<String, dynamic>> _loadManifest(Uri uri) async {
+    final response = await http.get(
+      uri,
+      headers: {'User-Agent': 'ZonaPets/$currentVersion'},
+    ).timeout(const Duration(seconds: 8));
+
+    if (response.statusCode != 200) {
+      throw _UpdateManifestException(
+        'Update server replied ${response.statusCode}.',
+      );
+    }
+
+    final decoded = jsonDecode(response.body);
+    if (decoded is! Map<String, dynamic>) {
+      throw const _UpdateManifestException(
+        'Update manifest is not a JSON object.',
+      );
+    }
+
+    return decoded;
   }
 
   static Future<void> _showUpdateDialog(
@@ -360,4 +388,10 @@ class UpdateService {
       SnackBar(content: Text(message)),
     );
   }
+}
+
+class _UpdateManifestException implements Exception {
+  final String message;
+
+  const _UpdateManifestException(this.message);
 }

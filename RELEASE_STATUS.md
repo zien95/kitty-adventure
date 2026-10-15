@@ -7,17 +7,19 @@ release source is committed separately from preserved unrelated local changes.
 
 - Rebrand and planned web address: https://pet-fiasco.web.app.
 - Firebase email/password accounts and owner-only Firestore cloud saves.
-- Pet days, age, evolution, care journal, more frequent sounds, and three new sound themes.
+- Pet days, age, evolution, care journal, more frequent sounds, three sound
+  themes, and licensed real animal calls with in-game creator/license credits.
 - Anniversary banner and gift code removed; adoption birthdays remain separate.
 - Hub → Egg Nest: choose a species, wait through a saved two-minute countdown,
   then hatch and adopt a new pet. Restart persistence and duplicate-hatch protection verified.
 - First-run ten-step tutorial, completion persistence, and Settings → How to Play replay verified.
-- Flutter tests: **39 passed** (`build/qa/flutter-test-final.log`).
+- Flutter tests: **43 passed** on the real-audio refresh.
 - Live Firebase registration, sign-in, save/restore, anonymous denial, and cross-account
   denial passed. Disposable test accounts and saves removed (`build/qa/firebase-final.log`).
 - Static analysis: no errors; two redundant-null-assertion warnings and style notices remain.
 - APK signature, IPA ZIP integrity, web ZIP integrity, and DMG checksums verified.
-- GitHub release published with checksum-verified APK, Sideloadly IPA, and web ZIP.
+- GitHub release published with checksum-verified APK, Sideloadly IPA, and web
+  ZIP; all three were refreshed from commit `82ca60aa16e633204c4623c495ed08e3ec6fa40a`.
 - Both Firebase sites deployed and their public manifests verified byte-for-byte.
 
 ## Local packages
@@ -29,6 +31,12 @@ In `build/releases/v26.9.1/`:
 - `pet-fiasco-web-v26.9.1.zip` — includes the repaired Xenix download helper.
 - `pet-fiasco-macos-v26.9.1-LOCAL-PREVIEW.dmg` — Intel and Apple Silicon;
   development-signed, **not a public distribution build**.
+
+Current public SHA-256 checksums:
+
+- APK: `6eb8c9b823d9914b996f3803799fb141f61f304c18ab412a948b5f03d7ab903d`
+- Sideloadly IPA: `479bbf6e86fb7156e1aa1a25f24751750a0830384a034295569e9bb435f82835`
+- Web ZIP: `090c0d0d0cd9705608bc281bd93da9352ec10684675b71d21bf9e6bb988e758c`
 
 ## Remaining macOS publication blocker
 

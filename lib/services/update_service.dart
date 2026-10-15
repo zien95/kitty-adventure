@@ -21,13 +21,13 @@ class UpdateCheckResult {
 }
 
 class UpdateService {
-  static const String currentVersion = '26.8.8';
+  static const String currentVersion = '26.9.1';
   static const String _manifestUrlKey = 'kitty_update_manifest_url';
   static const String _lastSeenVersionKey = 'kitty_update_last_seen_version';
   static const String _pendingUpdateKey = 'kitty_pending_update';
 
   static const String _defaultManifestUrl =
-      'https://kitty-adventure-zona.web.app/latest.json';
+      'https://pet-fiasco.web.app/latest.json';
   static const String _zonaBuiltInManifestUrl = String.fromEnvironment(
     'ZONA_UPDATE_MANIFEST_URL',
     defaultValue: '',
@@ -279,7 +279,7 @@ class UpdateService {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Zona Pets v$latestVersion is ready.'),
+              Text('Pet Fiasco v$latestVersion is ready.'),
               const SizedBox(height: 8),
               if (manifest['release_date'] != null)
                 Text('Release date: ${manifest['release_date']}'),

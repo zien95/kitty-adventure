@@ -58,7 +58,7 @@ class _RacingGameScreenState extends State<RacingGameScreen> {
       _progress = 0.0;
       _opponentProgress = 0.0;
       _tapCount = 0;
-      _opponentSpeed = 1.0 + (_level * 0.2);
+      _opponentSpeed = (0.78 + (_level * 0.08)).clamp(0.86, 1.56);
     });
     _requestRaceFocus();
     _raceLoop();
@@ -129,7 +129,7 @@ class _RacingGameScreenState extends State<RacingGameScreen> {
     if (!_isRacing || _raceFinished) return;
 
     setState(() {
-      _progress += 2.0;
+      _progress += _spaceHeld ? 2.85 : 2.35;
       _tapCount++;
       _petPosition = 50.0 + (_tapCount % 4) * 10 - 15; // Bobbing effect
 

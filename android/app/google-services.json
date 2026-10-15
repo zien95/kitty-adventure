@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "546956544991",
+    "project_id": "kitty-adventure-zona",
+    "storage_bucket": "kitty-adventure-zona.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:546956544991:android:0fd16b55ca9f816716926a",
+        "android_client_info": {
+          "package_name": "com.example.trying_to_restore_pup"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD9WCl3gTs3RhWfQr1nyDrP3gzwyFozynQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

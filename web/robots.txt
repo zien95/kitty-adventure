@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://kitty-adventure-zona.web.app/sitemap.xml
+Sitemap: https://pet-fiasco.web.app/sitemap.xml

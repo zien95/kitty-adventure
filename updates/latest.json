@@ -1,19 +1,28 @@
 {
-  "app": "Zona Pets",
-  "version": "26.8.8",
-  "title": "Zona Pets v26.8.8",
+  "app": "Pet Fiasco",
+  "version": "26.9.1",
+  "build": 26901,
+  "title": "Pet Fiasco v26.9.1 — Your Pets, Everywhere",
   "required": false,
-  "release_date": "2026-07-24",
-  "size": "See download",
+  "release_date": "2026-10-15",
+  "size": "Android APK, Sideloadly IPA, macOS DMG, and web ZIP",
   "changelog": [
-    "Added the new Zona Pets pet-family logo",
-    "Updated favicon, web app icons, Android launcher icons, iOS icons, and macOS icons",
-    "Kept the rebrand name, docs, manifests, and download page aligned",
-    "Bug fixes"
+    "Hatch new pets from eggs with saved incubation timers",
+    "Removed anniversary content and refreshed hidden secrets",
+    "Pet Fiasco rebrand and new pet-fiasco.web.app home",
+    "Firebase accounts and private cloud saves across devices",
+    "Pet day counters, age, and age-or-level evolution",
+    "57 new Cute, Cozy, and Arcade sound effects",
+    "More care, pet, reward, and navigation feedback",
+    "Separate effects/music volume and mood-based background music",
+    "Daily care checklist, combo rewards, and pet birthdays",
+    "New pet reactions and improved first-run tutorial",
+    "Pet Parade, Animal Almanac, habitat boosts, and racing improvements"
   ],
-  "download_url": "https://github.com/zien95/kitty-adventure/releases/download/v26.8.8/zona-pets-web-v26.8.8.zip",
-  "web_url": "https://kitty-adventure-zona.web.app/",
-  "apk_url": "https://github.com/zien95/kitty-adventure/releases/download/v26.8.8/zona-pets-v26.8.8.apk",
-  "ipa_url": "https://github.com/zien95/kitty-adventure/releases/download/v26.8.8/zona-pets-Sideloadly-v26.8.8.ipa",
-  "macos_url": "https://github.com/zien95/kitty-adventure/releases/download/v26.8.8/zona-pets-macos-v26.8.8.dmg"
+  "download_url": "https://pet-fiasco.web.app/files/",
+  "web_url": "https://pet-fiasco.web.app/",
+  "apk_url": "https://github.com/zien95/kitty-adventure/releases/download/v26.9.1/pet-fiasco-v26.9.1.apk",
+  "ipa_url": "https://github.com/zien95/kitty-adventure/releases/download/v26.9.1/pet-fiasco-Sideloadly-v26.9.1.ipa",
+  "macos_url": "https://github.com/zien95/kitty-adventure/releases/download/v26.9.1/pet-fiasco-macos-v26.9.1.dmg",
+  "web_zip_url": "https://github.com/zien95/kitty-adventure/releases/download/v26.9.1/pet-fiasco-web-v26.9.1.zip"
 }

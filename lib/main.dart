@@ -15,6 +15,10 @@ import 'providers/account_provider.dart' as app_account;
 import 'providers/game_provider.dart' as app_game;
 import 'services/notification_service.dart' as app_notifications;
 import 'widgets/app_wrapper.dart';
+import 'services/update_service.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'services/cloud_save_service.dart';
 
 // ==================== CONSTANTS ====================
 
@@ -717,7 +721,7 @@ class BackupService {
               'pet': jsonDecode(petJson),
               'account': jsonDecode(accountJson),
               'exportDate': DateTime.now().toIso8601String(),
-              'version': '26.8.8',
+              'version': UpdateService.currentVersion,
             };
             await exportFile.writeAsString(jsonEncode(exportData));
             return true;
@@ -2497,11 +2501,11 @@ class SettingsScreen extends StatelessWidget {
                             ),
                             const SizedBox(height: 8),
                             const Text(
-                              'Zona Pets',
+                              'Pet Fiasco',
                               style: TextStyle(color: Colors.white70),
                             ),
                             const Text(
-                              'Version 26.8.8',
+                              'Version ${UpdateService.currentVersion}',
                               style: TextStyle(color: Colors.white70),
                             ),
                             const Text(
@@ -2578,7 +2582,7 @@ class ZonaPetsApp extends StatelessWidget {
     return Consumer<app_game.GameProvider>(
       builder: (context, gameProvider, child) {
         return MaterialApp(
-          title: 'Zona Pets',
+          title: 'Pet Fiasco',
           debugShowCheckedModeBanner: false,
           themeMode:
               gameProvider.darkModeEnabled ? ThemeMode.dark : ThemeMode.light,
@@ -2633,7 +2637,7 @@ Widget _buildLoadingErrorWidget(FlutterErrorDetails details) {
             ),
             SizedBox(height: 6),
             Text(
-              'One sec while Zona Pets catches up.',
+              'One sec while Pet Fiasco catches up.',
               style: TextStyle(
                 color: Color(0xFFFFC98E),
                 fontSize: 14,
@@ -2650,6 +2654,15 @@ Widget _buildLoadingErrorWidget(FlutterErrorDetails details) {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   ErrorWidget.builder = _buildLoadingErrorWidget;
+
+  try {
+    await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform);
+    await CloudSaveService.instance.initialize();
+  } catch (error) {
+    // Local play remains available if cloud initialization is unavailable.
+    debugPrint('Firebase initialization failed: $error');
+  }
 
   // Request permissions for storage (optional, don't block startup)
   try {

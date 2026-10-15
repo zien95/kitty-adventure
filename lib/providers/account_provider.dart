@@ -1,4 +1,7 @@
 import 'dart:convert';
+import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/account.dart';
@@ -7,6 +10,9 @@ class AccountProvider extends ChangeNotifier {
   Account? _account;
   bool _isLoggedIn = false;
   bool _isLoading = false;
+  StreamSubscription<User?>? _authSubscription;
+  int _authRevision = 0;
+  bool _disposed = false;
 
   Account? get account {
     if (_account != null && !_account!.isPremium) {
@@ -20,26 +26,50 @@ class AccountProvider extends ChangeNotifier {
   bool get isPremium => true;
 
   AccountProvider() {
-    _loadAccount();
+    if (Firebase.apps.isNotEmpty) {
+      _isLoading = true;
+      _authSubscription = FirebaseAuth.instance.authStateChanges().listen(
+            (user) => unawaited(_applyAuthUser(user)),
+          );
+    }
   }
 
-  Future<void> _loadAccount() async {
+  Future<void> _applyAuthUser(User? user) async {
+    final revision = ++_authRevision;
+    _account = null;
+    _isLoggedIn = false;
     _isLoading = true;
     notifyListeners();
-
-    final prefs = await SharedPreferences.getInstance();
-    final accountJson = prefs.getString('user_account');
-
-    if (accountJson != null) {
-      _account = Account.fromJson(json.decode(accountJson));
-      _account!.isPremium = true;
+    try {
+      if (user == null) return;
+      final prefs = await SharedPreferences.getInstance();
+      Account? previous;
+      try {
+        final saved = prefs.getString('user_account');
+        if (saved != null) previous = Account.fromJson(jsonDecode(saved));
+      } catch (_) {/* A legacy local profile is never authentication. */}
+      if (_disposed || revision != _authRevision) return;
+      final sameOwner = previous != null && previous.email == user.email;
+      _account = Account.fromJson({
+        if (sameOwner) ...previous!.toJson(),
+        'id': user.uid,
+        'username': user.displayName ??
+            (sameOwner
+                ? previous!.username
+                : user.email?.split('@').first ?? 'Pet Friend'),
+        'email': user.email ?? '',
+        'createdAt':
+            (user.metadata.creationTime ?? DateTime.now()).toIso8601String(),
+        'isPremium': true,
+      });
       _isLoggedIn = true;
-
-      await _syncPremiumStatus();
+      await _saveAccount();
+    } finally {
+      if (!_disposed && revision == _authRevision) {
+        _isLoading = false;
+        notifyListeners();
+      }
     }
-
-    _isLoading = false;
-    notifyListeners();
   }
 
   Future<void> _syncPremiumStatus() async {
@@ -49,27 +79,9 @@ class AccountProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> login(String username, String email) async {
-    _isLoading = true;
-    notifyListeners();
-
-    final newAccount = Account(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      username: username,
-      email: email,
-      createdAt: DateTime.now(),
-      isPremium: true,
-    );
-
-    _account = newAccount;
-    _isLoggedIn = true;
-
-    await _saveAccount();
-
-    await _syncPremiumStatus();
-
-    _isLoading = false;
-    notifyListeners();
+  Future<void> login(String email, String password) async {
+    await FirebaseAuth.instance
+        .signInWithEmailAndPassword(email: email.trim(), password: password);
   }
 
   Future<void> _saveAccount() async {
@@ -81,6 +93,7 @@ class AccountProvider extends ChangeNotifier {
   }
 
   Future<void> logout() async {
+    if (Firebase.apps.isNotEmpty) await FirebaseAuth.instance.signOut();
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('user_account');
 
@@ -131,5 +144,13 @@ class AccountProvider extends ChangeNotifier {
 
   Future<Map<String, dynamic>?> getLastPaymentDetails() async {
     return {'source': 'free', 'status': 'unlocked', 'amount': 0};
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    _authRevision++;
+    _authSubscription?.cancel();
+    super.dispose();
   }
 }

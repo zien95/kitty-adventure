@@ -35,7 +35,8 @@ class WhatsNewDialog extends StatelessWidget {
                 children: [
                   Icon(Icons.celebration, color: Colors.white),
                   SizedBox(width: 8),
-                  Text(
+                  Flexible(
+                      child: Text(
                     'WHAT\'S NEW v${UpdateService.currentVersion}',
                     style: TextStyle(
                       color: Colors.white,
@@ -43,7 +44,7 @@ class WhatsNewDialog extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                     textAlign: TextAlign.center,
-                  ),
+                  )),
                 ],
               ),
             ),
@@ -56,79 +57,82 @@ class WhatsNewDialog extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildNewFeature(
+                      Icons.egg_outlined,
+                      'HATCH A NEW FRIEND',
+                      'Choose an egg in Hub → Egg Nest. A clear two-minute timer keeps going while you are away. Hatch it into a new pet for your family.',
+                      const Color(0xFFFFA33C),
+                    ),
+                    _buildNewFeature(
                       Icons.pets,
-                      'NEW UI + CAT',
-                      'Cleaner home screen\n'
-                          'Consistent cozy pet art\n'
-                          'Tidier stats, badges, and action buttons',
-                      const Color(0xFFFFD166),
+                      'WELCOME TO PET FIASCO',
+                      'New name, new home: pet-fiasco.web.app. Your existing pet family stays with you.',
+                      const Color(0xFF66C58D),
                     ),
                     _buildNewFeature(
-                      Icons.build_circle,
-                      'BUG FIXES',
-                      'Fixed layout overflow issues\n'
-                          'Fixed pet action buttons\n'
-                          'Bug fixes and app polish',
-                      const Color(0xFF70E1F5),
+                      Icons.cloud_sync,
+                      'ACCOUNTS & CLOUD SAVES',
+                      'Sign in with email from Settings → Account & Cloud Save. Choose device or cloud progress and save your family across devices.',
+                      const Color(0xFF5AA9E6),
                     ),
                     _buildNewFeature(
-                      Icons.groups,
-                      'PET MANAGER CENTER',
-                      'Adopt more pets\n'
-                          'Rename and switch pets\n'
-                          'Edit personality, favorite food, toy, bio, mood, and stats',
-                      const Color(0xFFFF80AB),
+                      Icons.auto_awesome,
+                      'DAYS, AGE & EVOLUTION',
+                      'See your pet’s day and age. Tap the growth strip to follow Baby, Child, Teen, Adult, and Elder stages. Grow through time or levels.',
+                      const Color(0xFFFFA33C),
                     ),
                     _buildNewFeature(
-                      Icons.dark_mode,
-                      'LIGHT & DARK MODE',
-                      'Switch the whole game between bright daytime and cozy nighttime',
-                      const Color(0xFF9A8CFF),
-                    ),
-                    _buildNewFeature(
-                      Icons.movie,
-                      'GROUP PLAY',
-                      'Play now opens a cute cutscene when your pets play together',
-                      const Color(0xFFFF996F),
-                    ),
-                    _buildNewFeature(
-                      Icons.work,
-                      'PET JOBS',
-                      'Send pets scouting, napping, toy testing, or coin hunting\n'
-                          'Come back later to claim rewards',
-                      const Color(0xFF8CCB87),
-                    ),
-                    _buildNewFeature(
-                      Icons.home,
-                      'ROOM EFFECTS',
-                      'Rooms now boost matching actions like sleep, play, train, food, and bond',
-                      const Color(0xFF8CD7FF),
-                    ),
-                    _buildNewFeature(
-                      Icons.checkroom,
-                      'OUTFIT SETS',
-                      'Collect matching outfit pieces and activate set bonuses',
-                      const Color(0xFFD77BFF),
-                    ),
-                    _buildNewFeature(
-                      Icons.lock_open,
-                      'SECRET CODES',
-                      'Redeem one-time codes in Pet Hub for bonus rewards',
-                      const Color(0xFFFFD45E),
-                    ),
-                    _buildNewFeature(
-                      Icons.celebration,
-                      '3RD ANNIVERSARY',
-                      'New corner banner\n'
-                          'Easter Egg Journal with found-secret tracking\n'
-                          'Tap, double-tap, and long-press around to see what answers back',
+                      Icons.music_note,
+                      'HAPPY PAWS & SOUND',
+                      'Hear care actions, pet voices, rewards, and taps. Choose Cute, Cozy, or Arcade sounds with separate effects and music volume.',
                       const Color(0xFFFF76B7),
                     ),
                     _buildNewFeature(
-                      Icons.query_stats,
-                      'MORE PET INFO',
-                      'Health, hunger, happy, energy, clean, IQ, social, bond, sleep, and level stay visible',
-                      const Color(0xFF66D0C4),
+                      Icons.checklist,
+                      'CARE JOURNAL & COMBOS',
+                      'Track daily care for each pet and earn rewards for varied care. Open the Journal tab in Pet Hub.',
+                      const Color(0xFF66C58D),
+                    ),
+                    _buildNewFeature(
+                      Icons.cake,
+                      'BIRTHDAYS & REACTIONS',
+                      'Celebrate pet birthdays, see new care reactions, and let background music follow your pet\'s mood.',
+                      const Color(0xFFFFA33C),
+                    ),
+                    _buildNewFeature(
+                      Icons.celebration,
+                      'PET PARADE',
+                      'Open Pet Hub and start a moving parade with every pet in your family.',
+                      const Color(0xFF66C58D),
+                    ),
+                    _buildNewFeature(
+                      Icons.menu_book,
+                      'ANIMAL ALMANAC',
+                      'Every species now has a habitat entry, adoption status, and a matching care boost.',
+                      const Color(0xFFFF76B7),
+                    ),
+                    _buildNewFeature(
+                      Icons.home_work,
+                      'HABITAT BOOSTS',
+                      'Cats, dogs, bunnies, foxes, pandas, and birds each get bonus power from their favorite care action.',
+                      const Color(0xFFFFA33C),
+                    ),
+                    _buildNewFeature(
+                      Icons.local_fire_department,
+                      'DAILY STREAK CARD',
+                      'The Hub now shows your streak day and tomorrow\'s care reward.',
+                      const Color(0xFF5AA9E6),
+                    ),
+                    _buildNewFeature(
+                      Icons.graphic_eq,
+                      'SOUND PACKS',
+                      'Settings now has Classic, Soft, Arcade, and Quiet sound packs.',
+                      const Color(0xFFFF76B7),
+                    ),
+                    _buildNewFeature(
+                      Icons.bug_report,
+                      'BUG FIXES',
+                      'Race difficulty is fairer, save feedback is clearer, and pet labels now match the animal you picked.',
+                      const Color(0xFF8A68D6),
                     ),
                   ],
                 ),
@@ -155,7 +159,7 @@ class WhatsNewDialog extends StatelessWidget {
                       SizedBox(width: 6),
                       Flexible(
                         child: Text(
-                          'Version ${UpdateService.currentVersion}: New UI, cat updates, and bug fixes',
+                          'Version ${UpdateService.currentVersion}: More sounds, daily care, birthdays, and happier paws',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 16,

@@ -3,10 +3,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'update_service.dart';
 
 class SideloadingService {
   static const String _serverUrl = 'https://your-server.com/api';
-  static const String _currentVersion = '26.8.8';
+  static const String _currentVersion = UpdateService.currentVersion;
 
   // Check for updates
   static Future<bool> checkForUpdates(BuildContext context) async {
@@ -139,7 +140,7 @@ class SideloadingService {
       final analyticsData = {
         'app_name': 'ZonaPets',
         'version': _currentVersion,
-        'build': '26.8.8',
+        'build': '26901',
         'platform': Platform.operatingSystem,
         'device_id': deviceId,
         'install_source': await getInstallationSource(),

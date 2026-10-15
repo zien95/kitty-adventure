@@ -119,6 +119,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ],
                     ),
                   ),
+                  const SizedBox(height: 12),
+                  _settingsCard(
+                    cardColor: cardColor,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.vibration, color: subTextColor),
+                            const SizedBox(width: 12),
+                            Text(
+                              'Vibration',
+                              style: TextStyle(
+                                color: textColor,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Switch(
+                          value: gameProvider.vibrationEnabled,
+                          onChanged: (_) => gameProvider.toggleVibration(),
+                          activeThumbColor: const Color(0xFF7B1FA2),
+                        ),
+                      ],
+                    ),
+                  ),
                   const SizedBox(height: 24),
                   _settingsCard(
                     cardColor: cardColor,
@@ -135,7 +162,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'You have Zona Pets v${UpdateService.currentVersion}.',
+                          'You have Pet Fiasco v${UpdateService.currentVersion}.',
                           style: TextStyle(color: subTextColor, fontSize: 13),
                         ),
                         const SizedBox(height: 6),
@@ -187,7 +214,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '🎮 Zona Pets v${UpdateService.currentVersion}',
+                          '🎮 Pet Fiasco v${UpdateService.currentVersion}',
                           style: TextStyle(
                             color: textColor,
                             fontSize: 18,

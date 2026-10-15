@@ -75,13 +75,13 @@ The worldwide connection URL is `PUBLIC_MANIFEST_URL` inside
 The permanent public game URL is:
 
 ```text
-https://kitty-adventure-zona.web.app/
+https://pet-fiasco.web.app/
 ```
 
 The player-friendly downloads page is:
 
 ```text
-https://kitty-adventure-zona.web.app/files/
+https://pet-fiasco.web.app/files/
 ```
 
 The ngrok URL remains the update and download server:

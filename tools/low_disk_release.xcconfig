@@ -1,0 +1,7 @@
+// Keep native SDK object files small on this build host. Dart release code and
+// app behavior are unchanged; native dSYM bundles are not part of these downloads.
+GCC_GENERATE_DEBUGGING_SYMBOLS = NO
+DEBUG_INFORMATION_FORMAT =
+CLANG_ENABLE_MODULE_DEBUGGING = NO
+COMPILER_INDEX_STORE_ENABLE = NO
+SWIFT_SERIALIZE_DEBUGGING_OPTIONS = NO

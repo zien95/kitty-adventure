@@ -4,130 +4,167 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/pet.dart';
 import '../services/sound_service.dart';
+import '../services/update_service.dart';
+import '../services/cloud_save_service.dart';
 
 class GameProvider extends ChangeNotifier {
   Pet? _pet;
   bool _soundEnabled = true;
+  bool _vibrationEnabled = true;
   bool _darkModeEnabled = false;
   bool _liteModeEnabled = false;
+  String _soundPack = 'classic';
+  double _effectsVolume = 0.8;
+  double _musicVolume = 0.25;
+  bool _musicEnabled = true;
+  String _musicTrack = 'auto';
   Timer? _gameTimer;
   Timer? _petPlayTimeTimer;
   Timer? _sessionTimer;
   final SoundService _soundService = SoundService();
-  static const String _currentVersion = '26.8.8';
+  static const String _currentVersion = UpdateService.currentVersion;
 
   // Comprehensive Stats System
-  Map<String, dynamic> _globalStats = {
-    'totalPlayTime': 0, // in minutes
-    'totalScore': 0,
-    'gamesPlayed': 0,
-    'achievementsUnlocked': 0,
-    'blockBuilderStats': {
-      'blocksPlaced': 0,
-      'blocksBroken': 0,
-      'deaths': 0,
-      'highestScore': 0,
-      'worldsCreated': 0,
-    },
-    'petStats': {
-      'petsOwned': 0,
-      'petsEvolved': 0,
-      'totalFed': 0,
-      'totalPlayed': 0,
-      'happinessLevel': 0,
-    },
-    'miniGamesStats': {
-      'puzzleGamesWon': 0,
-      'arcadeGamesPlayed': 0,
-      'timeAttackBest': 0,
-      'enduranceModeTime': 0,
-    },
-    'sessionStats': {
-      'currentSessionTime': 0,
-      'lastPlayDate': '',
-      'consecutiveDays': 0,
-    }
-  };
+  static Map<String, dynamic> _newGlobalStats() => {
+        'totalPlayTime': 0, // in minutes
+        'totalScore': 0,
+        'gamesPlayed': 0,
+        'achievementsUnlocked': 0,
+        'blockBuilderStats': {
+          'blocksPlaced': 0,
+          'blocksBroken': 0,
+          'deaths': 0,
+          'highestScore': 0,
+          'worldsCreated': 0,
+        },
+        'petStats': {
+          'petsOwned': 0,
+          'petsEvolved': 0,
+          'totalFed': 0,
+          'totalPlayed': 0,
+          'happinessLevel': 0,
+        },
+        'miniGamesStats': {
+          'puzzleGamesWon': 0,
+          'arcadeGamesPlayed': 0,
+          'timeAttackBest': 0,
+          'enduranceModeTime': 0,
+        },
+        'sessionStats': {
+          'currentSessionTime': 0,
+          'lastPlayDate': '',
+          'consecutiveDays': 0,
+        }
+      };
 
   // New Mini-Games Data
-  List<Map<String, dynamic>> _availableGames = [
-    {
-      'id': 'block_builder',
-      'name': 'Block Builder 2D',
-      'icon': '🎮',
-      'color': Colors.green,
-      'description': 'Build and explore in 2D',
-      'highScore': 0,
-      'playCount': 0,
-      'unlocked': true,
-    },
-    {
-      'id': 'puzzle_master',
-      'name': 'Puzzle Master',
-      'icon': '🧩',
-      'color': Colors.purple,
-      'description': 'Solve challenging puzzles',
-      'highScore': 0,
-      'playCount': 0,
-      'unlocked': true,
-    },
-    {
-      'id': 'space_shooter',
-      'name': 'Space Shooter',
-      'icon': '🚀',
-      'color': Colors.blue,
-      'description': 'Defend Earth from aliens',
-      'highScore': 0,
-      'playCount': 0,
-      'unlocked': true,
-    },
-    {
-      'id': 'racing_fever',
-      'name': 'Racing Fever',
-      'icon': '🏎️',
-      'color': Colors.red,
-      'description': 'High-speed racing action',
-      'highScore': 0,
-      'playCount': 0,
-      'unlocked': false,
-      'unlockRequirement': 'Complete 10 games',
-    },
-    {
-      'id': 'word_crush',
-      'name': 'Word Crush',
-      'icon': '📝',
-      'color': Colors.orange,
-      'description': 'Word puzzle challenge',
-      'highScore': 0,
-      'playCount': 0,
-      'unlocked': true,
-    },
-    {
-      'id': 'memory_cards',
-      'name': 'Memory Cards',
-      'icon': '🃏',
-      'color': Colors.cyan,
-      'description': 'Test your memory',
-      'highScore': 0,
-      'playCount': 0,
-      'unlocked': true,
-    },
-  ];
+  static List<Map<String, dynamic>> _newAvailableGames() => [
+        {
+          'id': 'block_builder',
+          'name': 'Block Builder 2D',
+          'icon': '🎮',
+          'color': Colors.green,
+          'description': 'Build and explore in 2D',
+          'highScore': 0,
+          'playCount': 0,
+          'unlocked': true,
+        },
+        {
+          'id': 'puzzle_master',
+          'name': 'Puzzle Master',
+          'icon': '🧩',
+          'color': Colors.purple,
+          'description': 'Solve challenging puzzles',
+          'highScore': 0,
+          'playCount': 0,
+          'unlocked': true,
+        },
+        {
+          'id': 'space_shooter',
+          'name': 'Space Shooter',
+          'icon': '🚀',
+          'color': Colors.blue,
+          'description': 'Defend Earth from aliens',
+          'highScore': 0,
+          'playCount': 0,
+          'unlocked': true,
+        },
+        {
+          'id': 'racing_fever',
+          'name': 'Racing Fever',
+          'icon': '🏎️',
+          'color': Colors.red,
+          'description': 'High-speed racing action',
+          'highScore': 0,
+          'playCount': 0,
+          'unlocked': false,
+          'unlockRequirement': 'Complete 10 games',
+        },
+        {
+          'id': 'word_crush',
+          'name': 'Word Crush',
+          'icon': '📝',
+          'color': Colors.orange,
+          'description': 'Word puzzle challenge',
+          'highScore': 0,
+          'playCount': 0,
+          'unlocked': true,
+        },
+        {
+          'id': 'memory_cards',
+          'name': 'Memory Cards',
+          'icon': '🃏',
+          'color': Colors.cyan,
+          'description': 'Test your memory',
+          'highScore': 0,
+          'playCount': 0,
+          'unlocked': true,
+        },
+      ];
+
+  Map<String, dynamic> _globalStats = _newGlobalStats();
+  List<Map<String, dynamic>> _availableGames = _newAvailableGames();
 
   Pet? get pet => _pet;
   bool get soundEnabled => _soundEnabled;
+  bool get vibrationEnabled => _vibrationEnabled;
   bool get darkModeEnabled => _darkModeEnabled;
   bool get liteModeEnabled => _liteModeEnabled;
+  String get soundPack => _soundPack;
+  double get effectsVolume => _effectsVolume;
+  double get musicVolume => _musicVolume;
+  bool get musicEnabled => _musicEnabled;
+  String get musicTrack => _musicTrack;
   bool get hasPet => _pet != null;
   Map<String, dynamic> get globalStats => _globalStats;
   List<Map<String, dynamic>> get availableGames => _availableGames;
 
   Future<void> loadGame() async {
+    pauseGame();
+    _globalStats = _newGlobalStats();
+    _availableGames = _newAvailableGames();
     final prefs = await SharedPreferences.getInstance();
 
     // Load sound setting
     _soundEnabled = prefs.getBool('soundEnabled') ?? true;
+    _vibrationEnabled = prefs.getBool('vibrationEnabled') ?? true;
+    _soundPack = prefs.getString('soundPack') ?? 'classic';
+    if (!{'classic', 'soft', 'arcade', 'quiet', 'cute'}.contains(_soundPack)) {
+      _soundPack = 'classic';
+    }
+    _effectsVolume = _volumePreference(prefs, 'effectsVolume', 0.8);
+    _musicVolume = _volumePreference(prefs, 'musicVolume', 0.25);
+    _musicEnabled = prefs.getBool('musicEnabled') ?? true;
+    _musicTrack = prefs.getString('musicTrack') ?? 'auto';
+    if (!SoundService.musicTracks.containsKey(_musicTrack))
+      _musicTrack = 'auto';
     _soundService.setSoundEnabled(_soundEnabled);
+    _soundService.setVibrationEnabled(_vibrationEnabled);
+    _soundService.setSoundPack(_soundPack);
+    _soundService.setEffectsVolume(_effectsVolume);
+    _soundService.setMusicVolume(_musicVolume);
+    _soundService.setMusicTrack(_musicTrack);
+    _soundService.setMusicEnabled(_musicEnabled, userInitiated: false);
     _darkModeEnabled = prefs.getBool('darkModeEnabled') ?? false;
     _liteModeEnabled = prefs.getBool('liteModeEnabled') ?? false;
 
@@ -164,6 +201,8 @@ class GameProvider extends ChangeNotifier {
     if (petJson != null) {
       _pet = Pet.fromJson(jsonDecode(petJson));
       _startGameLoop();
+    } else {
+      _pet = null;
     }
 
     // Start session tracking
@@ -343,14 +382,27 @@ class GameProvider extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
 
     await prefs.setBool('soundEnabled', _soundEnabled);
+    await prefs.setBool('vibrationEnabled', _vibrationEnabled);
     await prefs.setBool('darkModeEnabled', _darkModeEnabled);
     await prefs.setBool('liteModeEnabled', _liteModeEnabled);
+    await prefs.setString('soundPack', _soundPack);
+    await prefs.setDouble('effectsVolume', _effectsVolume);
+    await prefs.setDouble('musicVolume', _musicVolume);
+    await prefs.setBool('musicEnabled', _musicEnabled);
+    await prefs.setString('musicTrack', _musicTrack);
 
     if (_pet != null) {
       await prefs.setString('pet', jsonEncode(_pet!.toJson()));
     } else {
       await prefs.remove('pet');
     }
+    CloudSaveService.instance.scheduleSave();
+  }
+
+  void pauseGame() {
+    _gameTimer?.cancel();
+    _petPlayTimeTimer?.cancel();
+    _sessionTimer?.cancel();
   }
 
   void _startGameLoop() {
@@ -681,8 +733,65 @@ class GameProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void toggleVibration() {
+    _vibrationEnabled = !_vibrationEnabled;
+    _soundService.setVibrationEnabled(_vibrationEnabled);
+    _soundService.playSound('click');
+    saveGame();
+    notifyListeners();
+  }
+
+  void setSoundPack(String pack) {
+    const allowedPacks = {'classic', 'soft', 'arcade', 'quiet', 'cute'};
+    if (!allowedPacks.contains(pack)) return;
+
+    _soundPack = pack;
+    _soundService.setSoundPack(pack);
+    _soundService.playSound('click');
+    saveGame();
+    notifyListeners();
+  }
+
   void playClickSound() {
     _soundService.playSound('click');
+  }
+
+  static double _volumePreference(
+      SharedPreferences prefs, String key, double fallback) {
+    final value = prefs.get(key);
+    if (value is! num || !value.isFinite) return fallback;
+    return value.toDouble().clamp(0, 1).toDouble();
+  }
+
+  void setEffectsVolume(double volume) {
+    if (!volume.isFinite) return;
+    _effectsVolume = volume.clamp(0, 1).toDouble();
+    _soundService.setEffectsVolume(_effectsVolume);
+    saveGame();
+    notifyListeners();
+  }
+
+  void setMusicVolume(double volume) {
+    if (!volume.isFinite) return;
+    _musicVolume = volume.clamp(0, 1).toDouble();
+    _soundService.setMusicVolume(_musicVolume);
+    saveGame();
+    notifyListeners();
+  }
+
+  void setMusicEnabled(bool enabled) {
+    _musicEnabled = enabled;
+    _soundService.setMusicEnabled(enabled);
+    saveGame();
+    notifyListeners();
+  }
+
+  void setMusicTrack(String track) {
+    if (!SoundService.musicTracks.containsKey(track)) return;
+    _musicTrack = track;
+    _soundService.setMusicTrack(track);
+    saveGame();
+    notifyListeners();
   }
 
   void _showWhatsNewDialog() {

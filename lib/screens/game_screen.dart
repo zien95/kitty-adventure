@@ -15,18 +15,27 @@ import '../widgets/notification_bell.dart';
 // Pet care game changelog
 final List<Map<String, String>> _petCareChangelog = [
   {
-    'version': 'v26.8.8 - Logo Patch',
+    'version': 'v26.9.1 - Happy Paws & Sound',
     'features': '''
-🐾 PET MANAGER CENTER: Adopt, rename, switch, manage profiles, and play together
-🧰 PET JOBS: Send pets out for timed rewards
-🏠 ROOM EFFECTS: Equipped rooms boost matching actions
-👗 OUTFIT SETS: Matching outfits unlock bonus boosts
-🔐 SECRET CODES: One-time reward codes in Pet Hub
-📖 EASTER EGG JOURNAL: Found secrets are tracked
-🎉 3RD ANNIVERSARY: Corner banner and hidden jokes
-📊 DETAILED STATS: Health, sleep, level, bond, social, IQ, and more
-🎮 MINI-GAMES: Puzzle, racing, rhythm, memory, quiz, and more
-🛠️ BUG FIXES: Layout polish and smoother play
+🎵 SOUND THEMES: Cute voices, cozy chimes, and arcade jingles
+🎚️ AUDIO CONTROLS: Effects volume, music volume, and track selection
+🐾 CARE JOURNAL: Daily care checklist and combo rewards
+🎂 PET BIRTHDAYS: Celebrate your pet family
+💬 REACTIONS: Care bubbles, happy hops, and mood-based music
+🧭 TOUR FIXES: Clear startup order and small-screen support
+    ''',
+  },
+  {
+    'version': 'v26.9.0 - Pet Parade Update',
+    'features': '''
+🎪 PET PARADE: Show the whole pet family marching together
+📚 ANIMAL ALMANAC: See every species, habitat, and boost
+🏡 HABITAT BOOSTS: Different animals now boost matching care actions
+🔥 DAILY STREAK CARD: Track streak days and tomorrow's reward
+🔊 SOUND PACKS: Classic, Soft, Arcade, and Quiet options
+🏁 RACING BALANCE: Higher levels are fairer with hold-space sprinting
+💾 SAVE FEEDBACK: Care, profiles, jobs, rooms, outfits, and codes confirm saves
+🐾 BUG FIXES: Species labels now match the selected pet
     ''',
   },
   {

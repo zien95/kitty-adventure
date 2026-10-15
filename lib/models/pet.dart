@@ -62,6 +62,43 @@ extension PetTypeExtension on PetType {
 }
 
 class Pet {
+  static const stageNames = ['Baby', 'Child', 'Teen', 'Adult', 'Elder'];
+  static const stageDays = [0, 1, 3, 7, 30];
+  static const stageLevels = [1, 10, 20, 35, 50];
+
+  int ageInDaysAt(DateTime now) {
+    final birthday = createdAt.toLocal();
+    final today = now.toLocal();
+    return DateTime.utc(today.year, today.month, today.day)
+        .difference(DateTime.utc(birthday.year, birthday.month, birthday.day))
+        .inDays
+        .clamp(0, 1000000);
+  }
+
+  int get ageInDays => ageInDaysAt(DateTime.now());
+  String get stageName => stageNames[evolutionStage.index];
+  String get nextEvolutionDescription {
+    final next = evolutionStage.index + 1;
+    if (next >= stageNames.length)
+      return 'Fully evolved — still young at heart!';
+    final days = (stageDays[next] - ageInDays).clamp(0, stageDays[next]);
+    return 'Next: ${stageNames[next]} in $days days or at level ${stageLevels[next]}.';
+  }
+
+  void updateGrowth({DateTime? now}) {
+    final days = ageInDaysAt(now ?? DateTime.now());
+    var target = evolutionStage.index;
+    for (var i = target + 1; i < stageNames.length; i++) {
+      if (days >= stageDays[i] || level >= stageLevels[i]) target = i;
+    }
+    final gained = target - evolutionStage.index;
+    if (gained > 0) {
+      evolutionStage = EvolutionStage.values[target];
+      health = (health + 20 * gained).clamp(0, 100);
+      intelligence = (intelligence + 10 * gained).clamp(0, 100);
+    }
+  }
+
   String id;
   String name;
   PetType type;
@@ -373,24 +410,7 @@ class Pet {
   }
 
   void _checkEvolution() {
-    EvolutionStage newStage = evolutionStage;
-
-    if (level >= 10 && evolutionStage == EvolutionStage.baby) {
-      newStage = EvolutionStage.child;
-    } else if (level >= 20 && evolutionStage == EvolutionStage.child) {
-      newStage = EvolutionStage.teen;
-    } else if (level >= 35 && evolutionStage == EvolutionStage.teen) {
-      newStage = EvolutionStage.adult;
-    } else if (level >= 50 && evolutionStage == EvolutionStage.adult) {
-      newStage = EvolutionStage.elder;
-    }
-
-    if (newStage != evolutionStage) {
-      evolutionStage = newStage;
-      // Evolution bonus stats
-      health = (health + 20).clamp(0, 100);
-      intelligence = (intelligence + 10).clamp(0, 100);
-    }
+    updateGrowth();
   }
 
   void addAccessory(String accessory) {

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
 
@@ -10,7 +11,16 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../models/pet.dart';
 import '../providers/game_provider.dart';
+import '../services/care_progress_service.dart';
+import '../services/sound_service.dart';
 import '../services/update_service.dart';
+import '../services/cloud_save_service.dart';
+import '../services/egg_nest_service.dart';
+import '../widgets/egg_nest.dart';
+import 'cloud_account_screen.dart';
+import '../widgets/audio_settings.dart';
+import '../widgets/care_journal.dart';
+import '../widgets/game_tutorial_overlay.dart';
 import 'block_builder_game_screen.dart';
 import 'docs_screen.dart';
 import 'memory_match_screen.dart';
@@ -50,11 +60,32 @@ class PetGameScreen extends StatefulWidget {
 }
 
 class _PetGameScreenState extends State<PetGameScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   static final Uri _downloadsUri =
-      Uri.parse('https://kitty-adventure-zona.web.app/files/');
+      Uri.parse('https://pet-fiasco.web.app/files/');
+  static const int _gameTutorialRevision = 2;
+  static const String _gameTutorialPreferenceKey =
+      'zonaPetsGameTutorialRevision';
 
   late final AnimationController _motionController;
+  late final AnimationController _reactionController;
+  final SoundService _soundService = SoundService();
+  CareProgressService _careProgress = CareProgressService();
+  EggNestService _eggNest = EggNestService();
+  late Future<void> _careProgressReady;
+  Timer? _reactionTimer;
+  String? _petReactionMessage;
+  final GlobalKey _tutorialRootKey = GlobalKey();
+  final GlobalKey _tutorialPetKey = GlobalKey();
+  final GlobalKey _tutorialPetSelectorKey = GlobalKey();
+  final GlobalKey _tutorialStatsKey = GlobalKey();
+  final GlobalKey _tutorialCoachKey = GlobalKey();
+  final GlobalKey _tutorialCareRowKey = GlobalKey();
+  final GlobalKey _tutorialFoodKey = GlobalKey();
+  final GlobalKey _tutorialToyKey = GlobalKey();
+  final GlobalKey _tutorialCleanKey = GlobalKey();
+  final GlobalKey _tutorialHubKey = GlobalKey();
+  final GlobalKey _tutorialSettingsKey = GlobalKey();
 
   Pet? _pet;
   final List<Pet> _cats = [];
@@ -67,8 +98,10 @@ class _PetGameScreenState extends State<PetGameScreen>
   int _dailyStreakCount = 0;
   // ignore: unused_field
   String _lastDailyStreakDate = '';
-  bool _vibrationEnabled = true;
   bool _notificationsEnabled = true;
+  bool _gameTutorialChecked = false;
+  bool _showGameTutorial = false;
+  int _gameTutorialStep = 0;
   final Map<String, int> _questProgress = {};
   final Set<String> _claimedQuestIds = {};
   final Set<String> _foundEasterEggIds = {};
@@ -197,16 +230,167 @@ class _PetGameScreenState extends State<PetGameScreen>
   @override
   void initState() {
     super.initState();
+    _careProgressReady = _careProgress.initialize();
     _motionController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 3600),
     )..repeat();
+    _reactionController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 560),
+    );
   }
 
   @override
   void dispose() {
+    _reactionTimer?.cancel();
+    _careProgress.dispose();
+    _eggNest.dispose();
     _motionController.dispose();
+    _reactionController.dispose();
     super.dispose();
+  }
+
+  List<GameTutorialStep> get _gameTutorialSteps => [
+        GameTutorialStep(
+          targetKey: _tutorialPetKey,
+          icon: Icons.pets,
+          accentColor: const Color(0xFFFF76B7),
+          title: 'Meet Your Pet',
+          description:
+              'Keep your pet healthy, happy, rested, and clean. Every animal wanders and bobs around the garden, and actions save automatically.',
+          clickHint:
+              'After the tour, tap your pet for a happy hop. Double-tap or long-press it to discover a secret.',
+        ),
+        GameTutorialStep(
+          targetKey: _tutorialPetSelectorKey,
+          icon: Icons.switch_account,
+          accentColor: const Color(0xFF5AA9E6),
+          title: 'Choose Your Pet',
+          description:
+              'Use Manage to rename and edit pets, tap a pet name to switch, or use Adopt to add another animal to the family.',
+          clickHint:
+              'Click Manage for the full Pet Manager Center, or click a pet chip to switch instantly.',
+        ),
+        GameTutorialStep(
+          targetKey: _tutorialStatsKey,
+          icon: Icons.monitor_heart,
+          accentColor: const Color(0xFFFFA33C),
+          title: 'Read The Need Meters',
+          description:
+              'Hunger is the amount of hunger, so lower is better. Keep Happy, Energy, Clean, Health, IQ, Social, and Bond high.',
+          clickHint:
+              'Watch these meters after every action. The orange Hunger number needs attention when it gets high.',
+        ),
+        GameTutorialStep(
+          targetKey: _tutorialCoachKey,
+          icon: Icons.assistant,
+          accentColor: const Color(0xFF66C58D),
+          title: 'Follow The Next Suggestion',
+          description:
+              'This coach reads the current stats and recommends the most useful next move. It changes as your pet needs different care.',
+          clickHint:
+              'Click the suggestion whenever you are unsure what your pet needs next.',
+        ),
+        GameTutorialStep(
+          targetKey: _tutorialFoodKey,
+          icon: Icons.set_meal,
+          accentColor: const Color(0xFFF0839C),
+          title: 'Food Lowers Hunger',
+          description:
+              'Food reduces Hunger by 25, adds a little Happiness and Energy, and costs 10 coins. Feeding also advances food quests.',
+          clickHint: 'Click FOOD when the orange Hunger meter climbs.',
+        ),
+        GameTutorialStep(
+          targetKey: _tutorialToyKey,
+          icon: Icons.sports_baseball,
+          accentColor: const Color(0xFF4D8FB8),
+          title: 'Toy Raises Happiness',
+          description:
+              'Toy plays with the whole pet family. It raises Happiness, uses some Energy, increases Hunger slightly, and opens a play scene.',
+          clickHint: 'Click TOY when Happy is low or the pet wants attention.',
+        ),
+        GameTutorialStep(
+          targetKey: _tutorialCleanKey,
+          icon: Icons.bubble_chart,
+          accentColor: const Color(0xFF3DA89F),
+          title: 'Clean Restores Care',
+          description:
+              'Clean fills the Clean meter, adds Happiness, restores a little Health, and advances cleaning quests.',
+          clickHint: 'Click CLEAN when the aqua Clean meter drops.',
+        ),
+        GameTutorialStep(
+          targetKey: _tutorialCareRowKey,
+          icon: Icons.health_and_safety,
+          accentColor: const Color(0xFF6F9EFF),
+          title: 'Rest, Grow, And Heal',
+          description:
+              'Sleep restores Energy and Health. Train raises IQ and XP. Bond grows friendship and scenes. Medicine and Vaccine restore Health.',
+          clickHint:
+              'Click the matching small button when a meter needs care or you want to progress.',
+        ),
+        GameTutorialStep(
+          targetKey: _tutorialHubKey,
+          icon: Icons.dashboard_customize,
+          accentColor: const Color(0xFF8A68D6),
+          title: 'Open The Pet Hub',
+          description:
+              'The Hub contains daily quests, jobs, rooms, the Animal Almanac, outfits, secrets, codes, Pet Parade, and every mini-game.',
+          clickHint:
+              'Click HUB to earn rewards, customize the room, equip outfits, or start a game.',
+        ),
+        GameTutorialStep(
+          targetKey: _tutorialSettingsKey,
+          icon: Icons.settings,
+          accentColor: const Color(0xFF2676B8),
+          title: 'Settings And Help',
+          description:
+              'Settings controls theme, sound packs, vibration, notifications, updates, documentation, and pet reset.',
+          clickHint:
+              'Click Settings, then How to Play, whenever you want to replay this tour.',
+        ),
+      ];
+
+  Future<void> _maybeStartGameTutorial() async {
+    if (_gameTutorialChecked || _pet == null) return;
+    _gameTutorialChecked = true;
+
+    final prefs = await SharedPreferences.getInstance();
+    final seenRevision = prefs.getInt(_gameTutorialPreferenceKey) ?? 0;
+    if (seenRevision >= _gameTutorialRevision) return;
+
+    await Future<void>.delayed(const Duration(milliseconds: 500));
+    if (!mounted || _pet == null) return;
+    _startGameTutorial();
+  }
+
+  void _startGameTutorial() {
+    if (!mounted || _pet == null) return;
+    setState(() {
+      _gameTutorialStep = 0;
+      _showGameTutorial = true;
+    });
+  }
+
+  void _previousGameTutorialStep() {
+    if (_gameTutorialStep <= 0) return;
+    setState(() => _gameTutorialStep--);
+  }
+
+  void _nextGameTutorialStep() {
+    if (_gameTutorialStep >= _gameTutorialSteps.length - 1) {
+      _completeGameTutorial();
+      return;
+    }
+    setState(() => _gameTutorialStep++);
+  }
+
+  Future<void> _completeGameTutorial() async {
+    if (mounted) {
+      setState(() => _showGameTutorial = false);
+    }
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_gameTutorialPreferenceKey, _gameTutorialRevision);
   }
 
   static final List<_RoomDecorItem> _roomDecorItems = [
@@ -412,13 +596,6 @@ class _PetGameScreenState extends State<PetGameScreen>
       unlockRoom: 'cozy_bed',
     ),
     _SecretCode(
-      code: 'ANNIVERSARY3',
-      title: 'Third Anniversary Gift',
-      detail: 'Unlocks Party Balloons and bonus coins',
-      coins: 300,
-      unlockRoom: 'party_balloons',
-    ),
-    _SecretCode(
       code: 'EGGHUNT',
       title: 'Secret Hunter',
       detail: '+1 gem and a hint to tap everything',
@@ -503,10 +680,10 @@ class _PetGameScreenState extends State<PetGameScreen>
       color: Color(0xFF9A8CFF),
     ),
     _AchievementBadge(
-      id: 'lite_legend',
-      title: 'Lite Legend',
-      detail: 'Turn on Lite Mode.',
-      icon: Icons.speed,
+      id: 'parade_starter',
+      title: 'Parade Starter',
+      detail: 'Open Pet Parade with at least 2 pets.',
+      icon: Icons.celebration,
       color: Color(0xFF66D0C4),
     ),
     _AchievementBadge(
@@ -522,13 +699,14 @@ class _PetGameScreenState extends State<PetGameScreen>
   static final List<_ReleaseChecklistItem> _releaseChecklist = [
     _ReleaseChecklistItem(
       title: 'Version locked',
-      detail: 'Keep player-facing version text on v26.8.8 unless we bump it.',
+      detail:
+          'Keep player-facing version text on v${UpdateService.currentVersion}.',
       icon: Icons.verified,
       color: Color(0xFF66C58D),
     ),
     _ReleaseChecklistItem(
       title: 'Docs and changelog',
-      detail: 'README and What\'s New mention the logo patch.',
+      detail: 'README and What\'s New mention the new pet systems.',
       icon: Icons.article,
       color: Color(0xFFFFB84D),
     ),
@@ -554,14 +732,14 @@ class _PetGameScreenState extends State<PetGameScreen>
 
   static final List<_EasterEggSpot> _easterEggs = [
     _EasterEggSpot(
-      id: 'anniversary',
-      title: 'Anniversary Banner',
-      trigger: 'Tap the 3rd Anniversary banner.',
-      actionLabel: '3RD',
+      id: 'growth',
+      title: 'Tiny Time Traveller',
+      trigger: 'Long-press your pet’s day and age strip.',
+      actionLabel: 'GROW',
       messages: [
-        '3 years in and your pet still has not paid rent.',
-        'Anniversary mode: emotionally loud, financially suspicious.',
-        'The cake is imaginary. The crumbs are legally real.',
+        'Your pet checked the calendar. Every day is apparently snack day.',
+        'Growing up is optional. Growing fluff is a full-time occupation.',
+        'Time flies when somebody else buys the treats.',
       ],
     ),
     _EasterEggSpot(
@@ -582,7 +760,7 @@ class _PetGameScreenState extends State<PetGameScreen>
       actionLabel: 'SUN',
       messages: [
         'The sun says: I am not a button, but I respect the curiosity.',
-        'Solar report: bright, round, deeply invested in Zona Pets lore.',
+        'Solar report: bright, round, deeply invested in Pet Fiasco lore.',
         'You tapped daylight. Daylight tapped back spiritually.',
       ],
     ),
@@ -590,7 +768,7 @@ class _PetGameScreenState extends State<PetGameScreen>
       id: 'cat',
       title: 'Pet Inspection',
       trigger: 'Double-tap or long-press your pet.',
-      actionLabel: 'CAT',
+      actionLabel: 'PET',
       messages: [
         'Double-tap detected. Your pet now believes this is a formal handshake.',
         'Your pet accepted the tap and filed it under compliments.',
@@ -659,7 +837,7 @@ class _PetGameScreenState extends State<PetGameScreen>
       actionLabel: 'TREE',
       messages: [
         'Tree wisdom: hydrate, stretch, and never trust a silent treat jar.',
-        'This tree has seen 3 years of drama and remains leaf-level calm.',
+        'This tree has seen every fiasco and remains leaf-level calm.',
         'Branch office memo: your pet is promoted to Chief Nap Officer.',
       ],
     ),
@@ -712,6 +890,7 @@ class _PetGameScreenState extends State<PetGameScreen>
   }
 
   void _ensureCatDefaults(Pet cat) {
+    cat.updateGrowth();
     if (cat.id.isEmpty) {
       cat.id = DateTime.now().microsecondsSinceEpoch.toString();
     }
@@ -853,18 +1032,21 @@ class _PetGameScreenState extends State<PetGameScreen>
       _needsPetSelection = false;
     });
     _syncPetToProvider();
-    _loadDailyStreakReward();
+    await _loadDailyStreakReward();
+    _maybeStartGameTutorial();
   }
 
   Future<void> _saveCatCollection() async {
     if (_cats.isEmpty) return;
 
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(
+    final saved = await prefs.setString(
       'kittyCatCollection',
       jsonEncode(_cats.map((cat) => cat.toJson()).toList()),
     );
+    if (!saved) throw StateError('Could not save pet family.');
     await prefs.setInt('selectedKittyCatIndex', _selectedCatIndex);
+    CloudSaveService.instance.scheduleSave();
   }
 
   void _syncSelectedCat() {
@@ -885,11 +1067,13 @@ class _PetGameScreenState extends State<PetGameScreen>
     final pet = _pet;
     if (!mounted || pet == null) return;
     _syncSelectedCat();
+    _soundService.setMood(pet.currentMood.name);
     context.read<GameProvider>().setPet(pet);
     await _saveCatCollection();
   }
 
-  void _createPet({PetType type = PetType.cat}) {
+  Future<void> _createPet({PetType type = PetType.cat}) async {
+    _soundService.playSound('button_pop');
     final newPet = _createDefaultPet(name: _nextPetName(type), type: type);
     setState(() {
       _cats
@@ -900,7 +1084,12 @@ class _PetGameScreenState extends State<PetGameScreen>
       _needsPetSelection = false;
     });
     _syncPetToProvider();
-    _showPetActionMessage('${newPet.type.emoji} ${newPet.name} is ready');
+    _showPetActionMessage(
+      '${newPet.type.emoji} ${newPet.name} is ready',
+      saved: true,
+    );
+    await _loadDailyStreakReward();
+    _maybeStartGameTutorial();
   }
 
   Future<void> _resetPetAndShowPicker() async {
@@ -993,6 +1182,7 @@ class _PetGameScreenState extends State<PetGameScreen>
   }
 
   void _adoptPet(PetType type) {
+    _soundService.playSound('button_pop');
     final newPet = _createDefaultPet(name: _nextPetName(type), type: type)
       ..coins = 500
       ..happiness = 90
@@ -1008,11 +1198,13 @@ class _PetGameScreenState extends State<PetGameScreen>
     _syncPetToProvider();
     _showPetActionMessage(
       '${newPet.type.emoji} ${newPet.name} joined the family',
+      saved: true,
     );
   }
 
   void _selectCat(int index) {
     if (index < 0 || index >= _cats.length) return;
+    _soundService.playSound('click');
 
     setState(() {
       _syncSelectedCat();
@@ -1078,15 +1270,13 @@ class _PetGameScreenState extends State<PetGameScreen>
 
     await prefs.setString('dailyStreakDate', today);
     await prefs.setInt('dailyStreakCount', streak);
-    _syncPetToProvider();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _showDailyStreakRewardDialog(reward);
-    });
+    await _syncPetToProvider();
+    if (!mounted) return;
+    await _showDailyStreakRewardDialog(reward);
   }
 
-  void _showDailyStreakRewardDialog(_DailyStreakReward reward) {
-    showDialog(
+  Future<void> _showDailyStreakRewardDialog(_DailyStreakReward reward) async {
+    await showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: _dialogColor,
@@ -1119,7 +1309,10 @@ class _PetGameScreenState extends State<PetGameScreen>
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () {
+              _soundService.playSound('reward');
+              Navigator.pop(context);
+            },
             child: const Text('Claimed'),
           ),
         ],
@@ -1244,6 +1437,7 @@ class _PetGameScreenState extends State<PetGameScreen>
 
   void _claimDailyQuest(_DailyQuest quest) {
     if (_pet == null || !_isQuestReady(quest)) return;
+    _soundService.playSound('reward');
 
     setState(() {
       _claimedQuestIds.add(quest.id);
@@ -1256,6 +1450,7 @@ class _PetGameScreenState extends State<PetGameScreen>
     _syncPetToProvider();
     _showPetActionMessage(
       '${quest.title} claimed: +${quest.rewardCoins} coins, +${quest.rewardGems} gems',
+      saved: true,
     );
   }
 
@@ -1273,6 +1468,13 @@ class _PetGameScreenState extends State<PetGameScreen>
     return null;
   }
 
+  String _easterEggActionLabel(_EasterEggSpot egg) {
+    if (egg.id == 'cat') {
+      return _pet?.type.name.toUpperCase() ?? 'PET';
+    }
+    return egg.actionLabel;
+  }
+
   String _roomEffectDescription(String decorId) {
     switch (decorId) {
       case 'cozy_bed':
@@ -1287,6 +1489,81 @@ class _PetGameScreenState extends State<PetGameScreen>
       default:
         return 'Food bonus: +5 happy, +4 social.';
     }
+  }
+
+  String _habitatName(PetType type) {
+    switch (type) {
+      case PetType.cat:
+        return 'Sunny Window Loft';
+      case PetType.dog:
+        return 'Zoomie Yard';
+      case PetType.bunny:
+        return 'Clover Burrow';
+      case PetType.fox:
+        return 'Clever Hollow';
+      case PetType.panda:
+        return 'Bamboo Nap Grove';
+      case PetType.bird:
+        return 'Sky Perch';
+    }
+  }
+
+  String _habitatDescription(PetType type) {
+    switch (type) {
+      case PetType.cat:
+        return 'Food gives extra happy and social points.';
+      case PetType.dog:
+        return 'Play gives extra happy and social points.';
+      case PetType.bunny:
+        return 'Clean gives extra health and calm points.';
+      case PetType.fox:
+        return 'Train gives extra IQ and XP.';
+      case PetType.panda:
+        return 'Sleep gives extra energy and health.';
+      case PetType.bird:
+        return 'Bond gives extra social and happy points.';
+    }
+  }
+
+  String? _applyHabitatBonus(Pet pet, String actionKey) {
+    switch (pet.type) {
+      case PetType.cat:
+        if (actionKey != 'feed') return null;
+        pet.happiness = (pet.happiness + 4).clamp(0, 100);
+        pet.social = (pet.social + 3).clamp(0, 100);
+        return 'Sunny Window Loft';
+      case PetType.dog:
+        if (actionKey != 'play') return null;
+        pet.happiness = (pet.happiness + 5).clamp(0, 100);
+        pet.social = (pet.social + 5).clamp(0, 100);
+        return 'Zoomie Yard';
+      case PetType.bunny:
+        if (actionKey != 'clean') return null;
+        pet.health = (pet.health + 4).clamp(0, 100);
+        pet.loyalty = (pet.loyalty + 2).clamp(0, 100);
+        return 'Clover Burrow';
+      case PetType.fox:
+        if (actionKey != 'train') return null;
+        pet.intelligence = (pet.intelligence + 4).clamp(0, 100);
+        pet.addXp(6);
+        return 'Clever Hollow';
+      case PetType.panda:
+        if (actionKey != 'sleep') return null;
+        pet.energy = (pet.energy + 6).clamp(0, 100);
+        pet.health = (pet.health + 6).clamp(0, 100);
+        return 'Bamboo Nap Grove';
+      case PetType.bird:
+        if (actionKey != 'bond') return null;
+        pet.social = (pet.social + 6).clamp(0, 100);
+        pet.happiness = (pet.happiness + 5).clamp(0, 100);
+        return 'Sky Perch';
+    }
+  }
+
+  String? _combineBonuses(Iterable<String?> bonuses) {
+    final activeBonuses = bonuses.whereType<String>().toList();
+    if (activeBonuses.isEmpty) return null;
+    return activeBonuses.join(' + ');
   }
 
   String? _applyRoomBonus(Pet pet, String actionKey) {
@@ -1345,24 +1622,34 @@ class _PetGameScreenState extends State<PetGameScreen>
 
   void _feedPet() {
     if (_pet != null) {
+      _soundService.playSound('feed');
+      _showPetReaction('Yum! Snack approved.');
       String? bonus;
       setState(() {
         _pet!.hunger = (_pet!.hunger - 25).clamp(0, 100);
         _pet!.happiness = (_pet!.happiness + 5).clamp(0, 100);
         _pet!.energy = (_pet!.energy + 5).clamp(0, 100);
         _pet!.coins = (_pet!.coins - 10).clamp(0, 9999);
-        bonus = _applyRoomBonus(_pet!, 'feed');
+        bonus = _combineBonuses([
+          _applyRoomBonus(_pet!, 'feed'),
+          _applyHabitatBonus(_pet!, 'feed'),
+        ]);
         _refreshMood(PetMood.happy);
       });
       _syncPetToProvider();
       _completeQuestStep('feed');
+      _recordCare(_pet!, 'feed');
       _showPetActionMessage(
-          bonus == null ? 'Food served' : 'Food served • $bonus');
+        bonus == null ? 'Food served' : 'Food served • $bonus',
+        saved: true,
+      );
     }
   }
 
   void _playWithPet() {
     if (_pet == null) return;
+    _soundService.playSound('play');
+    _showPetReaction('Playtime! Watch my paws.');
 
     String? bonus;
     setState(() {
@@ -1372,7 +1659,10 @@ class _PetGameScreenState extends State<PetGameScreen>
         cat.energy = (cat.energy - 6).clamp(0, 100);
         cat.hunger = (cat.hunger + 5).clamp(0, 100);
         if (cat == _cats[_selectedCatIndex]) {
-          bonus = _applyRoomBonus(cat, 'play');
+          bonus = _combineBonuses([
+            _applyRoomBonus(cat, 'play'),
+            _applyHabitatBonus(cat, 'play'),
+          ]);
         }
         cat.currentMood = PetMood.playful;
       }
@@ -1381,7 +1671,10 @@ class _PetGameScreenState extends State<PetGameScreen>
       _refreshMood(PetMood.playful);
     });
     _syncPetToProvider();
-    if (bonus != null) _showPetActionMessage('Play time • $bonus');
+    _recordCare(_pet!, 'play');
+    if (bonus != null) {
+      _showPetActionMessage('Play time • $bonus', saved: true);
+    }
     _showPlayCutscene();
   }
 
@@ -1396,21 +1689,47 @@ class _PetGameScreenState extends State<PetGameScreen>
     );
   }
 
+  void _showPetParade() {
+    final paradePets =
+        _cats.isEmpty && _pet != null ? [_pet!] : List<Pet>.from(_cats);
+    if (paradePets.isEmpty) return;
+    _soundService.playSound('play');
+
+    showDialog(
+      context: context,
+      builder: (context) => _PetParadeDialog(pets: paradePets),
+    );
+  }
+
   void _cleanPet() {
     if (_pet != null) {
+      _soundService.playSound('clean');
+      _showPetReaction('Squeaky clean!');
+      String? bonus;
       setState(() {
         _pet!.cleanliness = 100;
         _pet!.happiness = (_pet!.happiness + 8).clamp(0, 100);
         _pet!.health = (_pet!.health + 2).clamp(0, 100);
+        bonus = _combineBonuses([
+          _applyRoomBonus(_pet!, 'clean'),
+          _applyHabitatBonus(_pet!, 'clean'),
+        ]);
         _refreshMood(PetMood.happy);
       });
       _syncPetToProvider();
       _completeQuestStep('clean');
+      _recordCare(_pet!, 'clean');
+      _showPetActionMessage(
+        bonus == null ? 'Cleaned up' : 'Cleaned up • $bonus',
+        saved: true,
+      );
     }
   }
 
   void _sleepPet() {
     if (_pet == null) return;
+    _soundService.playSound('sleep');
+    _showPetReaction('A little nap, a big dream.');
 
     final oldLevel = _pet!.level;
     String? bonus;
@@ -1420,20 +1739,27 @@ class _PetGameScreenState extends State<PetGameScreen>
       _pet!.hunger = (_pet!.hunger + 5).clamp(0, 100);
       _pet!.currentMood = PetMood.sleepy;
       _pet!.addXp(5);
-      bonus = _applyRoomBonus(_pet!, 'sleep');
+      bonus = _combineBonuses([
+        _applyRoomBonus(_pet!, 'sleep'),
+        _applyHabitatBonus(_pet!, 'sleep'),
+      ]);
     });
     _syncPetToProvider();
+    _recordCare(_pet!, 'rest');
     _showPetActionMessage(
       _pet!.level > oldLevel
           ? 'Level up! Level ${_pet!.level}'
           : bonus == null
               ? 'Sleep done'
               : 'Sleep done • $bonus',
+      saved: true,
     );
   }
 
   void _trainPet() {
     if (_pet == null) return;
+    _soundService.playSound('train');
+    _showPetReaction('New trick unlocked!');
 
     String? bonus;
     setState(() {
@@ -1442,17 +1768,23 @@ class _PetGameScreenState extends State<PetGameScreen>
       _pet!.intelligence = (_pet!.intelligence + 5).clamp(0, 100);
       _pet!.hunger = (_pet!.hunger + 10).clamp(0, 100);
       _pet!.addXp(15);
-      bonus = _applyRoomBonus(_pet!, 'train');
+      bonus = _combineBonuses([
+        _applyRoomBonus(_pet!, 'train'),
+        _applyHabitatBonus(_pet!, 'train'),
+      ]);
       _refreshMood(PetMood.excited);
     });
     _syncPetToProvider();
     _showPetActionMessage(
       bonus == null ? 'Training complete' : 'Training complete • $bonus',
+      saved: true,
     );
   }
 
   void _bondWithPet() {
     if (_pet == null) return;
+    _soundService.playSound('play');
+    _showPetReaction('You are my favorite human.');
 
     final oldBond = _pet!.friendshipLevel;
     String? bonus;
@@ -1461,22 +1793,29 @@ class _PetGameScreenState extends State<PetGameScreen>
       _pet!.loyalty = (_pet!.loyalty + 10).clamp(0, 100);
       _pet!.social = (_pet!.social + 8).clamp(0, 100);
       _pet!.happiness = (_pet!.happiness + 12).clamp(0, 100);
-      bonus = _applyRoomBonus(_pet!, 'bond');
+      bonus = _combineBonuses([
+        _applyRoomBonus(_pet!, 'bond'),
+        _applyHabitatBonus(_pet!, 'bond'),
+      ]);
       _refreshMood(PetMood.loving);
     });
     _syncPetToProvider();
+    _recordCare(_pet!, 'bond');
     final scene = _friendshipSceneFor(oldBond, _pet!.friendshipLevel);
     if (scene != null) {
       _showFriendshipCutscene(scene);
     } else {
       _showPetActionMessage(
         bonus == null ? 'Bond increased' : 'Bond increased • $bonus',
+        saved: true,
       );
     }
   }
 
   void _giveMedicine() {
     if (_pet == null) return;
+    _soundService.playSound('medicine');
+    _showPetReaction('Feeling better already.');
 
     setState(() {
       _pet!.health = (_pet!.health + 30).clamp(0, 100);
@@ -1484,11 +1823,13 @@ class _PetGameScreenState extends State<PetGameScreen>
       _refreshMood(PetMood.happy);
     });
     _syncPetToProvider();
-    _showPetActionMessage('Medicine given');
+    _showPetActionMessage('Medicine given', saved: true);
   }
 
   void _vaccinatePet() {
     if (_pet == null) return;
+    _soundService.playSound('medicine');
+    _showPetReaction('Brave pet, healthy pet!');
 
     setState(() {
       _pet!.health = (_pet!.health + 20).clamp(0, 100);
@@ -1497,7 +1838,7 @@ class _PetGameScreenState extends State<PetGameScreen>
       _refreshMood(PetMood.happy);
     });
     _syncPetToProvider();
-    _showPetActionMessage('Vaccine done');
+    _showPetActionMessage('Vaccine done', saved: true);
   }
 
   _FriendshipScene? _friendshipSceneFor(int before, int after) {
@@ -1580,7 +1921,7 @@ class _PetGameScreenState extends State<PetGameScreen>
     );
   }
 
-  void _showPetActionMessage(String message) {
+  void _showPetActionMessage(String message, {bool saved = false}) {
     if (!mounted) return;
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
@@ -1589,12 +1930,19 @@ class _PetGameScreenState extends State<PetGameScreen>
           content: Text(message),
           duration: const Duration(milliseconds: 900),
           behavior: SnackBarBehavior.floating,
+          action: saved
+              ? SnackBarAction(
+                  label: 'SAVED',
+                  onPressed: () {},
+                )
+              : null,
         ),
       );
   }
 
   void _showEasterEgg(String id) {
     if (!mounted) return;
+    _soundService.playSound('button_pop');
 
     final egg = _eggById(id);
     final wasNew = _foundEasterEggIds.add(egg.id);
@@ -1605,7 +1953,7 @@ class _PetGameScreenState extends State<PetGameScreen>
     final message = egg
         .messages[DateTime.now().microsecondsSinceEpoch % egg.messages.length];
     final journalLine = wasNew
-        ? '\nFound ${_foundEasterEggIds.length}/${_easterEggs.length}: ${egg.title}'
+        ? '\nFound $_discoveredSecretCount/${_easterEggs.length}: ${egg.title}'
         : '';
 
     ScaffoldMessenger.of(context)
@@ -1616,7 +1964,7 @@ class _PetGameScreenState extends State<PetGameScreen>
           duration: const Duration(milliseconds: 2300),
           behavior: SnackBarBehavior.floating,
           action: SnackBarAction(
-            label: egg.actionLabel,
+            label: _easterEggActionLabel(egg),
             onPressed: () {},
           ),
         ),
@@ -1641,51 +1989,66 @@ class _PetGameScreenState extends State<PetGameScreen>
       );
     }
 
-    return Scaffold(
-      backgroundColor: _pageBackgroundColor,
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildTopBar(_pet!),
-            _buildCatSelector(),
-            _buildStatsPanel(_pet!),
-            Expanded(
-              child: Stack(
-                children: [
-                  _buildBackground(_pet!),
-                  Positioned(
-                    top: 10,
-                    left: 12,
-                    right: 12,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Flexible(
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: _buildMoodPanel(_pet!),
-                          ),
+    return Stack(
+      key: _tutorialRootKey,
+      children: [
+        Scaffold(
+          backgroundColor: _pageBackgroundColor,
+          body: SafeArea(
+            child: Column(
+              children: [
+                _buildTopBar(_pet!),
+                _buildGrowthStrip(_pet!),
+                _buildCatSelector(),
+                _buildStatsPanel(_pet!),
+                Expanded(
+                  child: Stack(
+                    children: [
+                      _buildBackground(_pet!),
+                      Positioned(
+                        top: 10,
+                        left: 12,
+                        right: 12,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: _buildMoodPanel(_pet!),
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 6),
-                        _buildAnniversaryBanner(),
-                      ],
-                    ),
+                      ),
+                      Positioned(
+                        bottom: 18,
+                        left: 0,
+                        right: 0,
+                        child: Center(
+                          child: _buildPetCharacter(_pet!),
+                        ),
+                      ),
+                    ],
                   ),
-                  Positioned(
-                    bottom: 18,
-                    left: 0,
-                    right: 0,
-                    child: Center(
-                      child: _buildPetCharacter(_pet!),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+                _buildActionButtons(_pet!),
+              ],
             ),
-            _buildActionButtons(_pet!),
-          ],
+          ),
         ),
-      ),
+        if (_showGameTutorial)
+          Positioned.fill(
+            child: GameTutorialOverlay(
+              rootKey: _tutorialRootKey,
+              steps: _gameTutorialSteps,
+              currentStep: _gameTutorialStep,
+              onBack: _previousGameTutorialStep,
+              onNext: _nextGameTutorialStep,
+              onSkip: _completeGameTutorial,
+            ),
+          ),
+      ],
     );
   }
 
@@ -1718,6 +2081,10 @@ class _PetGameScreenState extends State<PetGameScreen>
                       fontWeight: FontWeight.w800,
                     ),
                   ),
+                  TextButton.icon(
+                      onPressed: _openCloudAccount,
+                      icon: const Icon(Icons.cloud_download_outlined),
+                      label: const Text('Sign in & restore a pet family')),
                 ],
               ),
             ),
@@ -1861,6 +2228,7 @@ class _PetGameScreenState extends State<PetGameScreen>
           ),
           const SizedBox(width: 8),
           GestureDetector(
+            key: _tutorialSettingsKey,
             onTap: () => _showSettings(context),
             onLongPress: () => _showEasterEgg('settings'),
             child: Container(
@@ -1905,6 +2273,7 @@ class _PetGameScreenState extends State<PetGameScreen>
     final cats = _cats.isEmpty && _pet != null ? [_pet!] : _cats;
 
     return SizedBox(
+      key: _tutorialPetSelectorKey,
       height: 50,
       child: ListView(
         scrollDirection: Axis.horizontal,
@@ -1924,7 +2293,7 @@ class _PetGameScreenState extends State<PetGameScreen>
     return Padding(
       padding: const EdgeInsets.only(right: 8),
       child: Tooltip(
-        message: 'Download Zona Pets',
+        message: 'Download Pet Fiasco',
         child: InkWell(
           borderRadius: BorderRadius.circular(18),
           onTap: _openDownloads,
@@ -2504,6 +2873,7 @@ class _PetGameScreenState extends State<PetGameScreen>
     });
     modalSetState(() {});
     _syncPetToProvider();
+    _showPetActionMessage('Profile name saved', saved: true);
   }
 
   Future<void> _editCatProfile(int index, StateSetter modalSetState) async {
@@ -2677,6 +3047,7 @@ class _PetGameScreenState extends State<PetGameScreen>
     });
     modalSetState(() {});
     _syncPetToProvider();
+    _showPetActionMessage('${cat.name} profile saved', saved: true);
   }
 
   Widget _buildCounterSegment({
@@ -2743,6 +3114,7 @@ class _PetGameScreenState extends State<PetGameScreen>
 
   Widget _buildStatsPanel(Pet pet) {
     return Container(
+      key: _tutorialStatsKey,
       height: 80,
       margin: const EdgeInsets.fromLTRB(12, 0, 12, 5),
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
@@ -2970,44 +3342,6 @@ class _PetGameScreenState extends State<PetGameScreen>
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAnniversaryBanner() {
-    return GestureDetector(
-      onTap: () => _showEasterEgg('anniversary'),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFFFFF087), Color(0xFFFF76B7)],
-          ),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: const Color(0xFFB96A31), width: 2.5),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF8A4B2A).withValues(alpha: 0.16),
-              blurRadius: 6,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: const Text(
-          '3rd Anniversary',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 11,
-            fontWeight: FontWeight.w900,
-            shadows: [
-              Shadow(
-                color: Color(0x884A2A1E),
-                offset: Offset(0, 1),
-                blurRadius: 1,
-              ),
-            ],
-          ),
         ),
       ),
     );
@@ -3599,81 +3933,188 @@ class _PetGameScreenState extends State<PetGameScreen>
     final portraitAsset = _petPortraitAsset(pet);
     final portraitBorder = _petPortraitBorderColor(pet.currentMood);
 
-    return AnimatedBuilder(
-      animation: _motionController,
-      child: SizedBox(
-        width: petWidth,
-        height: portraitHeight,
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Positioned(
-              left: petWidth * 0.16,
-              right: petWidth * 0.16,
-              bottom: 2,
-              height: 28,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFF23404C).withValues(alpha: 0.20),
-                  borderRadius: BorderRadius.circular(100),
-                  boxShadow: [
-                    BoxShadow(
-                      color: portraitBorder.withValues(alpha: 0.14),
-                      blurRadius: 18,
-                      offset: const Offset(0, 6),
+    return KeyedSubtree(
+      key: _tutorialPetKey,
+      child: AnimatedBuilder(
+        animation: Listenable.merge([_motionController, _reactionController]),
+        child: SizedBox(
+          width: petWidth,
+          height: portraitHeight,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Positioned(
+                left: petWidth * 0.16,
+                right: petWidth * 0.16,
+                bottom: 2,
+                height: 28,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF23404C).withValues(alpha: 0.20),
+                    borderRadius: BorderRadius.circular(100),
+                    boxShadow: [
+                      BoxShadow(
+                        color: portraitBorder.withValues(alpha: 0.14),
+                        blurRadius: 18,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              GestureDetector(
+                onTap: _animatePet,
+                onDoubleTap: () => _showEasterEgg('cat'),
+                onLongPress: () => _showEasterEgg('cat'),
+                child: Image.asset(
+                  portraitAsset,
+                  width: petWidth,
+                  height: portraitHeight,
+                  fit: BoxFit.contain,
+                  filterQuality: FilterQuality.medium,
+                ),
+              ),
+              if (pet.currentAccessory.isNotEmpty)
+                _buildOutfitBadge(pet.currentAccessory),
+              if (_petReactionMessage != null)
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: IgnorePointer(
+                    child: Semantics(
+                      liveRegion: true,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 7,
+                        ),
+                        decoration: BoxDecoration(
+                          color: _solidPanelColor,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: portraitBorder, width: 2),
+                        ),
+                        child: Text(
+                          _petReactionMessage!,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: _primaryTextColor,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
                     ),
-                  ],
+                  ),
+                ),
+              Positioned(
+                right: 10,
+                top: 10,
+                child: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.86),
+                    shape: BoxShape.circle,
+                    border:
+                        Border.all(color: const Color(0xFFF5C3C8), width: 2),
+                  ),
+                  child:
+                      Text(pet.moodEmoji, style: const TextStyle(fontSize: 16)),
                 ),
               ),
-            ),
-            GestureDetector(
-              onDoubleTap: () => _showEasterEgg('cat'),
-              onLongPress: () => _showEasterEgg('cat'),
-              child: Image.asset(
-                portraitAsset,
-                width: petWidth,
-                height: portraitHeight,
-                fit: BoxFit.contain,
-                filterQuality: FilterQuality.medium,
-              ),
-            ),
-            if (pet.currentAccessory.isNotEmpty)
-              _buildOutfitBadge(pet.currentAccessory),
-            Positioned(
-              right: 10,
-              top: 10,
-              child: Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.86),
-                  shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFFF5C3C8), width: 2),
-                ),
-                child:
-                    Text(pet.moodEmoji, style: const TextStyle(fontSize: 16)),
-              ),
-            ),
-          ],
-        ),
-      ),
-      builder: (context, child) {
-        final time = _motionController.value * math.pi * 2;
-        final bob = math.sin(time) * 5;
-        final sway = math.sin(time * 0.55) * 0.018;
-        final breathe = 1 + math.sin(time + math.pi / 2) * 0.012;
-
-        return Transform.translate(
-          offset: Offset(0, bob),
-          child: Transform.rotate(
-            angle: sway,
-            child: Transform.scale(
-              scale: breathe,
-              child: child,
-            ),
+            ],
           ),
-        );
-      },
+        ),
+        builder: (context, child) {
+          if (MediaQuery.of(context).disableAnimations) return child!;
+
+          final time = _motionController.value * math.pi * 2;
+          final reaction = math.sin(_reactionController.value * math.pi);
+          final roam = math.sin(time) * _petRoamDistance(pet.type, petWidth);
+          final bob = math.sin(time * 2) * _petBobDistance(pet.type);
+          final hop = -42 * reaction;
+          final sway = math.sin(time) * 0.026;
+          final breathe = 1 + math.sin(time + math.pi / 2) * 0.012;
+
+          return Transform.translate(
+            offset: Offset(roam, bob + hop),
+            child: Transform.rotate(
+              angle: sway + (reaction * 0.035),
+              child: Transform.scale(
+                scale: breathe + (reaction * 0.07),
+                child: child,
+              ),
+            ),
+          );
+        },
+      ),
     );
+  }
+
+  void _animatePet() {
+    _soundService.playSound('pet_${_pet?.type.name.toLowerCase() ?? 'cat'}');
+    _showPetReaction(switch (_pet?.currentMood) {
+      PetMood.sleepy => 'Five more minutes, please.',
+      PetMood.hungry => 'Any snacks in those pockets?',
+      PetMood.sick => 'A little care would help.',
+      PetMood.sad => 'Stay and play with me?',
+      PetMood.loving => 'My favorite human is here!',
+      _ => 'Happy paws, happy heart!',
+    });
+  }
+
+  void _showPetReaction(String message) {
+    _reactionTimer?.cancel();
+    setState(() => _petReactionMessage = message);
+    _reactionController.forward(from: 0);
+    _reactionTimer = Timer(const Duration(seconds: 2), () {
+      if (mounted) setState(() => _petReactionMessage = null);
+    });
+  }
+
+  Future<void> _recordCare(Pet pet, String action) async {
+    await _careProgressReady;
+    if (!mounted) return;
+    final coins = await _careProgress.recordCare(pet.id, action);
+    if (coins > 0) {
+      await _awardCareCoins(pet.id, coins);
+    }
+  }
+
+  Future<void> _awardCareCoins(String petId, int coins) async {
+    if (!mounted || coins <= 0) return;
+    final matchingPets = _cats.where((pet) => pet.id == petId);
+    if (matchingPets.isEmpty) return;
+    final rewardedPet = matchingPets.first;
+    setState(() => rewardedPet.coins += coins);
+    await _syncPetToProvider();
+    if (!mounted) return;
+    _soundService.playSound('reward');
+    _showPetActionMessage('${rewardedPet.name} earned +$coins care coins',
+        saved: true);
+  }
+
+  double _petRoamDistance(PetType type, double petWidth) {
+    final fraction = switch (type) {
+      PetType.cat => 0.18,
+      PetType.dog => 0.22,
+      PetType.bunny => 0.24,
+      PetType.fox => 0.23,
+      PetType.panda => 0.14,
+      PetType.bird => 0.26,
+    };
+    return petWidth * fraction;
+  }
+
+  double _petBobDistance(PetType type) {
+    return switch (type) {
+      PetType.cat => 5,
+      PetType.dog => 6,
+      PetType.bunny => 10,
+      PetType.fox => 7,
+      PetType.panda => 4,
+      PetType.bird => 12,
+    };
   }
 
   Widget _buildOutfitBadge(String outfitId) {
@@ -4068,9 +4509,13 @@ class _PetGameScreenState extends State<PetGameScreen>
       padding: const EdgeInsets.fromLTRB(12, 6, 12, 7),
       child: Column(
         children: [
-          _buildGameplayCoach(coachTip),
+          KeyedSubtree(
+            key: _tutorialCoachKey,
+            child: _buildGameplayCoach(coachTip),
+          ),
           const SizedBox(height: 6),
           SizedBox(
+            key: _tutorialCareRowKey,
             height: 34,
             child: Row(
               children: [
@@ -4112,6 +4557,7 @@ class _PetGameScreenState extends State<PetGameScreen>
             child: Row(
               children: [
                 _buildActionButton(
+                  tutorialKey: _tutorialFoodKey,
                   icon: Icons.set_meal,
                   label: 'FOOD',
                   color: const Color(0xFFF0839C),
@@ -4119,6 +4565,7 @@ class _PetGameScreenState extends State<PetGameScreen>
                   onTap: () => _feedPet(),
                 ),
                 _buildActionButton(
+                  tutorialKey: _tutorialToyKey,
                   icon: Icons.sports_baseball,
                   label: 'TOY',
                   color: const Color(0xFF83D7F7),
@@ -4126,6 +4573,7 @@ class _PetGameScreenState extends State<PetGameScreen>
                   onTap: () => _playWithPet(),
                 ),
                 _buildActionButton(
+                  tutorialKey: _tutorialCleanKey,
                   icon: Icons.bubble_chart,
                   label: 'CLEAN',
                   color: const Color(0xFF73E0D4),
@@ -4133,8 +4581,9 @@ class _PetGameScreenState extends State<PetGameScreen>
                   onTap: () => _cleanPet(),
                 ),
                 _buildActionButton(
+                  tutorialKey: _tutorialHubKey,
                   icon: Icons.shopping_bag,
-                  label: 'SHOP',
+                  label: 'HUB',
                   color: const Color(0xFFB88CFF),
                   shadowColor: const Color(0xFF7461C9),
                   onTap: () => _showMiniGames(context),
@@ -4210,6 +4659,7 @@ class _PetGameScreenState extends State<PetGameScreen>
   }
 
   Widget _buildActionButton({
+    Key? tutorialKey,
     required IconData icon,
     required String label,
     required Color color,
@@ -4220,6 +4670,7 @@ class _PetGameScreenState extends State<PetGameScreen>
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4),
         child: GestureDetector(
+          key: tutorialKey,
           onTap: onTap,
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
@@ -4294,6 +4745,7 @@ class _PetGameScreenState extends State<PetGameScreen>
       return;
     }
 
+    _soundService.playSound('click');
     setState(() {
       if (!owned) {
         pet.coins -= item.price;
@@ -4303,7 +4755,7 @@ class _PetGameScreenState extends State<PetGameScreen>
       _refreshMood(PetMood.happy);
     });
     _syncPetToProvider();
-    _showPetActionMessage('${item.name} is in the room');
+    _showPetActionMessage('${item.name} is in the room', saved: true);
   }
 
   void _buyOrEquipOutfit(_OutfitItem item) {
@@ -4311,12 +4763,13 @@ class _PetGameScreenState extends State<PetGameScreen>
     if (pet == null) return;
 
     if (item.id.isEmpty) {
+      _soundService.playSound('click');
       setState(() {
         pet.currentAccessory = '';
         _refreshMood(PetMood.happy);
       });
       _syncPetToProvider();
-      _showPetActionMessage('Outfit removed');
+      _showPetActionMessage('Outfit removed', saved: true);
       return;
     }
 
@@ -4326,6 +4779,7 @@ class _PetGameScreenState extends State<PetGameScreen>
       return;
     }
 
+    _soundService.playSound('click');
     setState(() {
       if (!owned) {
         pet.coins -= item.price;
@@ -4335,7 +4789,7 @@ class _PetGameScreenState extends State<PetGameScreen>
       _refreshMood(PetMood.excited);
     });
     _syncPetToProvider();
-    _showPetActionMessage('${item.name} equipped');
+    _showPetActionMessage('${item.name} equipped', saved: true);
   }
 
   void _activateOutfitSet(_OutfitSet set) {
@@ -4351,6 +4805,7 @@ class _PetGameScreenState extends State<PetGameScreen>
       return;
     }
 
+    _soundService.playSound('reward');
     setState(() {
       pet.currentAccessory = set.featuredAccessory;
       pet.happiness = (pet.happiness + set.happyBonus).clamp(0, 100);
@@ -4365,7 +4820,7 @@ class _PetGameScreenState extends State<PetGameScreen>
       _refreshMood(PetMood.excited);
     });
     _syncPetToProvider();
-    _showPetActionMessage('${set.name} bonus activated');
+    _showPetActionMessage('${set.name} bonus activated', saved: true);
   }
 
   String _outfitNameById(String id) {
@@ -4383,13 +4838,14 @@ class _PetGameScreenState extends State<PetGameScreen>
       return;
     }
 
+    _soundService.playSound('click');
     setState(() {
       pet.activeJobId = job.id;
       pet.activeJobStartedAt = DateTime.now();
       pet.currentMood = PetMood.excited;
     });
     _syncPetToProvider();
-    _showPetActionMessage('${pet.name} started ${job.name}');
+    _showPetActionMessage('${pet.name} started ${job.name}', saved: true);
   }
 
   bool _isJobReady(Pet pet, _CatJob job) {
@@ -4415,6 +4871,7 @@ class _PetGameScreenState extends State<PetGameScreen>
       return;
     }
 
+    _soundService.playSound('reward');
     setState(() {
       pet.coins += job.coinReward;
       pet.gems += job.gemReward;
@@ -4428,7 +4885,7 @@ class _PetGameScreenState extends State<PetGameScreen>
       _refreshMood(PetMood.happy);
     });
     _syncPetToProvider();
-    _showPetActionMessage('${job.name} complete');
+    _showPetActionMessage('${job.name} complete', saved: true);
   }
 
   void _redeemSecretCode(String rawCode) {
@@ -4454,6 +4911,7 @@ class _PetGameScreenState extends State<PetGameScreen>
       return;
     }
 
+    _soundService.playSound('secret_code');
     setState(() {
       _redeemedSecretCodes.add(code.code);
       pet.coins += code.coins;
@@ -4468,7 +4926,7 @@ class _PetGameScreenState extends State<PetGameScreen>
     });
     _saveSecretCodes();
     _syncPetToProvider();
-    _showPetActionMessage('${code.title} redeemed');
+    _showPetActionMessage('${code.title} redeemed', saved: true);
   }
 
   Future<void> _openMiniGame(_MiniGameEntry game) async {
@@ -4532,6 +4990,7 @@ class _PetGameScreenState extends State<PetGameScreen>
     required int xp,
     required int levelGain,
   }) {
+    _soundService.playSound('reward');
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -4584,7 +5043,85 @@ class _PetGameScreenState extends State<PetGameScreen>
     );
   }
 
+  Future<void> _openCloudAccount() async {
+    final game = context.read<GameProvider>();
+    final before = CloudSaveService.instance.restoreRevision;
+    await _syncPetToProvider();
+    game.pauseGame();
+    if (!mounted) return;
+    await Navigator.push(
+        context, MaterialPageRoute(builder: (_) => const CloudAccountScreen()));
+    if (!mounted) return;
+    // Reload before resuming timers so restored data cannot be overwritten.
+    await game.loadGame();
+    if (!mounted) return;
+    if (CloudSaveService.instance.restoreRevision != before) {
+      _careProgress.dispose();
+      _careProgress = CareProgressService();
+      _eggNest.dispose();
+      _eggNest = EggNestService();
+      _careProgressReady = _careProgress.initialize();
+      await _loadCatCollection(game.pet);
+      await _loadDailyQuests();
+      await _loadEasterEggJournal();
+      await _loadSecretCodes();
+      if (mounted) setState(() {});
+    }
+  }
+
+  Widget _buildGrowthStrip(Pet pet) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        child: InkWell(
+          onLongPress: () => _showEasterEgg('growth'),
+          onTap: () => showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                    title: Text('${pet.name}’s Journey'),
+                    content: SingleChildScrollView(
+                        child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                          Text(
+                              'Day ${pet.ageInDays + 1} • ${pet.ageInDays} days old'),
+                          Text(
+                              'Adopted ${pet.createdAt.toLocal().toString().split(' ').first}'),
+                          const SizedBox(height: 12),
+                          const Text(
+                              'Pets evolve with time or levels, whichever comes first. Evolution never goes backwards.'),
+                          const SizedBox(height: 12),
+                          for (var i = 0; i < EvolutionStage.values.length; i++)
+                            Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 4),
+                                child: Text(
+                                    '${i <= pet.evolutionStage.index ? '✓' : '○'} ${Pet.stageNames[i]} — ${Pet.stageDays[i]} days / level ${Pet.stageLevels[i]}')),
+                          const SizedBox(height: 12),
+                          Text(pet.nextEvolutionDescription),
+                        ])),
+                    actions: [
+                      TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('Keep growing'))
+                    ],
+                  )),
+          child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                  color: _dialogColor, borderRadius: BorderRadius.circular(12)),
+              child: Text(
+                  'Day ${pet.ageInDays + 1}  •  Age ${pet.ageInDays}d  •  ${pet.stageName}  ↗',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      color: _primaryTextColor,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold))),
+        ),
+      );
+
   void _showSettings(BuildContext context) {
+    _soundService.playSound('click');
     final rootContext = context;
 
     showDialog(
@@ -4592,7 +5129,6 @@ class _PetGameScreenState extends State<PetGameScreen>
       builder: (dialogContext) => StatefulBuilder(
         builder: (dialogContext, settingsSetState) {
           final gameProvider = dialogContext.watch<GameProvider>();
-          final soundEnabled = gameProvider.soundEnabled;
           final darkModeEnabled = gameProvider.darkModeEnabled;
 
           return AlertDialog(
@@ -4607,6 +5143,16 @@ class _PetGameScreenState extends State<PetGameScreen>
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    ListTile(
+                      leading: const Icon(Icons.cloud_sync),
+                      title: const Text('Account & Cloud Save'),
+                      subtitle: const Text(
+                          'Sign in, save, or restore your pet family'),
+                      onTap: () {
+                        Navigator.pop(dialogContext);
+                        _openCloudAccount();
+                      },
+                    ),
                     SwitchListTile(
                       value: darkModeEnabled,
                       onChanged: (_) {
@@ -4623,29 +5169,21 @@ class _PetGameScreenState extends State<PetGameScreen>
                       title: Text(darkModeEnabled ? 'Dark Mode' : 'Light Mode'),
                       subtitle: const Text('Switch the whole game theme'),
                     ),
+                    const AudioSettings(),
                     ListTile(
-                      leading: const Icon(Icons.music_note,
-                          color: Color(0xFF667EEA)),
-                      title: const Text('Sound'),
-                      trailing: Switch(
-                        value: soundEnabled,
-                        onChanged: (_) {
-                          rootContext.read<GameProvider>().toggleSound();
-                          settingsSetState(() {});
-                        },
+                      leading: const Icon(
+                        Icons.tour,
+                        color: Color(0xFF66C58D),
                       ),
-                    ),
-                    ListTile(
-                      leading:
-                          const Icon(Icons.vibration, color: Color(0xFF667EEA)),
-                      title: const Text('Vibration'),
-                      trailing: Switch(
-                        value: _vibrationEnabled,
-                        onChanged: (value) {
-                          setState(() => _vibrationEnabled = value);
-                          settingsSetState(() {});
-                        },
-                      ),
+                      title: const Text('How to Play'),
+                      subtitle: const Text('Replay the highlighted game tour'),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () {
+                        Navigator.pop(dialogContext);
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          _startGameTutorial();
+                        });
+                      },
                     ),
                     ListTile(
                       leading: const Icon(
@@ -4687,7 +5225,7 @@ class _PetGameScreenState extends State<PetGameScreen>
                         'Check for Updates',
                       ),
                       subtitle: Text(
-                        'Zona Pets v${UpdateService.currentVersion}',
+                        'Pet Fiasco v${UpdateService.currentVersion}',
                       ),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () async {
@@ -4741,6 +5279,7 @@ class _PetGameScreenState extends State<PetGameScreen>
   }
 
   void _showMiniGames(BuildContext context) {
+    _soundService.playSound('click');
     final games = [
       _MiniGameEntry(
         icon: '🧱',
@@ -4817,16 +5356,37 @@ class _PetGameScreenState extends State<PetGameScreen>
               maxHeight: MediaQuery.sizeOf(context).height * 0.82,
             ),
             child: DefaultTabController(
-              length: 7,
+              length: 10,
               child: Column(
                 children: [
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.fromLTRB(20, 18, 20, 8),
-                    child: Text(
-                      'Pet Hub',
-                      textAlign: TextAlign.center,
-                      style:
-                          TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                    child: Column(
+                      children: [
+                        const Text(
+                          'Pet Hub',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        ElevatedButton.icon(
+                          onPressed: (_cats.isEmpty && _pet == null)
+                              ? null
+                              : () {
+                                  Navigator.pop(context);
+                                  _showPetParade();
+                                },
+                          icon: const Icon(Icons.celebration),
+                          label: const Text('Pet Parade'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFFF76B7),
+                            foregroundColor: Colors.white,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   TabBar(
@@ -4835,11 +5395,14 @@ class _PetGameScreenState extends State<PetGameScreen>
                     unselectedLabelColor: Colors.grey.shade600,
                     indicatorColor: const Color(0xFFFF76B7),
                     tabs: const [
+                      Tab(icon: Icon(Icons.favorite), text: 'Care Journal'),
+                      Tab(icon: Icon(Icons.egg_outlined), text: 'Egg Nest'),
                       Tab(icon: Icon(Icons.task_alt), text: 'Quests'),
                       Tab(icon: Icon(Icons.work), text: 'Jobs'),
                       Tab(icon: Icon(Icons.chair), text: 'Room'),
+                      Tab(icon: Icon(Icons.menu_book), text: 'Almanac'),
                       Tab(icon: Icon(Icons.checkroom), text: 'Outfits'),
-                      Tab(icon: Icon(Icons.emoji_events), text: 'Eggs'),
+                      Tab(icon: Icon(Icons.travel_explore), text: 'Secrets'),
                       Tab(icon: Icon(Icons.key), text: 'Codes'),
                       Tab(icon: Icon(Icons.sports_esports), text: 'Games'),
                     ],
@@ -4847,9 +5410,56 @@ class _PetGameScreenState extends State<PetGameScreen>
                   Expanded(
                     child: TabBarView(
                       children: [
+                        SingleChildScrollView(
+                          padding: const EdgeInsets.all(16),
+                          child: CareJournal(
+                            pets: List<Pet>.from(_cats),
+                            service: _careProgress,
+                            activePetId: _pet?.id,
+                            onReward: _awardCareCoins,
+                          ),
+                        ),
+                        EggNest(
+                            service: _eggNest,
+                            onHatch: (species, petId) async {
+                              if (_cats.any((pet) => pet.id == petId)) return;
+                              final previousIndex = _selectedCatIndex;
+                              final previousPet = _pet;
+                              final hatchling = _createDefaultPet(
+                                  name: _nextPetName(species), type: species)
+                                ..id = petId;
+                              setState(() {
+                                _cats.add(hatchling);
+                                _selectedCatIndex = _cats.length - 1;
+                                _pet = hatchling;
+                              });
+                              try {
+                                await _syncPetToProvider();
+                              } catch (_) {
+                                if (mounted) {
+                                  setState(() {
+                                    _cats.remove(hatchling);
+                                    _selectedCatIndex = previousIndex;
+                                    _pet = previousPet;
+                                  });
+                                  if (previousPet != null)
+                                    context
+                                        .read<GameProvider>()
+                                        .setPet(previousPet);
+                                }
+                                rethrow;
+                              }
+                              if (mounted) {
+                                modalSetState(() {});
+                                _showPetActionMessage(
+                                    '🐣 ${hatchling.name} joined your family!',
+                                    saved: true);
+                              }
+                            }),
                         _buildQuestTab(modalSetState),
                         _buildJobsTab(modalSetState),
                         _buildDecorTab(modalSetState),
+                        _buildAnimalAlmanacTab(),
                         _buildOutfitTab(modalSetState),
                         _buildEasterEggJournalTab(),
                         _buildSecretCodesTab(modalSetState),
@@ -4880,6 +5490,8 @@ class _PetGameScreenState extends State<PetGameScreen>
           style: TextStyle(color: Color(0xFF7A4B3B), fontSize: 13),
         ),
         const SizedBox(height: 12),
+        _buildStreakCard(),
+        const SizedBox(height: 8),
         ..._dailyQuests.map(
           (quest) {
             final progress = (_questProgress[quest.id] ?? 0).clamp(
@@ -4912,6 +5524,35 @@ class _PetGameScreenState extends State<PetGameScreen>
           },
         ),
       ],
+    );
+  }
+
+  Widget _buildStreakCard() {
+    final streak = _dailyStreakLoaded ? _dailyStreakCount : 0;
+    final nextReward = _streakRewardFor(streak + 1);
+    return _buildHubCard(
+      icon: Icons.local_fire_department,
+      color: const Color(0xFFFF8A4B),
+      title: 'Daily Care Streak',
+      subtitle: streak <= 0
+          ? 'Open the game daily to build a streak and earn rewards.'
+          : 'Day $streak active • Tomorrow: +${nextReward.coins} coins, +${nextReward.gems} gems, +${nextReward.xp} XP',
+      trailing: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFF8A4B).withValues(alpha: 0.16),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFFF8A4B), width: 2),
+        ),
+        child: Text(
+          'DAY ${streak.clamp(1, 999)}',
+          style: const TextStyle(
+            color: Color(0xFF7A4B3B),
+            fontSize: 11,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+      ),
     );
   }
 
@@ -5019,6 +5660,62 @@ class _PetGameScreenState extends State<PetGameScreen>
     );
   }
 
+  Widget _buildAnimalAlmanacTab() {
+    final totalPets = _cats.isEmpty && _pet != null ? 1 : _cats.length;
+
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        Text(
+          'Animal Almanac • $totalPets pet${totalPets == 1 ? '' : 's'} adopted',
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            color: Color(0xFF7A4B3B),
+            fontSize: 13,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        const SizedBox(height: 12),
+        ...PetType.values.map(
+          (type) {
+            final owned = _cats.where((pet) => pet.type == type).length;
+            final selected = _pet?.type == type;
+            return _buildHubCard(
+              leadingText: type.emoji,
+              color: type.color,
+              title: '${type.name} • ${_habitatName(type)}',
+              subtitle:
+                  '${_habitatDescription(type)} • ${owned == 0 ? 'Not adopted yet' : '$owned owned'}',
+              trailing: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                decoration: BoxDecoration(
+                  color: selected
+                      ? const Color(0xFFFFF087)
+                      : type.color.withValues(alpha: 0.16),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: type.color, width: 2),
+                ),
+                child: Text(
+                  selected
+                      ? 'ACTIVE'
+                      : owned > 0
+                          ? 'OWNED'
+                          : 'NEW',
+                  style: const TextStyle(
+                    color: Color(0xFF7A4B3B),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
   Widget _buildOutfitTab(StateSetter modalSetState) {
     final pet = _pet;
     if (pet == null) return const SizedBox.shrink();
@@ -5093,8 +5790,11 @@ class _PetGameScreenState extends State<PetGameScreen>
     );
   }
 
+  int get _discoveredSecretCount =>
+      _easterEggs.where((egg) => _foundEasterEggIds.contains(egg.id)).length;
+
   Widget _buildEasterEggJournalTab() {
-    final found = _foundEasterEggIds.length;
+    final found = _discoveredSecretCount;
     final total = _easterEggs.length;
 
     return ListView(
@@ -5112,8 +5812,8 @@ class _PetGameScreenState extends State<PetGameScreen>
             return _buildHubCard(
               icon: unlocked ? Icons.emoji_events : Icons.lock,
               color: unlocked ? const Color(0xFFFFB84D) : Colors.grey,
-              title: unlocked ? egg.title : 'Secret ???',
-              subtitle: unlocked ? egg.trigger : 'Hint hidden until found',
+              title: unlocked ? egg.title : 'Undiscovered secret',
+              subtitle: unlocked ? egg.trigger : 'Hint: ${egg.trigger}',
               trailing: Text(
                 unlocked ? 'FOUND' : 'LOCKED',
                 style: TextStyle(
@@ -5799,6 +6499,180 @@ class _PlayCutsceneDialogState extends State<_PlayCutsceneDialog>
           ),
         ),
       ],
+    );
+  }
+}
+
+class _PetParadeDialog extends StatefulWidget {
+  final List<Pet> pets;
+
+  const _PetParadeDialog({required this.pets});
+
+  @override
+  State<_PetParadeDialog> createState() => _PetParadeDialogState();
+}
+
+class _PetParadeDialogState extends State<_PetParadeDialog>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 4200),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.all(18),
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 520),
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFFFFF4B8), Color(0xFFCFF3FF)],
+          ),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: Color(0xFFFF76B7), width: 4),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Pet Parade',
+              style: TextStyle(
+                color: Color(0xFF7A4B3B),
+                fontSize: 24,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              height: 230,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final width = constraints.maxWidth;
+                  final petSize = widget.pets.length <= 5 ? 86.0 : 68.0;
+                  final lane = width + petSize * 2;
+
+                  return AnimatedBuilder(
+                    animation: _controller,
+                    builder: (context, _) {
+                      return Stack(
+                        children: [
+                          Positioned(
+                            left: 0,
+                            right: 0,
+                            bottom: 18,
+                            child: Container(
+                              height: 24,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF8ED58A)
+                                    .withValues(alpha: 0.45),
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                            ),
+                          ),
+                          for (int i = 0; i < widget.pets.length; i++)
+                            _buildParadePet(
+                              widget.pets[i],
+                              left: ((i * lane / widget.pets.length) +
+                                          _controller.value * lane) %
+                                      lane -
+                                  petSize,
+                              top: 36 +
+                                  (i % 3) * 16 +
+                                  math.sin(
+                                        _controller.value * math.pi * 2 + i,
+                                      ) *
+                                      10,
+                              size: petSize,
+                            ),
+                        ],
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+            Text(
+              widget.pets.length == 1
+                  ? '${widget.pets.first.name} is doing a solo victory lap.'
+                  : '${widget.pets.length} pets are marching with suspicious confidence.',
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Color(0xFF7A4B3B),
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 14),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFFF76B7),
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Close'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildParadePet(
+    Pet pet, {
+    required double left,
+    required double top,
+    required double size,
+  }) {
+    return Positioned(
+      left: left,
+      top: top,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Image.asset(
+            _petPortraitAssetForPet(pet),
+            width: size,
+            height: size,
+            fit: BoxFit.contain,
+            filterQuality: FilterQuality.medium,
+          ),
+          Container(
+            constraints: BoxConstraints(maxWidth: size + 24),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.92),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: pet.type.color, width: 2),
+            ),
+            child: Text(
+              '${pet.type.emoji} ${pet.name}',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: Color(0xFF7A4B3B),
+                fontSize: 11,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

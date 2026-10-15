@@ -1,7 +1,7 @@
 # Pet Fiasco v26.9.1 release status
 
-Checked 2026-10-15. **Not published or deployed.** The v26.9.1 release source
-is committed separately from preserved unrelated local changes.
+Checked 2026-10-15. **Published and deployed with macOS pending.** The v26.9.1
+release source is committed separately from preserved unrelated local changes.
 
 ## Implemented and verified
 
@@ -17,6 +17,8 @@ is committed separately from preserved unrelated local changes.
   denial passed. Disposable test accounts and saves removed (`build/qa/firebase-final.log`).
 - Static analysis: no errors; two redundant-null-assertion warnings and style notices remain.
 - APK signature, IPA ZIP integrity, web ZIP integrity, and DMG checksums verified.
+- GitHub release published with checksum-verified APK, Sideloadly IPA, and web ZIP.
+- Both Firebase sites deployed and their public manifests verified byte-for-byte.
 
 ## Local packages
 
@@ -28,7 +30,7 @@ In `build/releases/v26.9.1/`:
 - `pet-fiasco-macos-v26.9.1-LOCAL-PREVIEW.dmg` — Intel and Apple Silicon;
   development-signed, **not a public distribution build**.
 
-## Exact publication blocker
+## Remaining macOS publication blocker
 
 Automatic Developer ID export failed for Lina Ahmed team `9JZ8BU782J`:
 
@@ -44,14 +46,15 @@ User action required: sign into Xcode with an eligible Apple Developer Program t
 and provide/create a Developer ID Application certificate with its private key.
 Enrollment, payment, and account approval were not performed.
 
-## Remaining release gates
+## Remaining macOS gate
 
 1. Export the existing `PetFiasco.xcarchive` using `tools/macos_export.plist` under
    an eligible team, then package a public Developer ID-signed DMG.
-2. Upload the four exact manifest assets to a GitHub draft and verify their hashes.
-3. Publish, verify every public asset download and checksum, then deploy both
-   Firebase hosting sites and verify their `latest.json` links.
+2. Add that DMG to the existing v26.9.1 release and restore the direct macOS
+   download URL after verifying its public checksum.
 
-All four planned v26.9.1 public asset URLs returned HTTP 404 during the final gate
-check (`build/qa/public-link-gate.log`). No new GitHub release/tag or hosting deployment
-was made. Firebase Auth configuration and owner-only Firestore rules are already configured.
+Live release: https://github.com/zien95/kitty-adventure/releases/tag/v26.9.1
+
+Live sites: https://pet-fiasco.web.app and https://kitty-adventure-zona.web.app.
+The macOS manifest link currently opens the release status page instead of a missing
+DMG. Firebase Auth configuration and owner-only Firestore rules are configured.

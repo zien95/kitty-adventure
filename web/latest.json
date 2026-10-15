@@ -5,7 +5,7 @@
   "title": "Pet Fiasco v26.9.1 — Your Pets, Everywhere",
   "required": false,
   "release_date": "2026-10-15",
-  "size": "Android APK, Sideloadly IPA, macOS DMG, and web ZIP",
+  "size": "Android APK, Sideloadly IPA, and web ZIP; macOS coming soon",
   "changelog": [
     "Hatch new pets from eggs with saved incubation timers",
     "Removed anniversary content and refreshed hidden secrets",
@@ -23,6 +23,6 @@
   "web_url": "https://pet-fiasco.web.app/",
   "apk_url": "https://github.com/zien95/kitty-adventure/releases/download/v26.9.1/pet-fiasco-v26.9.1.apk",
   "ipa_url": "https://github.com/zien95/kitty-adventure/releases/download/v26.9.1/pet-fiasco-Sideloadly-v26.9.1.ipa",
-  "macos_url": "https://github.com/zien95/kitty-adventure/releases/download/v26.9.1/pet-fiasco-macos-v26.9.1.dmg",
+  "macos_url": "https://github.com/zien95/kitty-adventure/releases/tag/v26.9.1",
   "web_zip_url": "https://github.com/zien95/kitty-adventure/releases/download/v26.9.1/pet-fiasco-web-v26.9.1.zip"
 }

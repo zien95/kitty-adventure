@@ -119,3 +119,8 @@ Pet Fiasco is actively evolving. Every update should keep the game cozy, playabl
 Pet Fiasco is licensed under the GNU General Public License v3.0.
 
 See [LICENSE](LICENSE) for the full license text.
+
+Third-party animal recordings retain their stated licenses. See
+[THIRD_PARTY_AUDIO.md](THIRD_PARTY_AUDIO.md) or open **Settings → Animal sound
+credits** inside the game for creators, source pages, licenses, and documented
+modifications.

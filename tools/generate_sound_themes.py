@@ -1,4 +1,4 @@
-"""Reproducible original synthesized sound themes for Zona Pets (no samples)."""
+"""Generate original UI effects without overwriting licensed animal audio."""
 from pathlib import Path
 import math
 import random
@@ -7,17 +7,15 @@ import wave
 
 ROOT = Path(__file__).resolve().parents[1] / 'assets' / 'sounds'
 RATE = 22050
-# MIDI notes, with short rests between notes. Pet voices are stylized chirps.
+# MIDI notes with short rests between notes. Real pet recordings are processed
+# separately by process_real_animal_sounds.py and must never be synthesized here.
 PHRASES = {
-    'click': [79], 'button_pop': [72, 79], 'cat_meow': [76, 72, 69],
+    'click': [79], 'button_pop': [72, 79],
     'feed': [60, 64, 67], 'play': [72, 76, 79, 76],
     'clean': [79, 83, 86], 'sleep': [67, 64, 60],
     'train': [60, 62, 64, 67], 'medicine': [72, 76, 72],
     'level_up': [60, 64, 67, 72, 79], 'reward': [72, 76, 79, 84],
     'notification': [76, 72], 'secret_code': [60, 67, 70, 79],
-    'pet_cat': [76, 72, 69], 'pet_dog': [55, 55, 62],
-    'pet_bunny': [84, 88], 'pet_fox': [76, 83, 79],
-    'pet_panda': [48, 55, 52], 'pet_bird': [88, 91, 88, 95],
 }
 
 

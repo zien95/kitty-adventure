@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../providers/game_provider.dart';
 import '../services/sound_service.dart';
+import 'audio_credits_page.dart';
 
 /// Shared audio controls for both the game dialog and full Settings screen.
 class AudioSettings extends StatelessWidget {
@@ -107,6 +108,17 @@ class AudioSettings extends StatelessWidget {
           secondary: const Icon(Icons.vibration),
           value: game.vibrationEnabled,
           onChanged: (_) => game.toggleVibration(),
+        ),
+        ListTile(
+          leading: const Icon(Icons.pets),
+          title: const Text('Animal sound credits'),
+          subtitle: const Text('Sources and Creative Commons licenses'),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              builder: (_) => const AnimalSoundCreditsPage(),
+            ),
+          ),
         ),
       ],
     );

@@ -5,6 +5,7 @@ import 'package:zona_pets/services/sound_service.dart';
 
 class _Player extends Fake implements AudioPlayer {
   final List<String> assets = [];
+  @override
   double volume = 0;
   int stops = 0;
   ReleaseMode? configuredReleaseMode;
@@ -62,6 +63,23 @@ void main() {
     sounds.setSoundEnabled(false);
     await sounds.playSound('clean');
     expect(players.values.expand((p) => p.assets).length, 3);
+  });
+
+  test('every pet voice uses its real-animal asset in every sound pack',
+      () async {
+    sounds.setMusicEnabled(false);
+    const species = ['cat', 'dog', 'bunny', 'fox', 'panda', 'bird'];
+    for (final pack in ['classic', 'cute', 'soft', 'arcade']) {
+      sounds.setSoundPack(pack);
+      for (final animal in species) {
+        await sounds.playSound('pet_$animal');
+        final prefix = pack == 'classic' ? 'sounds' : 'sounds/$pack';
+        expect(
+          players.values.expand((player) => player.assets),
+          contains('$prefix/pet_$animal.wav'),
+        );
+      }
+    }
   });
 
   test('music follows mood, respects override and master mute', () async {

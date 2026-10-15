@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:vibration/vibration.dart';
@@ -75,12 +74,12 @@ class SoundService with WidgetsBindingObserver {
     'secret_code': 'secret_code.wav',
     'sleep': 'sleep.wav',
     'train': 'train.wav',
-    'pet_cat': 'cat_meow.wav',
-    'pet_dog': 'play.wav',
-    'pet_bunny': 'button_pop.wav',
-    'pet_fox': 'secret_code.wav',
-    'pet_panda': 'sleep.wav',
-    'pet_bird': 'notification.wav',
+    'pet_cat': 'pet_cat.wav',
+    'pet_dog': 'pet_dog.wav',
+    'pet_bunny': 'pet_bunny.wav',
+    'pet_fox': 'pet_fox.wav',
+    'pet_panda': 'pet_panda.wav',
+    'pet_bird': 'pet_bird.wav',
   };
 
   void setSoundEnabled(bool enabled) {

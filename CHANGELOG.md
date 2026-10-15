@@ -2,6 +2,8 @@
 
 ## v26.9.1 - Pet Fiasco (2026-10-15)
 
+- Replaced synthesized pet calls with licensed real cat, dog, bunny, fox, panda,
+  and bird recordings, with an in-app Creative Commons credits page.
 - Rebranded to Pet Fiasco with the new pet-fiasco.web.app address.
 - Added Firebase email/password accounts, password reset, private Firestore saves, and restore choices.
 - Added conflict detection to prevent silent cloud overwrites from another device.

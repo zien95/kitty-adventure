@@ -16,10 +16,11 @@ if not app.is_dir():
 subprocess.run(['codesign','--verify','--deep','--strict',str(app)],check=True)
 details = subprocess.run(['codesign','-dvv',str(app)],capture_output=True,text=True,check=True).stderr
 public = 'Authority=Developer ID Application:' in details
+adhoc = 'Signature=adhoc' in details
 executable = app / 'Contents' / 'MacOS' / app.stem
 architectures = subprocess.check_output(['lipo', '-archs', str(executable)], text=True).split()
 architecture_suffix = '' if set(architectures) == {'arm64', 'x86_64'} else '-' + '-'.join(architectures)
-suffix = '' if public else '-LOCAL-PREVIEW'
+suffix = '-ADHOC' if adhoc else ('' if public else '-LOCAL-PREVIEW')
 output = root / f'build/releases/v26.10.0/pet-fiasco-macos-v26.10.0{architecture_suffix}{suffix}.dmg'
 if output.exists():
     raise SystemExit('An existing DMG will not be overwritten.')

@@ -35,7 +35,7 @@ def sha256(path):
         return hashlib.file_digest(stream, 'sha256').hexdigest()
 
 
-def verify_public_mac_signing(dmg):
+def verify_public_mac_signing(dmg, allow_adhoc=False):
     # Firebase Auth uses the protected keychain. A single-device development
     # profile is useful for testing but must not become a public Mac installer.
     with tempfile.TemporaryDirectory(prefix='pet-fiasco-dmg-check-') as mount:
@@ -48,7 +48,7 @@ def verify_public_mac_signing(dmg):
             subprocess.run(['codesign', '--verify', '--deep', '--strict', str(apps[0])], check=True)
             signature = subprocess.run(['codesign', '-dvv', str(apps[0])],
                                        capture_output=True, text=True, check=True).stderr
-            if 'Authority=Developer ID Application:' not in signature:
+            if 'Authority=Developer ID Application:' not in signature and not (allow_adhoc and 'Signature=adhoc' in signature):
                 raise RuntimeError('Public Mac release blocked: install a Developer ID Application signing certificate and rebuild the DMG.')
             profile = apps[0] / 'Contents/embedded.provisionprofile'
             if profile.exists():
@@ -63,6 +63,7 @@ def verify_public_mac_signing(dmg):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--publish', action='store_true')
+    parser.add_argument('--allow-adhoc-macos', action='store_true', help='Explicitly distribute an unnotarized ad-hoc Mac package.')
     args = parser.parse_args()
     manifest = json.loads(Path('web/latest.json').read_text())
     version = manifest['version']
@@ -74,7 +75,7 @@ def main():
         if not (directory / name).is_file():
             raise RuntimeError(f'Missing artifact: {name}')
     if args.publish:
-        verify_public_mac_signing(directory / manifest['macos_url'].rsplit('/', 1)[-1])
+        verify_public_mac_signing(directory / manifest['macos_url'].rsplit('/', 1)[-1], args.allow_adhoc_macos)
     source_paths = ['lib', 'assets', 'pubspec.yaml', 'pubspec.lock', 'README.md',
                     'web', 'updates', 'ios', 'macos', 'android/app/src',
                     'android/app/build.gradle.kts', 'android/settings.gradle.kts',
@@ -100,7 +101,7 @@ def main():
                 '57 original sound effects, mood music, care journal, combos, birthdays, '
                 'Pet Parade, Almanac, habitat boosts, and the guided first-run tour.\n\n'
                 'The IPA is unsigned for signing with Sideloadly. The macOS app is '
-                'signed for Intel and Apple Silicon; notarization is separate.\n\n'
+                'ad-hoc signed for Apple Silicon (arm64), without notarization. macOS may require explicit approval in Privacy & Security.\n\n'
                 f'Source: `{commit}`. Every asset was verified before publication.')
         release = curl(API + '/releases', token=token, method='POST', data={
             'tag_name': tag, 'target_commitish': commit, 'draft': True,

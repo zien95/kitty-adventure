@@ -1,12 +1,15 @@
 {
   "app": "Pet Fiasco",
-  "version": "26.9.1",
-  "build": 26901,
-  "title": "Pet Fiasco v26.9.1 — Your Pets, Everywhere",
+  "version": "26.10.0",
+  "build": 261000,
+  "title": "Pet Fiasco v26.10.0 — 3D Pet World",
   "required": false,
-  "release_date": "2026-10-15",
-  "size": "Android APK, Sideloadly IPA, and web ZIP; macOS coming soon",
+  "release_date": "2026-10-16",
+  "size": "Android APK, Sideloadly IPA, Apple Silicon ad-hoc DMG, and web ZIP",
   "changelog": [
+    "Third-person XYZ pet yard with desktop and mobile controls",
+    "Jump onto the food bowl to eat; birds can fly",
+    "Generated age and mood artwork, plus adoptable elephants with real credited calls",
     "Hatch new pets from eggs with saved incubation timers",
     "Removed anniversary content and refreshed hidden secrets",
     "Pet Fiasco rebrand and new pet-fiasco.web.app home",
@@ -22,8 +25,8 @@
   ],
   "download_url": "https://pet-fiasco.web.app/files/",
   "web_url": "https://pet-fiasco.web.app/",
-  "apk_url": "https://github.com/zien95/kitty-adventure/releases/download/v26.9.1/pet-fiasco-v26.9.1.apk",
-  "ipa_url": "https://github.com/zien95/kitty-adventure/releases/download/v26.9.1/pet-fiasco-Sideloadly-v26.9.1.ipa",
-  "macos_url": "https://github.com/zien95/kitty-adventure/releases/tag/v26.9.1",
-  "web_zip_url": "https://github.com/zien95/kitty-adventure/releases/download/v26.9.1/pet-fiasco-web-v26.9.1.zip"
+  "apk_url": "https://github.com/zien95/kitty-adventure/releases/download/v26.10.0/pet-fiasco-v26.10.0.apk",
+  "ipa_url": "https://github.com/zien95/kitty-adventure/releases/download/v26.10.0/pet-fiasco-Sideloadly-v26.10.0.ipa",
+  "macos_url": "https://github.com/zien95/kitty-adventure/releases/download/v26.10.0/pet-fiasco-macos-v26.10.0-arm64-ADHOC.dmg",
+  "web_zip_url": "https://github.com/zien95/kitty-adventure/releases/download/v26.10.0/pet-fiasco-web-v26.10.0.zip"
 }

@@ -1,5 +1,15 @@
 # Pet Fiasco v26.10.0 release status
 
+## Ad-hoc release authorization — 2026-10-16
+
+The user explicitly authorized ad-hoc macOS distribution, superseding the
+Developer ID gate described below. The Apple Silicon app was re-signed ad-hoc
+after removing its device-restricted profile and team-bound entitlements. It
+launched successfully locally; its DMG passed signature and image verification.
+The public package is `pet-fiasco-macos-v26.10.0-arm64-ADHOC.dmg` and is
+unnotarized. The download page discloses the macOS approval requirement.
+The following earlier checkpoint records the pre-authorization state.
+
 Checked 2026-10-16. **Feature-complete and packaged locally; publication is
 blocked by macOS distribution signing.** The live sites and public updater remain
 on v26.9.1 so they do not advertise download URLs that are not available yet.

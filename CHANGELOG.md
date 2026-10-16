@@ -1,5 +1,18 @@
 # Changelog
 
+## v26.10.0 - Third-Person Pet World (2026-10-16)
+
+- Turned the garden into a third-person perspective play space with visible X,
+  Y, and Z coordinates, camera orbit, PC keyboard controls, and mobile controls.
+- Added a physical food-bowl objective: approach it, then jump or fly onto it to
+  eat and trigger the normal feeding rewards.
+- Birds can take off, fly through the yard, descend, and land.
+- Added generated character artwork for all five life stages and eight moods.
+- Added elephants to adoption, profiles, habitats, growth, mood art, movement,
+  sounds, and the Animal Almanac.
+- Added a real CC0 elephant trumpet and updated the in-app sound credits.
+- Updated the first-run and Settings replay tour to explain the 3D controls.
+
 ## v26.9.1 - Pet Fiasco (2026-10-15)
 
 - Replaced synthesized pet calls with licensed real cat, dog, bunny, fox, panda,

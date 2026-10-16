@@ -61,7 +61,7 @@ void main() {
     expect(
         (await SharedPreferences.getInstance())
             .getInt('zonaPetsGameTutorialRevision'),
-        2);
+        3);
     expect(tester.takeException(), isNull);
     await _disposeGame(tester, provider);
   });
@@ -76,7 +76,7 @@ void main() {
       'selectedKittyCatIndex': 0,
       'dailyStreakDate': '${now.year}-${now.month}-${now.day}',
       'dailyStreakCount': 1,
-      'zonaPetsGameTutorialRevision': 2,
+      'zonaPetsGameTutorialRevision': 3,
     });
     final provider = GameProvider();
     await _pumpGame(tester, provider);

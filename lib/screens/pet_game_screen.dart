@@ -21,6 +21,7 @@ import 'cloud_account_screen.dart';
 import '../widgets/audio_settings.dart';
 import '../widgets/care_journal.dart';
 import '../widgets/game_tutorial_overlay.dart';
+import '../widgets/third_person_pet_world.dart';
 import 'block_builder_game_screen.dart';
 import 'docs_screen.dart';
 import 'memory_match_screen.dart';
@@ -46,6 +47,35 @@ const Map<PetType, String> _petPortraitAssets = {
   PetType.fox: 'assets/images/pet_fox_cute_4k.png',
   PetType.panda: 'assets/images/pet_panda_cute_4k.png',
   PetType.bird: 'assets/images/pet_bird_cute_4k.png',
+  PetType.elephant: 'assets/images/pet_elephant_cute_4k.png',
+};
+
+const Map<PetType, String> _petAgeAssets = {
+  PetType.cat: 'assets/images/pet_3d_age_cat_v26_10.png',
+  PetType.dog: 'assets/images/pet_3d_age_dog_v26_10.png',
+  PetType.bunny: 'assets/images/pet_3d_age_bunny_v26_10.png',
+  PetType.fox: 'assets/images/pet_3d_age_fox_v26_10.png',
+  PetType.panda: 'assets/images/pet_3d_age_panda_v26_10.png',
+  PetType.bird: 'assets/images/pet_3d_age_bird_v26_10.png',
+  PetType.elephant: 'assets/images/pet_3d_age_elephant_v26_10.png',
+};
+
+const Map<PetType, String> _petMoodAssets = {
+  PetType.cat: 'assets/images/pet_3d_moods_cat_v26_10.png',
+  PetType.dog: 'assets/images/pet_3d_moods_dog_v26_10.png',
+  PetType.bunny: 'assets/images/pet_3d_moods_bunny_v26_10.png',
+  PetType.fox: 'assets/images/pet_3d_moods_fox_v26_10.png',
+  PetType.panda: 'assets/images/pet_3d_moods_panda_v26_10.png',
+  PetType.bird: 'assets/images/pet_3d_moods_bird_v26_10.png',
+  PetType.elephant: 'assets/images/pet_3d_moods_elephant_v26_10.png',
+};
+
+const Set<PetType> _fiveRowMoodAtlases = {
+  PetType.cat,
+  PetType.bunny,
+  PetType.panda,
+  PetType.bird,
+  PetType.elephant,
 };
 
 String _petPortraitAssetForPet(Pet pet) {
@@ -63,7 +93,7 @@ class _PetGameScreenState extends State<PetGameScreen>
     with TickerProviderStateMixin {
   static final Uri _downloadsUri =
       Uri.parse('https://pet-fiasco.web.app/files/');
-  static const int _gameTutorialRevision = 2;
+  static const int _gameTutorialRevision = 3;
   static const String _gameTutorialPreferenceKey =
       'zonaPetsGameTutorialRevision';
 
@@ -144,6 +174,7 @@ class _PetGameScreenState extends State<PetGameScreen>
     PetType.fox: ['Ember', 'Rusty', 'Flick', 'Maple', 'Cinder', 'Vix'],
     PetType.panda: ['Bao', 'Bamboo', 'Mochi-Paws', 'Pebble', 'Nori-Bao'],
     PetType.bird: ['Pipwing', 'Sky', 'Bluebell', 'Chirp', 'Feather', 'Sunny'],
+    PetType.elephant: ['Ellie', 'Peanut', 'Trunks', 'Nuru', 'Tembo', 'Mali'],
   };
 
   static const Map<PetType, List<String>> _petBiosByType = {
@@ -185,6 +216,12 @@ class _PetGameScreenState extends State<PetGameScreen>
       'Perches like royalty and judges crumbs from above.',
       'Wings full of sparkle, schedule full of dramatic swoops.',
       'Can turn one seed into a whole board meeting.',
+    ],
+    PetType.elephant: [
+      'Tiny trunk, enormous heart, zero respect for puddle boundaries.',
+      'Remembers every snack and every friend in perfect detail.',
+      'Walks softly, splashes loudly, hugs magnificently.',
+      'Future gentle giant and current champion leaf collector.',
     ],
   };
 
@@ -258,9 +295,9 @@ class _PetGameScreenState extends State<PetGameScreen>
           accentColor: const Color(0xFFFF76B7),
           title: 'Meet Your Pet',
           description:
-              'Keep your pet healthy, happy, rested, and clean. Every animal wanders and bobs around the garden, and actions save automatically.',
+              'Explore the garden in third person with real X, Y, and Z movement. Walk or fly to the food bowl, jump onto it to eat, and watch your pet change with age and mood.',
           clickHint:
-              'After the tour, tap your pet for a happy hop. Double-tap or long-press it to discover a secret.',
+              'PC: WASD, arrows, Space, Q/Shift, and E. Mobile: joystick and action buttons. Drag the garden to orbit the camera.',
         ),
         GameTutorialStep(
           targetKey: _tutorialPetSelectorKey,
@@ -1505,6 +1542,8 @@ class _PetGameScreenState extends State<PetGameScreen>
         return 'Bamboo Nap Grove';
       case PetType.bird:
         return 'Sky Perch';
+      case PetType.elephant:
+        return 'Gentle Giant Grove';
     }
   }
 
@@ -1522,6 +1561,8 @@ class _PetGameScreenState extends State<PetGameScreen>
         return 'Sleep gives extra energy and health.';
       case PetType.bird:
         return 'Bond gives extra social and happy points.';
+      case PetType.elephant:
+        return 'Food gives extra health and bond points.';
     }
   }
 
@@ -1557,6 +1598,11 @@ class _PetGameScreenState extends State<PetGameScreen>
         pet.social = (pet.social + 6).clamp(0, 100);
         pet.happiness = (pet.happiness + 5).clamp(0, 100);
         return 'Sky Perch';
+      case PetType.elephant:
+        if (actionKey != 'feed') return null;
+        pet.health = (pet.health + 6).clamp(0, 100);
+        pet.loyalty = (pet.loyalty + 5).clamp(0, 100);
+        return 'Gentle Giant Grove';
     }
   }
 
@@ -2021,14 +2067,7 @@ class _PetGameScreenState extends State<PetGameScreen>
                           ],
                         ),
                       ),
-                      Positioned(
-                        bottom: 18,
-                        left: 0,
-                        right: 0,
-                        child: Center(
-                          child: _buildPetCharacter(_pet!),
-                        ),
-                      ),
+                      Positioned.fill(child: _buildPetCharacter(_pet!)),
                     ],
                   ),
                 ),
@@ -3368,30 +3407,6 @@ class _PetGameScreenState extends State<PetGameScreen>
     }
   }
 
-  String _petPortraitAsset(Pet pet) {
-    return _petPortraitAssetForPet(pet);
-  }
-
-  Color _petPortraitBorderColor(PetMood mood) {
-    switch (mood) {
-      case PetMood.happy:
-        return const Color(0xFF7AA6D9);
-      case PetMood.excited:
-      case PetMood.playful:
-        return const Color(0xFF9A8CFF);
-      case PetMood.sleepy:
-        return const Color(0xFF748FC4);
-      case PetMood.hungry:
-        return const Color(0xFF65CFA7);
-      case PetMood.sad:
-        return const Color(0xFF6E8BE8);
-      case PetMood.sick:
-        return const Color(0xFF78B9AE);
-      case PetMood.loving:
-        return const Color(0xFFFF76B7);
-    }
-  }
-
   Widget _buildBackground(Pet pet) {
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -3926,127 +3941,19 @@ class _PetGameScreenState extends State<PetGameScreen>
   }
 
   Widget _buildPetCharacter(Pet pet) {
-    final petWidth = (MediaQuery.sizeOf(context).width * 0.32)
-        .clamp(180.0, 260.0)
-        .toDouble();
-    final portraitHeight = petWidth * 1.06;
-    final portraitAsset = _petPortraitAsset(pet);
-    final portraitBorder = _petPortraitBorderColor(pet.currentMood);
-
     return KeyedSubtree(
       key: _tutorialPetKey,
-      child: AnimatedBuilder(
-        animation: Listenable.merge([_motionController, _reactionController]),
-        child: SizedBox(
-          width: petWidth,
-          height: portraitHeight,
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Positioned(
-                left: petWidth * 0.16,
-                right: petWidth * 0.16,
-                bottom: 2,
-                height: 28,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF23404C).withValues(alpha: 0.20),
-                    borderRadius: BorderRadius.circular(100),
-                    boxShadow: [
-                      BoxShadow(
-                        color: portraitBorder.withValues(alpha: 0.14),
-                        blurRadius: 18,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              GestureDetector(
-                onTap: _animatePet,
-                onDoubleTap: () => _showEasterEgg('cat'),
-                onLongPress: () => _showEasterEgg('cat'),
-                child: Image.asset(
-                  portraitAsset,
-                  width: petWidth,
-                  height: portraitHeight,
-                  fit: BoxFit.contain,
-                  filterQuality: FilterQuality.medium,
-                ),
-              ),
-              if (pet.currentAccessory.isNotEmpty)
-                _buildOutfitBadge(pet.currentAccessory),
-              if (_petReactionMessage != null)
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  child: IgnorePointer(
-                    child: Semantics(
-                      liveRegion: true,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 7,
-                        ),
-                        decoration: BoxDecoration(
-                          color: _solidPanelColor,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: portraitBorder, width: 2),
-                        ),
-                        child: Text(
-                          _petReactionMessage!,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: _primaryTextColor,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              Positioned(
-                right: 10,
-                top: 10,
-                child: Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.86),
-                    shape: BoxShape.circle,
-                    border:
-                        Border.all(color: const Color(0xFFF5C3C8), width: 2),
-                  ),
-                  child:
-                      Text(pet.moodEmoji, style: const TextStyle(fontSize: 16)),
-                ),
-              ),
-            ],
-          ),
-        ),
-        builder: (context, child) {
-          if (MediaQuery.of(context).disableAnimations) return child!;
-
-          final time = _motionController.value * math.pi * 2;
-          final reaction = math.sin(_reactionController.value * math.pi);
-          final roam = math.sin(time) * _petRoamDistance(pet.type, petWidth);
-          final bob = math.sin(time * 2) * _petBobDistance(pet.type);
-          final hop = -42 * reaction;
-          final sway = math.sin(time) * 0.026;
-          final breathe = 1 + math.sin(time + math.pi / 2) * 0.012;
-
-          return Transform.translate(
-            offset: Offset(roam, bob + hop),
-            child: Transform.rotate(
-              angle: sway + (reaction * 0.035),
-              child: Transform.scale(
-                scale: breathe + (reaction * 0.07),
-                child: child,
-              ),
-            ),
-          );
-        },
+      child: ThirdPersonPetWorld(
+        pet: pet,
+        petAgeAsset: _petAgeAssets[pet.type]!,
+        petMoodAsset: _petMoodAssets[pet.type]!,
+        moodAtlasRows: _fiveRowMoodAtlases.contains(pet.type) ? 5 : 1,
+        reactionAnimation: _reactionController,
+        reactionMessage: _petReactionMessage,
+        accessoryEmoji: _outfitEmojiById(pet.currentAccessory),
+        onEat: _feedPet,
+        onPetTap: _animatePet,
+        onPetSecret: () => _showEasterEgg('cat'),
       ),
     );
   }
@@ -4092,55 +3999,6 @@ class _PetGameScreenState extends State<PetGameScreen>
     _soundService.playSound('reward');
     _showPetActionMessage('${rewardedPet.name} earned +$coins care coins',
         saved: true);
-  }
-
-  double _petRoamDistance(PetType type, double petWidth) {
-    final fraction = switch (type) {
-      PetType.cat => 0.18,
-      PetType.dog => 0.22,
-      PetType.bunny => 0.24,
-      PetType.fox => 0.23,
-      PetType.panda => 0.14,
-      PetType.bird => 0.26,
-    };
-    return petWidth * fraction;
-  }
-
-  double _petBobDistance(PetType type) {
-    return switch (type) {
-      PetType.cat => 5,
-      PetType.dog => 6,
-      PetType.bunny => 10,
-      PetType.fox => 7,
-      PetType.panda => 4,
-      PetType.bird => 12,
-    };
-  }
-
-  Widget _buildOutfitBadge(String outfitId) {
-    final emoji = _outfitEmojiById(outfitId);
-    if (emoji.isEmpty) return const SizedBox.shrink();
-
-    return Positioned(
-      left: 8,
-      top: 10,
-      child: Container(
-        padding: const EdgeInsets.all(6),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.88),
-          shape: BoxShape.circle,
-          border: Border.all(color: const Color(0xFFFFD6E8), width: 2),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF8A4B2A).withValues(alpha: 0.12),
-              blurRadius: 5,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: Text(emoji, style: const TextStyle(fontSize: 16)),
-      ),
-    );
   }
 
   String _outfitEmojiById(String id) {

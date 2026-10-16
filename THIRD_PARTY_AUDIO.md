@@ -12,6 +12,7 @@ required. Source pages are the authority for each license.
 | Fox | “Red Fox (Vulpes vulpes), W1CDR0001529 BD12,” recorded by **Aubrey John Williams**, supplied by **The British Library Board** | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Red_Fox_(Vulpes_vulpes)_(W1CDR0001529_BD12).ogg) | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
 | Panda | “Giant panda twittering” by **Mizunoryu** | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Giant_panda_twittering.ogg) | Public domain dedication by the creator |
 | Bird | “Bird chirp 2” by **Gravity Sound** | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Bird_chirp_2_(Gravity_Sound).mp3) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
+| Elephant | “Elephant voice - trumpeting” by **தகவலுழவன் (Info-farmer)** | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Elephant_voice_-_trumpeting.ogg) | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) |
 
 ## Modifications
 
@@ -38,8 +39,9 @@ bunny  e3376d4e22b07cc21a8b17a88ee2142c12ff925049af86fa3b86dc1d2fa05c7a
 fox    f12c1296907e92c3c7fc7c6f95207773163970b0f45e4445b4119228f0375f46
 panda  7b60b528d8fba930e0a47adf10038f4c03d81f294d5a864109f792fb6858abc8
 bird   c02c16b669322e3f0c35050a8a654c1ebc6ca31d3569e3069c4ccbc37efdc84e
+elephant e5f3120e5eaca87cc080bbf57bd185c96d52fd0f63cc1dfe33228c8bfa29f3bc
 ```
 
 Use `tools/process_real_animal_sounds.py` after decoding those sources to mono,
 16-bit, 44.1 kHz PCM WAV files named `cat.wav`, `dog.wav`, `bunny.wav`,
-`fox.wav`, `panda.wav`, and `bird.wav`.
+`fox.wav`, `panda.wav`, `bird.wav`, and `elephant.wav`.

@@ -80,6 +80,7 @@ class SoundService with WidgetsBindingObserver {
     'pet_fox': 'pet_fox.wav',
     'pet_panda': 'pet_panda.wav',
     'pet_bird': 'pet_bird.wav',
+    'pet_elephant': 'pet_elephant.wav',
   };
 
   void setSoundEnabled(bool enabled) {

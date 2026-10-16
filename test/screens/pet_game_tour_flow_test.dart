@@ -13,7 +13,7 @@ import 'package:zona_pets/widgets/game_tutorial_overlay.dart';
 import 'package:zona_pets/widgets/whats_new_dialog.dart';
 
 const _tutorialPreferenceKey = 'zonaPetsGameTutorialRevision';
-const _tutorialRevision = 2;
+const _tutorialRevision = 3;
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

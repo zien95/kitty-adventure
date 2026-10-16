@@ -15,7 +15,7 @@ import '../widgets/notification_bell.dart';
 // Pet care game changelog
 final List<Map<String, String>> _petCareChangelog = [
   {
-    'version': 'v26.9.1 - Happy Paws & Sound',
+    'version': 'v26.10.0 - Third-Person Pet World',
     'features': '''
 🎵 SOUND THEMES: Cute voices, cozy chimes, and arcade jingles
 🎚️ AUDIO CONTROLS: Effects volume, music volume, and track selection

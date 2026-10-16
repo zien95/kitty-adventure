@@ -68,7 +68,15 @@ void main() {
   test('every pet voice uses its real-animal asset in every sound pack',
       () async {
     sounds.setMusicEnabled(false);
-    const species = ['cat', 'dog', 'bunny', 'fox', 'panda', 'bird'];
+    const species = [
+      'cat',
+      'dog',
+      'bunny',
+      'fox',
+      'panda',
+      'bird',
+      'elephant',
+    ];
     for (final pack in ['classic', 'cute', 'soft', 'arcade']) {
       sounds.setSoundPack(pack);
       for (final animal in species) {

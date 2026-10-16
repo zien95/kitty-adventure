@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum PetType { cat, dog, bunny, fox, panda, bird }
+enum PetType { cat, dog, bunny, fox, panda, bird, elephant }
 
 enum PetPersonality { playful, lazy, curious, shy, energetic, calm }
 
@@ -23,6 +23,8 @@ extension PetTypeExtension on PetType {
         return '🐼';
       case PetType.bird:
         return '🐦';
+      case PetType.elephant:
+        return '🐘';
     }
   }
 
@@ -40,6 +42,8 @@ extension PetTypeExtension on PetType {
         return 'Panda';
       case PetType.bird:
         return 'Bird';
+      case PetType.elephant:
+        return 'Elephant';
     }
   }
 
@@ -57,6 +61,8 @@ extension PetTypeExtension on PetType {
         return const Color(0xFF8EA7FF);
       case PetType.bird:
         return const Color(0xFF70B8FF);
+      case PetType.elephant:
+        return const Color(0xFF8FA9C7);
     }
   }
 }

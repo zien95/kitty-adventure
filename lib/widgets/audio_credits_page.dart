@@ -73,6 +73,15 @@ const animalSoundCredits = <AnimalSoundCredit>[
     sourceUrl:
         'https://commons.wikimedia.org/wiki/File:Bird_chirp_2_(Gravity_Sound).mp3',
   ),
+  AnimalSoundCredit(
+    species: 'Elephant',
+    recording: 'Elephant voice - trumpeting',
+    creator: 'தகவலுழவன் (Info-farmer)',
+    license: 'CC0 1.0',
+    licenseUrl: 'https://creativecommons.org/publicdomain/zero/1.0/',
+    sourceUrl:
+        'https://commons.wikimedia.org/wiki/File:Elephant_voice_-_trumpeting.ogg',
+  ),
 ];
 
 class AnimalSoundCreditsPage extends StatelessWidget {

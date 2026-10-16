@@ -6,7 +6,7 @@ void main() {
   testWidgets('lists every real animal recording and license', (tester) async {
     expect(
       animalSoundCredits.map((credit) => credit.species),
-      ['Cat', 'Dog', 'Bunny', 'Fox', 'Panda', 'Bird'],
+      ['Cat', 'Dog', 'Bunny', 'Fox', 'Panda', 'Bird', 'Elephant'],
     );
     expect(
       animalSoundCredits.map((credit) => credit.license),
@@ -17,6 +17,7 @@ void main() {
         'CC BY-SA 4.0',
         'Public domain',
         'CC BY 4.0',
+        'CC0 1.0',
       ],
     );
 

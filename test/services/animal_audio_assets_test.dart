@@ -5,7 +5,15 @@ import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  const species = ['cat', 'dog', 'bunny', 'fox', 'panda', 'bird'];
+  const species = [
+    'cat',
+    'dog',
+    'bunny',
+    'fox',
+    'panda',
+    'bird',
+    'elephant',
+  ];
   const folders = [
     'assets/sounds',
     'assets/sounds/cute',

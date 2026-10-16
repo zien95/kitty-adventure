@@ -1,68 +1,63 @@
-# Pet Fiasco v26.9.1 release status
+# Pet Fiasco v26.10.0 release status
 
-Checked 2026-10-15. **Published and deployed with macOS pending.** The v26.9.1
-release source is committed separately from preserved unrelated local changes.
+Checked 2026-10-16. **Feature-complete and packaged locally; publication is
+blocked by macOS distribution signing.** The live sites and public updater remain
+on v26.9.1 so they do not advertise download URLs that are not available yet.
 
 ## Implemented and verified
 
-- Rebrand and planned web address: https://pet-fiasco.web.app.
-- Firebase email/password accounts and owner-only Firestore cloud saves.
-- Pet days, age, evolution, care journal, more frequent sounds, three sound
-  themes, and licensed real animal calls with in-game creator/license credits.
-- Anniversary banner and gift code removed; adoption birthdays remain separate.
-- Hub → Egg Nest: choose a species, wait through a saved two-minute countdown,
-  then hatch and adopt a new pet. Restart persistence and duplicate-hatch protection verified.
-- First-run ten-step tutorial, completion persistence, and Settings → How to Play replay verified.
-- Flutter tests: **43 passed** on the real-audio refresh.
-- Live Firebase registration, sign-in, save/restore, anonymous denial, and cross-account
-  denial passed. Disposable test accounts and saves removed (`build/qa/firebase-final.log`).
-- Static analysis: no errors; two redundant-null-assertion warnings and style notices remain.
-- APK signature, IPA ZIP integrity, web ZIP integrity, and DMG checksums verified.
-- GitHub release published with checksum-verified APK, Sideloadly IPA, and web
-  ZIP; all three were refreshed from commit `82ca60aa16e633204c4623c495ed08e3ec6fa40a`.
-- Both Firebase sites deployed and their public manifests verified byte-for-byte.
+- Third-person pet yard with real X/Y/Z simulation, visible coordinates, camera
+  rotation, desktop keyboard controls, and mobile joystick/action controls.
+- Pets can approach the food bowl and jump onto it to eat; birds can fly up and
+  down and the camera follows their altitude.
+- Generated character art for cat, dog, bunny, fox, panda, bird, and elephant,
+  with five age stages and eight mood expressions.
+- Elephant adoption, Gentle Giant Grove habitat, Animal Almanac entry, Pet
+  Parade support, and real CC0 elephant call with in-app attribution.
+- Pet Parade, Animal Almanac, sound credits/packs, daily streak, first-run tour,
+  and Settings -> How to Play replay were exercised in the release web build.
+- Flutter tests: **49 passed**.
+- APK, IPA, web ZIP, app signature, and DMG integrity checks passed.
 
 ## Local packages
 
-In `build/releases/v26.9.1/`:
+In `build/releases/v26.10.0/`:
 
-- `pet-fiasco-v26.9.1.apk` — version 26.9.1 / 26901; original Android signing certificate retained.
-- `pet-fiasco-Sideloadly-v26.9.1.ipa` — unsigned, for signing with Sideloadly.
-- `pet-fiasco-web-v26.9.1.zip` — includes the repaired Xenix download helper.
-- `pet-fiasco-macos-v26.9.1-LOCAL-PREVIEW.dmg` — Intel and Apple Silicon;
+- `pet-fiasco-v26.10.0.apk` — 26.10.0 / 261000.
+- `pet-fiasco-Sideloadly-v26.10.0.ipa` — unsigned, for signing with Sideloadly.
+- `pet-fiasco-web-v26.10.0.zip` — release-mode Firebase Hosting bundle.
+- `pet-fiasco-macos-v26.10.0-arm64-LOCAL-PREVIEW.dmg` — Apple Silicon,
   development-signed, **not a public distribution build**.
 
-Current public SHA-256 checksums:
+SHA-256 checksums:
 
-- APK: `6eb8c9b823d9914b996f3803799fb141f61f304c18ab412a948b5f03d7ab903d`
-- Sideloadly IPA: `479bbf6e86fb7156e1aa1a25f24751750a0830384a034295569e9bb435f82835`
-- Web ZIP: `090c0d0d0cd9705608bc281bd93da9352ec10684675b71d21bf9e6bb988e758c`
+- APK: `782c501d79add2a24dbc492c70f554486bfc2c2a215924639bef796b4bc3222d`
+- Sideloadly IPA: `c48178c274427e0ac7f181ea32d7f6947f456b819ca57e47801e5d70299c3098`
+- Web ZIP: `a1c064761be3e45053a3f57df051bfcd0ae3a46fa7a401e7b780aca9590849e6`
+- macOS local preview: `0d1dd76d5bd7159a791f518a075f438ffe02992237df0d5439f03b6f99e09bc0`
 
-## Remaining macOS publication blocker
+## Publication blocker
 
-Automatic Developer ID export failed for Lina Ahmed team `9JZ8BU782J`:
+The keychain has an `Apple Development` identity for team `9JZ8BU782J`, but no
+`Developer ID Application` identity and private key. The development profile is
+restricted to this registered Mac, so its DMG cannot be the public macOS release
+asset. The verified-release publisher correctly rejects it.
 
-> The selected team does not have a program membership that is eligible for this feature.
+User action required: sign in to Xcode with a team enrolled in the Apple
+Developer Program that is eligible for Developer ID distribution, then create or
+install a `Developer ID Application` certificate with its private key. Rebuild a
+Developer ID-signed (preferably universal) DMG, notarize it, and verify that
+public download before publishing.
 
-> No signing certificate "Developer ID Application" found
+## Held publication steps
 
-See `build/qa/macos-export.log`. The installed identity is Apple Development for
-`lina.asem@hotmail.com`. The current embedded development profile is restricted to
-one registered device and expires **2026-10-22 08:55:34 UTC**.
+No v26.10.0 GitHub release was published, no v26.10.0 `latest.json` was deployed,
+and neither Firebase Hosting site was updated. After the Mac gate is cleared:
 
-User action required: sign into Xcode with an eligible Apple Developer Program team
-and provide/create a Developer ID Application certificate with its private key.
-Enrollment, payment, and account approval were not performed.
-
-## Remaining macOS gate
-
-1. Export the existing `PetFiasco.xcarchive` using `tools/macos_export.plist` under
-   an eligible team, then package a public Developer ID-signed DMG.
-2. Add that DMG to the existing v26.9.1 release and restore the direct macOS
-   download URL after verifying its public checksum.
-
-Live release: https://github.com/zien95/kitty-adventure/releases/tag/v26.9.1
-
-Live sites: https://pet-fiasco.web.app and https://kitty-adventure-zona.web.app.
-The macOS manifest link currently opens the release status page instead of a missing
-DMG. Firebase Auth configuration and owner-only Firestore rules are configured.
+1. Build and verify the public Mac DMG.
+2. Update both manifests and the download page with the four exact asset names.
+3. Commit the reviewed release source and manifests.
+4. Upload a draft GitHub release; compare remote sizes and SHA-256 digests.
+5. Publish only after all four public download URLs pass checksum verification.
+6. Deploy both Firebase Hosting sites, then re-fetch each live manifest, download
+   page, and compiled application script.

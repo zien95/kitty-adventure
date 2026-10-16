@@ -11,7 +11,9 @@ Pet Fiasco is a virtual pet game where you adopt cute animals, care for them, pl
 ## Features
 
 - Adopt and manage multiple pets in the Pet Manager Center.
-- Choose cats, dogs, bunnies, foxes, pandas, and birds.
+- Choose cats, dogs, bunnies, foxes, pandas, birds, and elephants.
+- Explore a third-person garden with visible X/Y/Z coordinates on PC or mobile.
+- Walk or fly to the food bowl, then jump onto it to eat.
 - Edit pet profiles with type, personality, favorite food, favorite toy, and bio.
 - Care for stats like Health, Hunger, Happy, Energy, Clean, IQ, SOC, Bond, Sleep, and Level.
 - Play mini-games including Racing, Puzzle, Puzzle Master, Quiz, Rhythm, Memory, and more.
@@ -25,18 +27,14 @@ Pet Fiasco is a virtual pet game where you adopt cute animals, care for them, pl
 
 ## Latest
 
-Version `26.9.1` is the Pet Fiasco update:
+Version `26.10.0` is the Third-Person Pet World update:
 
-- Rebranded to Pet Fiasco at https://pet-fiasco.web.app.
-- Added Firebase email/password accounts and private Firestore cloud saves in Settings.
-- Added pet day counters, age in days, and a five-stage evolution journey.
-- Pets evolve at ages 1, 3, 7, and 30 days, or levels 10, 20, 35, and 50.
-
-- Added 57 original effects across Cute, Cozy, and Arcade sound themes.
-- Added care sounds, pet voices, rewards, and navigation feedback throughout the game.
-- Added effects/music volume controls, six music tracks, and mood-based music.
-- Added the Care Journal with daily checklists, varied-care combos, and pet birthdays.
-- Added care reaction bubbles and fixed tutorial startup and small-screen layouts.
+- Added a perspective 3D-style garden with real X/Y/Z simulation and camera orbit.
+- Added WASD/arrow/Space/E controls plus a mobile joystick and action buttons.
+- Birds can fly vertically; every pet can approach and jump onto the bowl to eat.
+- Added generated age- and mood-specific character artwork.
+- Added elephants with a habitat bonus and a licensed real trumpet sound.
+- Refreshed the first-run tour and Settings replay instructions.
 
 Also includes the Pet Parade update:
 
@@ -61,6 +59,8 @@ Also includes the Pet Parade update:
 - Open **Hub → Almanac** to see animal habitat boosts.
 - Open **Hub → Pet Parade** to watch your pets march.
 - Use **Manage** to adopt, rename, switch, and profile your pets.
+- In the garden, use **WASD** to move, **arrow keys** or drag to orbit, **Space**
+  to jump/fly up, **Shift/Q** to fly down, and **E** to act near the bowl.
 
 ## Run Locally
 

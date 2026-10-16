@@ -1,7 +1,7 @@
 """Trim and normalize licensed real-animal recordings for Pet Fiasco.
 
 Inputs must already be mono, 16-bit, 44.1 kHz PCM WAV files named after the
-six species. Source downloads and licenses are documented in
+seven species. Source downloads and licenses are documented in
 THIRD_PARTY_AUDIO.md; this script deliberately does not download mutable URLs.
 """
 
@@ -21,6 +21,7 @@ TARGET_SECONDS = {
     "fox": 1.60,
     "panda": 1.80,
     "bird": 1.05,
+    "elephant": 1.40,
 }
 THEMES = ("cute", "soft", "arcade")
 
@@ -100,9 +101,18 @@ def main() -> None:
         type=Path,
         default=Path(__file__).resolve().parents[1] / "assets" / "sounds",
     )
+    parser.add_argument(
+        "--species",
+        action="append",
+        choices=tuple(TARGET_SECONDS),
+        help="Process only this species; repeat to select more than one.",
+    )
     args = parser.parse_args()
 
+    selected_species = set(args.species or TARGET_SECONDS)
     for species, duration in TARGET_SECONDS.items():
+        if species not in selected_species:
+            continue
         source = args.source_dir / f"{species}.wav"
         start, selected = loudest_window(read_mono_pcm(source), duration)
         clip = finish_clip(selected)

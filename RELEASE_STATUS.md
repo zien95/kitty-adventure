@@ -1,5 +1,24 @@
 # Pet Fiasco v26.10.0 release status
 
+## Final result — published and deployed 2026-10-16
+
+- Release: https://github.com/zien95/kitty-adventure/releases/tag/v26.10.0
+- All four GitHub assets matched local sizes and SHA-256 digests, then each
+  public download was downloaded again and checksum-verified.
+- Both Firebase Hosting sites were deployed. Live manifests, all four download
+  links, version 26.10.0 / 261000, and byte-identical application JavaScript were
+  verified at pet-fiasco.web.app, kitty-adventure-zona.web.app, and
+  kitty-adventure-zona.firebaseapp.com.
+- macOS is Apple Silicon only, ad-hoc signed and unnotarized as requested.
+  It launched locally. Authentication persistence after removing team-bound
+  keychain entitlements has not been independently exercised on another Mac.
+- Current web ZIP SHA-256: `d32baabe86949b62b52b61ce3c3ba4b3f1e19f438f5d6d3abeca270c02c6ee26`.
+- Current ad-hoc DMG SHA-256: `a3138029735b2d0c235d6ec93d7b36c2da143a7a2caba1e761bf18c2f6bdecb8`.
+- APK and IPA checksums below are unchanged. Flutter suite: 49 tests passed.
+- Release source: `5845794c`. Unrelated dirty files remain preserved.
+
+Earlier checkpoints below are retained as history and superseded by this result.
+
 ## Ad-hoc release authorization — 2026-10-16
 
 The user explicitly authorized ad-hoc macOS distribution, superseding the

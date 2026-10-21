@@ -13,7 +13,7 @@ Pet Fiasco is a virtual pet game where you adopt cute animals, care for them, pl
 - Adopt and manage multiple pets in the Pet Manager Center.
 - Choose cats, dogs, bunnies, foxes, pandas, birds, and elephants.
 - Explore a third-person garden with visible X/Y/Z coordinates on PC or mobile.
-- Walk or fly to the food bowl, then jump onto it to eat.
+- Walk into the food bowl to eat, or jump and fly onto it.
 - Edit pet profiles with type, personality, favorite food, favorite toy, and bio.
 - Care for stats like Health, Hunger, Happy, Energy, Clean, IQ, SOC, Bond, Sleep, and Level.
 - Play mini-games including Racing, Puzzle, Puzzle Master, Quiz, Rhythm, Memory, and more.
@@ -27,11 +27,25 @@ Pet Fiasco is a virtual pet game where you adopt cute animals, care for them, pl
 
 ## Latest
 
-Version `26.10.0` is the Third-Person Pet World update:
+Version `26.11.0` is **Exploration Update: Part 1**:
+
+- Expanded the pet world to 72 by 90 world units with faster traversal.
+- Added real illustrated destinations: Happy Paws Vet, Dreamy Bed, Toy Yard,
+  Game Station, Duck Pond, Pet Cottage, Climbing Tree, Play Park, and Flower Garden.
+- Press **E** on PC or **Action/Enter** on mobile near a destination to use it.
+- Connected destinations to real care actions: healing, sleep, play, clean, train,
+  bond, and the mini-games hub.
+- Shows the pet family together; the selected pet is larger and tapping another
+  pet switches control to it without resetting the exploration position.
+- Kept nearby scenery anchored while the pet visibly walks through the world.
+- Added the mobile-only Tauri shell for Android and iPadOS; it requires internet,
+  loads hosted game updates automatically, and hides the web download button.
+
+Also includes the `26.10.0` Third-Person Pet World update:
 
 - Added a perspective 3D-style garden with real X/Y/Z simulation and camera orbit.
 - Added WASD/arrow/Space/E controls plus a mobile joystick and action buttons.
-- Birds can fly vertically; every pet can approach and jump onto the bowl to eat.
+- Birds can fly vertically; ground pets can walk into the bowl, and every pet can jump or land on it to eat.
 - Added generated age- and mood-specific character artwork.
 - Added elephants with a habitat bonus and a licensed real trumpet sound.
 - Refreshed the first-run tour and Settings replay instructions.
@@ -59,8 +73,8 @@ Also includes the Pet Parade update:
 - Open **Hub → Almanac** to see animal habitat boosts.
 - Open **Hub → Pet Parade** to watch your pets march.
 - Use **Manage** to adopt, rename, switch, and profile your pets.
-- In the garden, use **WASD** to move, **arrow keys** or drag to orbit, **Space**
-  to jump/fly up, **Shift/Q** to fly down, and **E** to act near the bowl.
+- In the world, use **WASD** to move, **arrow keys** or drag to orbit, **Space**
+  to jump/fly up, **Shift/Q** to fly down, and **E** to enter or act at a nearby place.
 
 ## Run Locally
 

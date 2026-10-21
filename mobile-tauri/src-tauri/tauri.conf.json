@@ -1,0 +1,33 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Pet Fiasco",
+  "version": "26.11.0",
+  "identifier": "com.zocle.petfiasco",
+  "build": {
+    "frontendDist": "https://pet-fiasco.web.app/?tauri-mobile=1"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Pet Fiasco",
+        "fullscreen": false,
+        "resizable": true,
+        "userAgent": "PetFiascoTauriMobile/26.11.0"
+      }
+    ],
+    "security": {
+      "capabilities": []
+    },
+    "withGlobalTauri": false
+  },
+  "bundle": {
+    "active": true,
+    "android": {
+      "versionCode": 261100
+    },
+    "iOS": {
+      "bundleVersion": "261100"
+    }
+  }
+}

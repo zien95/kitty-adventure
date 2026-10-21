@@ -140,7 +140,7 @@ class SideloadingService {
       final analyticsData = {
         'app_name': 'ZonaPets',
         'version': _currentVersion,
-        'build': '261000',
+        'build': '261100',
         'platform': Platform.operatingSystem,
         'device_id': deviceId,
         'install_source': await getInstallationSource(),

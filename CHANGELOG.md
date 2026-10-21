@@ -1,5 +1,13 @@
 # Changelog
 
+## v26.11.0 - Exploration Update: Part 1 (2026-10-21)
+
+- Expanded the explorable pet world to 72 by 90 world units.
+- Added nine illustrated destinations with real E/Action interactions.
+- Added visible companion pets; tap one to make it the larger selected pet.
+- Made walking into the bowl trigger eating while keeping jumping and bird flight.
+- Added Android and iPhone/iPad mobile-only Tauri shells that load the hosted game.
+
 ## v26.10.0 - Third-Person Pet World (2026-10-16)
 
 - Turned the garden into a third-person perspective play space with visible X,

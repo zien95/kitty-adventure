@@ -36,15 +36,28 @@ class WhatsNewDialog extends StatelessWidget {
                   Icon(Icons.celebration, color: Colors.white),
                   SizedBox(width: 8),
                   Flexible(
-                      child: Text(
-                    'WHAT\'S NEW v${UpdateService.currentVersion}',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                    child: Column(
+                      children: [
+                        Text(
+                          'WHAT\'S NEW v${UpdateService.currentVersion}',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        Text(
+                          'EXPLORATION UPDATE • PART 1',
+                          style: TextStyle(
+                            color: Color(0xFFFFD45E),
+                            fontSize: 11,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ],
                     ),
-                    textAlign: TextAlign.center,
-                  )),
+                  ),
                 ],
               ),
             ),
@@ -57,46 +70,40 @@ class WhatsNewDialog extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildNewFeature(
-                      Icons.threed_rotation,
-                      'THIRD-PERSON PET WORLD',
-                      'Walk around the garden in real X, Y, and Z space. Orbit the camera and follow the live coordinate display.',
+                      Icons.map,
+                      'A MUCH BIGGER WORLD',
+                      'Explore a 72 by 90 unit world with faster movement, a live minimap, and room for future Exploration updates.',
                       const Color(0xFF5AA9E6),
                     ),
                     _buildNewFeature(
-                      Icons.sports_esports,
-                      'PC & MOBILE CONTROLS',
-                      'Use WASD, arrows, Space, Q or Shift, and E on PC. On mobile, use the joystick and action buttons.',
-                      const Color(0xFF8A68D6),
+                      Icons.location_city,
+                      'PLACES THAT LOOK LIKE PLACES',
+                      'Visit an illustrated vet clinic, pet bed, toy yard, arcade station, cottage, pond, climbing tree, park, and flower garden.',
+                      const Color(0xFF62C9D2),
                     ),
                     _buildNewFeature(
-                      Icons.restaurant,
-                      'JUMP ON THE BOWL TO EAT',
-                      'Approach the food bowl, then jump or fly onto it. Landing triggers the normal feeding action and rewards.',
+                      Icons.touch_app,
+                      'ENTER & ACTION NOW WORK',
+                      'Press E on PC or the changing Action button on mobile. Places now trigger healing, sleep, play, cleaning, training, bonding, and games.',
                       const Color(0xFFFFA33C),
                     ),
                     _buildNewFeature(
-                      Icons.flight,
-                      'BIRDS CAN FLY',
-                      'Birds can take off, climb, swoop through the yard, descend, and land. Their Y coordinate tracks altitude.',
+                      Icons.pets,
+                      'THE PET MOVES—NOT THE FURNITURE',
+                      'The pet visibly crosses the nearby world. The camera waits until the pet reaches the view edge before following.',
                       const Color(0xFF66C58D),
                     ),
                     _buildNewFeature(
-                      Icons.auto_awesome,
-                      'AGE & MOOD ART',
-                      'Every species now has generated character art for five life stages and eight mood expressions.',
+                      Icons.groups,
+                      'EXPLORE WITH THE PET FAMILY',
+                      'Your other pets appear as smaller companions. Tap a companion to make it the larger selected pet without losing your place in the world.',
                       const Color(0xFFFF76B7),
                     ),
                     _buildNewFeature(
-                      Icons.pets,
-                      'ELEPHANTS ARRIVE',
-                      'Adopt an elephant, grow from calf to elder, explore Gentle Giant Grove, and hear a real CC0 trumpet.',
-                      const Color(0xFF8FA9C7),
-                    ),
-                    _buildNewFeature(
-                      Icons.graphic_eq,
-                      'REAL ANIMAL SOUND CREDITS',
-                      'The credits page now includes the elephant source and Creative Commons license alongside every other animal.',
-                      const Color(0xFF66C58D),
+                      Icons.phone_iphone,
+                      'MOBILE-ONLY TAURI SHELL',
+                      'Android and iPadOS open the hosted game in Tauri, receive hosted updates automatically, and hide the download button.',
+                      const Color(0xFFB88CFF),
                     ),
                   ],
                 ),
@@ -123,7 +130,7 @@ class WhatsNewDialog extends StatelessWidget {
                       SizedBox(width: 6),
                       Flexible(
                         child: Text(
-                          'Version ${UpdateService.currentVersion}: a third-person world with elephants, flight, age, and mood art',
+                          'Exploration Update: Part 1 • Version ${UpdateService.currentVersion}',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 16,

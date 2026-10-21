@@ -44,4 +44,63 @@ void main() {
     expect(world.step(dt: 0.05), contains(PetWorldEvent.ateFood));
     expect(world.step(dt: 0.05), isNot(contains(PetWorldEvent.ateFood)));
   });
+
+  test('walking a ground pet into the bowl steps up and eats', () {
+    final world = PetWorldSimulation(
+      canFly: false,
+      x: PetWorldSimulation.foodX,
+      z: PetWorldSimulation.foodZ - 1.1,
+    );
+
+    final events = <PetWorldEvent>{};
+    for (var index = 0; index < 4; index++) {
+      events.addAll(world.step(dt: 0.05, forward: 1));
+    }
+
+    expect(world.onFoodBowl, isTrue);
+    expect(world.y, PetWorldSimulation.foodBowlHeight);
+    expect(events, contains(PetWorldEvent.ateFood));
+  });
+
+  test('expanded yard contains every exploration landmark', () {
+    expect(
+      PetWorldSimulation.maxX - PetWorldSimulation.minX,
+      greaterThanOrEqualTo(72),
+    );
+    expect(
+      PetWorldSimulation.maxZ - PetWorldSimulation.minZ,
+      greaterThanOrEqualTo(90),
+    );
+    expect(PetWorldSimulation.landmarks, hasLength(greaterThanOrEqualTo(9)));
+
+    for (final landmark in PetWorldSimulation.landmarks) {
+      expect(
+          landmark.x,
+          inInclusiveRange(
+            PetWorldSimulation.minX,
+            PetWorldSimulation.maxX,
+          ));
+      expect(
+          landmark.z,
+          inInclusiveRange(
+            PetWorldSimulation.minZ,
+            PetWorldSimulation.maxZ,
+          ));
+    }
+  });
+
+  test('every place can be used with the action command', () {
+    for (final landmark in PetWorldSimulation.landmarks) {
+      final world = PetWorldSimulation(
+        canFly: false,
+        x: landmark.x,
+        z: landmark.z,
+      );
+
+      final result = world.performAction();
+      expect(result, isNotNull, reason: landmark.label);
+      expect(result!.landmark, same(landmark), reason: landmark.label);
+      expect(result.isFoodBowl, isFalse, reason: landmark.label);
+    }
+  });
 }

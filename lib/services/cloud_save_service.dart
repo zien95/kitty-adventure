@@ -230,7 +230,7 @@ class CloudSaveService extends ChangeNotifier {
           'payload': payload,
           'revision': current + 1,
           'updatedAt': FieldValue.serverTimestamp(),
-          'appVersion': '26.10.0',
+          'appVersion': '26.11.0',
         });
         return current + 1;
       }).timeout(const Duration(seconds: 25));

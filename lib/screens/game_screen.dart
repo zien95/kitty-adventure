@@ -15,6 +15,17 @@ import '../widgets/notification_bell.dart';
 // Pet care game changelog
 final List<Map<String, String>> _petCareChangelog = [
   {
+    'version': 'v26.11.0 - Exploration Update: Part 1',
+    'features': '''
+🗺️ BIGGER WORLD: Explore a 72 by 90 unit pet world
+🏥 REAL PLACES: Visit the vet, bed, toy yard, game station, pond, cottage, tree, park, and garden
+👆 ENTER & ACTION: Use E or the mobile Action button at every destination
+🐈 TRUE MOVEMENT: The pet crosses the world while nearby places stay anchored
+🐾 PET FAMILY: Other pets join the world; tap one to make it the larger selected pet
+📱 MOBILE SHELL: Android and iPadOS use the mobile-only Tauri web shell
+    ''',
+  },
+  {
     'version': 'v26.10.0 - Third-Person Pet World',
     'features': '''
 🎵 SOUND THEMES: Cute voices, cozy chimes, and arcade jingles

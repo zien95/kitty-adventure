@@ -1,0 +1,15 @@
+[package]
+name = "pet-fiasco-mobile"
+version = "26.11.0"
+description = "Mobile-only Tauri shell for Pet Fiasco"
+edition = "2021"
+
+[lib]
+name = "pet_fiasco_mobile_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }

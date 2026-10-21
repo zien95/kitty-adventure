@@ -295,7 +295,7 @@ class _PetGameScreenState extends State<PetGameScreen>
           accentColor: const Color(0xFFFF76B7),
           title: 'Meet Your Pet',
           description:
-              'Explore the garden in third person with real X, Y, and Z movement. Walk or fly to the food bowl, jump onto it to eat, and watch your pet change with age and mood.',
+              'Explore the big garden in third person with real X, Y, and Z movement. Walk into the food bowl to eat, or jump and fly onto it, then visit the landmarks on your minimap.',
           clickHint:
               'PC: WASD, arrows, Space, Q/Shift, and E. Mobile: joystick and action buttons. Drag the garden to orbit the camera.',
         ),
@@ -2319,7 +2319,8 @@ class _PetGameScreenState extends State<PetGameScreen>
         padding: const EdgeInsets.fromLTRB(14, 0, 14, 8),
         children: [
           _buildManageCatsChip(),
-          if (kIsWeb) _buildDownloadsChip(),
+          if (kIsWeb && !UpdateService.isTauriMobileShell)
+            _buildDownloadsChip(),
           for (int i = 0; i < cats.length; i++)
             _buildCatChip(cats[i], i, i == _selectedCatIndex),
           _buildAdoptCatChip(),
@@ -3945,6 +3946,18 @@ class _PetGameScreenState extends State<PetGameScreen>
       key: _tutorialPetKey,
       child: ThirdPersonPetWorld(
         pet: pet,
+        companionPets: _cats,
+        onSelectPet: (selectedPet) {
+          var index = _cats.indexWhere((candidate) => identical(
+                candidate,
+                selectedPet,
+              ));
+          if (index < 0 && selectedPet.id.isNotEmpty) {
+            index =
+                _cats.indexWhere((candidate) => candidate.id == selectedPet.id);
+          }
+          if (index >= 0) _selectCat(index);
+        },
         petAgeAsset: _petAgeAssets[pet.type]!,
         petMoodAsset: _petMoodAssets[pet.type]!,
         moodAtlasRows: _fiveRowMoodAtlases.contains(pet.type) ? 5 : 1,
@@ -3952,6 +3965,13 @@ class _PetGameScreenState extends State<PetGameScreen>
         reactionMessage: _petReactionMessage,
         accessoryEmoji: _outfitEmojiById(pet.currentAccessory),
         onEat: _feedPet,
+        onClean: _cleanPet,
+        onRest: _sleepPet,
+        onPlay: _playWithPet,
+        onTrain: _trainPet,
+        onBond: _bondWithPet,
+        onVet: _giveMedicine,
+        onOpenGames: () => _showMiniGames(context),
         onPetTap: _animatePet,
         onPetSecret: () => _showEasterEgg('cat'),
       ),

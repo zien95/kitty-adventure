@@ -79,7 +79,8 @@ def main():
     source_paths = ['lib', 'assets', 'pubspec.yaml', 'pubspec.lock', 'README.md',
                     'web', 'updates', 'ios', 'macos', 'android/app/src',
                     'android/app/build.gradle.kts', 'android/settings.gradle.kts',
-                    'android/app/google-services.json', 'firebase.json', 'firestore.rules']
+                    'android/app/google-services.json', 'firebase.json', 'firestore.rules',
+                    'mobile-tauri', 'test', 'tools', 'CHANGELOG.md', 'RELEASE_STATUS.md']
     dirty = subprocess.check_output(['git', 'status', '--porcelain', '--', *source_paths], text=True)
     if dirty:
         raise RuntimeError('Release source is uncommitted. Commit the reviewed release files before creating the GitHub tag.')
@@ -97,10 +98,11 @@ def main():
     if release and release['target_commitish'] != commit:
         raise RuntimeError('Existing draft points to a different source commit.')
     if not release:
-        body = ('Pet Fiasco is here: accounts, cloud saves, pet days, age and evolution, '
-                '57 original sound effects, mood music, care journal, combos, birthdays, '
-                'Pet Parade, Almanac, habitat boosts, and the guided first-run tour.\n\n'
-                'The IPA is unsigned for signing with Sideloadly. The macOS app is '
+        body = ('Exploration Update: Part 1 expands the pet world with nine interactive '
+                'destinations, functional Enter/Action controls, and a visible pet family '
+                'where companions can be tapped to take control.\n\n'
+                'The Android APK and unsigned Sideloadly IPA are mobile-only Tauri shells '
+                'that require internet and load the hosted game. The macOS app is '
                 'ad-hoc signed for Apple Silicon (arm64), without notarization. macOS may require explicit approval in Privacy & Security.\n\n'
                 f'Source: `{commit}`. Every asset was verified before publication.')
         release = curl(API + '/releases', token=token, method='POST', data={

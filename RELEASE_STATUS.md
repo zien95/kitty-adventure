@@ -1,4 +1,38 @@
-# Pet Fiasco v26.10.0 release status
+# Pet Fiasco v26.11.0 release status
+
+## Release candidate — verified 2026-10-21
+
+- Codename: **Exploration Update: Part 1**.
+- Flutter tests: **57 passed**. Focused exploration/mobile-shell analyzer: no issues.
+- Web release bundle contains version `26.11.0` / build `261100`, the new
+  exploration content, the Tauri mobile marker, and the updated download page.
+- Android APK is the online, mobile-only Tauri shell for arm64 Android. It is
+  signed with the same Android Debug certificate as v26.10.0, preserving direct
+  upgrade compatibility, and reports `26.11.0` / `261100`.
+- iPhone/iPad IPA is the online, mobile-only Tauri shell, supports both iPhone
+  and iPad device families, and is unsigned for installation with Sideloadly.
+- macOS is Apple Silicon only, ad-hoc signed and unnotarized under the prior
+  explicit authorization. It reports `26.11.0` / `261100`, launched locally,
+  and its DMG passed image and signature verification. macOS may require manual
+  approval in Privacy & Security. Cross-Mac authentication persistence remains
+  independently unverified.
+
+Artifacts in `build/releases/v26.11.0/`:
+
+- APK: `pet-fiasco-v26.11.0.apk` — SHA-256
+  `9880208a7c49ead911d8cac480d176e0101b19be26e6e3472bc9f3d66d8e74a3`
+- IPA: `pet-fiasco-Sideloadly-v26.11.0.ipa` — SHA-256
+  `de99712bf5a906b60d73a1be6c3fb604b11f3f7080d67320559eadfa23c433fd`
+- Web ZIP: `pet-fiasco-web-v26.11.0.zip` — SHA-256
+  `bdfca7762c2a36a30470cc962e76a189dbb7618bd4ba1c5be4cf7f8fa92f42fb`
+- macOS DMG: `pet-fiasco-macos-v26.11.0-arm64-ADHOC.dmg` — SHA-256
+  `edcb0e1e9e28964a8572e26c21215003527ea42d9bb4e2ce87aa1eee7eb189d6`
+
+Publication gate: commit and push the reviewed source, publish the four GitHub
+assets, re-download and checksum each URL, deploy both Firebase Hosting sites,
+then verify the live manifest, download page, and application JavaScript.
+
+## Previous release — v26.10.0
 
 ## Final result — published and deployed 2026-10-16
 

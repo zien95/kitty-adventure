@@ -21,7 +21,10 @@ class UpdateCheckResult {
 }
 
 class UpdateService {
-  static const String currentVersion = '26.10.0';
+  static const String currentVersion = '26.11.0';
+  static const String _tauriMobileQueryParameter = 'tauri-mobile';
+  static const String _tauriMobileStatusMessage =
+      'Game content updates automatically in the mobile app.';
   static const String _manifestUrlKey = 'kitty_update_manifest_url';
   static const String _lastSeenVersionKey = 'kitty_update_last_seen_version';
   static const String _pendingUpdateKey = 'kitty_pending_update';
@@ -52,6 +55,12 @@ class UpdateService {
   static String get publicServerIp => _zonaPublicServerIp.isNotEmpty
       ? _zonaPublicServerIp
       : _kittyPublicServerIp;
+
+  static bool get isTauriMobileShell => kIsWeb && isTauriMobileUrl(Uri.base);
+
+  @visibleForTesting
+  static bool isTauriMobileUrl(Uri uri) =>
+      uri.queryParameters[_tauriMobileQueryParameter] == '1';
 
   static Future<String> getManifestUrl() async {
     final prefs = await SharedPreferences.getInstance();
@@ -84,6 +93,18 @@ class UpdateService {
     BuildContext context, {
     bool showNoUpdateSnack = false,
   }) async {
+    if (isTauriMobileShell) {
+      const result = UpdateCheckResult(
+        checked: true,
+        updateAvailable: false,
+        message: _tauriMobileStatusMessage,
+      );
+      if (showNoUpdateSnack && context.mounted) {
+        _showSnack(context, result.message);
+      }
+      return result;
+    }
+
     final prefs = await SharedPreferences.getInstance();
     final savedManifestUrl = prefs.getString(_manifestUrlKey)?.trim();
     final manifestUrls = _manifestUrlCandidates(savedManifestUrl);
